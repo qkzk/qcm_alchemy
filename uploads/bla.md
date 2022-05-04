@@ -1,0 +1,4 @@
+- [x] Fait une text box avec une string temporaire
+- [ ] Crée le filtre avec la string
+- [ ] Applique le filtre sur iter resources
+- [x] Donne le nouveau iter à la vue

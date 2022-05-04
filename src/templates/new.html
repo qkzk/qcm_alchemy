@@ -1,0 +1,40 @@
+<html>
+
+<head>
+
+</head>
+
+<body>
+    <hr />
+
+    {%- for category, message in get_flashed_messages(with_categories = true) %}
+    <div class="alert alert-danger">
+        {{ message }}
+    </div>
+    {%- endfor %}
+
+    <h1>
+        Nouveau QCM
+    </h1>
+
+    <div>
+        <form action="{{ request.path }}" method="post" enctype=multipart/form-data>
+            <label for="source">Fichier source</label>
+            <input type="file" name="source" id="source">
+            <input type=submit value=Upload>
+        </form>
+    </div>
+
+    {% if data %}
+    <div>
+        {% for k, v in data.items() %}
+        <h1>
+            {{ k }} - {{ v }}
+        </h1>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+</body>
+
+</html>

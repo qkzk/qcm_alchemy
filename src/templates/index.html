@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head></head>
+
+<body>
+
+    <h3>
+        <a href="{{ url_for('marks') }}">Show all</a>
+    </h3>
+
+    <hr />
+    {%- for message in get_flashed_messages() %}
+    {{ message }}
+    {%- endfor %}
+
+    <h3>
+        <a href="{{ url_for('answer') }}">Answer </a>
+    </h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>QCM_ID</th>
+                <th>Address</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for mark in marks %}
+            <tr>
+                <td>{{ mark.name }}</td>
+                <td>{{ mark.qcm_id }}</td>
+                <td>{{ mark.answers }}</td>
+                <td>{{ mark.points }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+
+</html>
