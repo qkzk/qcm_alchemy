@@ -160,5 +160,5 @@ cython_debug/
 #.idea/
 
 # own
-./db/qcm.db
+*qcm.db
 
