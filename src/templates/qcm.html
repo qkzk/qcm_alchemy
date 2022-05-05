@@ -1,0 +1,50 @@
+<html lang="fr">
+
+<head>
+</head>
+
+<body>
+    <h1> {{ qcm.title }} </h1>
+    <form method="POST" action="{{ url_for('answers') }}">
+        {% for part in qcm.part %}
+        <h2>
+            {{ part.title }}
+        </h2>
+        <div>
+            {% for question in part.questions %}
+            <p>
+                {{ question.question }}
+            </p>
+            <p>
+                {{ question.sub_text }}
+            </p>
+            <div>
+                <div>
+                    {% for answer in question.answers %}
+                    <div>
+                        <input 
+                            type="radio"
+                            name="{{ question.id }}"
+                            value="{{ answer.id }}"
+                        >
+                        </input>
+                        <label for="{ question.id }">
+                            {{ answer.answer }} - {{ answer.is_valid }}
+                        </label>
+                        </li>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+        <div>
+            <button type="submit">
+                Envoyer
+            </button>
+        </div>
+    </form>
+</body>
+
+</html>
