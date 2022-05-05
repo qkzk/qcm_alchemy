@@ -62,4 +62,5 @@
 
 ## Steps
 
-- présenter un qcm
+- [x] présenter un qcm
+- [ ] enregistrer les réponses
