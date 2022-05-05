@@ -1,5 +1,5 @@
 from flask import request, flash, url_for, redirect, render_template
-from .model import app, db, Marks, QcmFile, QcmFileError, Qcm
+from .model import app, db, Marks, QcmFile
 from .parser import ParseQCM
 
 
@@ -36,12 +36,11 @@ def create_app():
         return render_template("qcms.html", qcms=Qcm.query.all())
 
     @app.route("/")
-    @app.route("/marks")
-    def marks():
+    def index():
         return render_template("index.html", marks=Marks.query.all())
 
-    @app.route("/answer", methods=["GET", "POST"])
-    def answer():
+    @app.route("/marks", methods=["GET", "POST"])
+    def marks():
         if request.method == "POST":
             if not Marks.validate(request.form):
                 flash("Vous devez remplir tous les champs.", "error")
@@ -51,7 +50,19 @@ def create_app():
                 db.session.commit()
                 flash("Réponses enregistrées.")
                 return redirect(url_for("marks"))
-        return render_template("answer.html")
+        return render_template("marks.html")
+
+    @app.route("/qcm/<id_qcm>")
+    def qcm_view(id_qcm):
+        qcm = Qcm.query.get(id_qcm)
+        print(qcm.format())
+        return render_template("qcm.html", qcm=qcm)
+
+    @app.route("/answers", methods=["POST"])
+    def answers():
+        print(request.form)
+        print(dir(request.form))
+        return "<h1>ok</h1>"
 
     db.create_all()
     return app

@@ -53,6 +53,18 @@ class Qcm(db.Model):
         except Exception as e:
             raise QcmPaserError(repr(e))
 
+    def format(self):
+        s = f"{self.id} - {self.title}"
+        for part in self.part:
+            s += f"\n   {part.title}"
+            for question in part.questions:
+                s += f"\n        {question.question}"
+                s += f"\n        {question.sub_text}"
+                for answer in question.answers:
+                    s += f"\n            {answer.answer}"
+                    s += f"\n            {answer.is_valid}"
+        return s
+
 
 class QcmPart(db.Model):
     __tablename__ = "qcm_part"
