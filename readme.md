@@ -36,6 +36,7 @@
 - [ ] télécharger un csv
 - [ ] nettoyer la bdd après l'envoi et régulièrement (RGPD)
 
+
 ## Mixing answers
 
 * shuffle les parts, questions, answers
@@ -45,3 +46,9 @@
 ## Steps
 
 - présenter un qcm
+
+### Caching
+
+- [ ] utiliser [flask caching](https://flask-caching.readthedocs.io/en/latest/)
+- [ ] stratégie : quand on veut accéder à un QCM, le cacher après l'avoir retrieve, le drop si plus de x qcm ?
+
