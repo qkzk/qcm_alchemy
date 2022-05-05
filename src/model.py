@@ -28,6 +28,7 @@ class Qcm(db.Model):
     title = db.Column(db.String(100))
     datetime = db.Column(db.DateTime)
     part = db.relationship("QcmPart", back_populates="qcm")
+    works = db.relationship("Work", back_populates="qcm")
 
     @classmethod
     def from_parsed_qcm(cls, parsed_qcm: ParseQCM) -> "Qcm":
@@ -100,6 +101,57 @@ class QcmPartQuestionAnswer(db.Model):
 
     def format(self) -> str:
         return self.answer
+
+
+class Student(db.Model):
+    __tablename__ = "student"
+    id = db.Column("id", db.Integer, primary_key=True)
+    name = db.Column("name", db.String(100))
+    works = db.relationship("Work", back_populates="student")
+
+    def __repr__(self):
+        return f"Student({self.id}, {self.name})"
+
+
+class Work(db.Model):
+    __tablename__ = "work"
+    id = db.Column("id", db.Integer, primary_key=True)
+    id_qcm = db.Column("id_qcm", db.Integer, db.ForeignKey("qcm.id"))
+    id_student = db.Column("id_student", db.Integer, db.ForeignKey("student.id"))
+    student = db.relationship("Student", back_populates="works")
+    choices = db.relationship("Choice", back_populates="work")
+    qcm = db.relationship("Qcm", back_populates="works")
+    student_qcm = db.UniqueConstraint("id_student", "id_qcm")
+
+    @classmethod
+    def from_form(cls, id_qcm: int, id_student: int, parsed_choices: list[dict]):
+        work = Work(id_qcm=id_qcm, id_student=id_student)
+        for parsed_choice in parsed_choices:
+            choice = Choice(
+                id_question=parsed_choice["id_question"],
+                id_answer=parsed_choice["id_answer"],
+            )
+            work.choices.append(choice)
+        return work
+
+    def __repr__(self):
+        return f"Work({self.id}, {self.id_qcm}, {self.id_student})"
+
+
+class Choice(db.Model):
+    __tablename__ = "choice"
+    id = db.Column("id", db.Integer, primary_key=True)
+    id_work = db.Column("id_work", db.Integer, db.ForeignKey("work.id"))
+    id_question = db.Column(
+        "id_question", db.Integer, db.ForeignKey("qcm_part_question.id")
+    )
+    id_answer = db.Column(
+        "id_answer", db.Integer, db.ForeignKey("qcm_part_question_answer.id")
+    )
+    work = db.relationship("Work", back_populates="choices")
+
+    def __repr__(self):
+        return f"Work({self.id}, {self.id_qcm}, {self.id_student})"
 
 
 class Marks(db.Model):
@@ -190,6 +242,13 @@ class QcmFile:
         return f"Qcm({self.file})"
 
 
+##################################################################################
+##################################################################################
+#                    WRITE CRAPPY TESTS BELOW THIS LINE
+##################################################################################
+##################################################################################
+
+
 def test_parser():
     db.create_all()
 
@@ -220,4 +279,24 @@ def test_parser():
     db.session.commit()
 
 
+def test_choicer():
+    db.create_all()
+
+    student = Student(name="Robert")
+    db.session.add(student)
+    db.session.commit()
+    robert = Student.query.get(1)
+    print(robert)
+
+    id_qcm = 1
+    parsed_choices = [
+        {"id_question": 1, "id_answer": 1},
+        {"id_question": 2, "id_answer": 7},
+    ]
+    work = Work.from_form(id_qcm, robert.id, parsed_choices)
+    db.session.add(work)
+    db.session.commit()
+
+
 # test_parser()
+# test_choicer()

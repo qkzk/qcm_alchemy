@@ -1,0 +1,2 @@
+executeSQL:  "FOREIGN KEY constraint failed (DELETE FROM \"main\".\"work\" WHERE _rowid_ IN ('2');)"
+deleteRecord:  "FOREIGN KEY constraint failed (DELETE FROM \"main\".\"work\" WHERE _rowid_ IN ('2');)"
