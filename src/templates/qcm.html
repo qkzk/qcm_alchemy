@@ -4,7 +4,16 @@
 </head>
 
 <body>
-    <h1> {{ qcm.title }} </h1>
+    <div>
+        <h1>
+            {{ name }}
+        </h1>
+    </div>
+    <div>
+        <h1>
+            {{ qcm.title }}
+        </h1>
+    </div>
     <form method="POST" action="{{ url_for('answers') }}">
         {% for part in qcm.part %}
         <h2>
@@ -22,13 +31,9 @@
                 <div>
                     {% for answer in question.answers %}
                     <div>
-                        <input 
-                            type="radio"
-                            name="{{ question.id }}"
-                            value="{{ answer.id }}"
-                        >
+                        <input type="radio" name="Q {{ question.id }}" value="A {{ answer.id }}">
                         </input>
-                        <label for="{ question.id }">
+                        <label for="Q {{ question.id }}">
                             {{ answer.answer }} - {{ answer.is_valid }}
                         </label>
                         </li>

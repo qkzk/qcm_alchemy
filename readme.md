@@ -6,8 +6,8 @@
 ### Models
 
 - [x] QCM original
-- [ ] Student
-- [ ] Marks
+- [x] Student
+- [x] Marks
 
 ### Parsing
 
@@ -18,15 +18,15 @@
 - [ ] mélanger
 - [ ] présenter une question par page
 - [ ] lien entre les pages
-- [ ] regrouper les résultats
+- [x] regrouper les résultats
 - [ ] chronomètre
-- [ ] cookies
+- [x] cookies
 - [ ] mode anti triche
 
 ### Marks
 
-- [ ] enregistrer les réponses de l'élève
-- [ ] compter les points
+- [x] enregistrer les réponses de l'élève
+- [x] compter les points
 
 ### Export Marks
 
@@ -63,4 +63,9 @@
 ## Steps
 
 - [x] présenter un qcm
-- [ ] enregistrer les réponses
+- [x] enregistrer les réponses
+- [x] noter les réponses
+- [x] afficher des récaps : 
+    - [x] ensemble des qcm
+    - [x] notes d'un qcm
+    - [x] notes d'un étudiant

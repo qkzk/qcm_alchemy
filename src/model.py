@@ -28,6 +28,7 @@ class Qcm(db.Model):
     title = db.Column(db.String(100))
     datetime = db.Column(db.DateTime)
     part = db.relationship("QcmPart", back_populates="qcm")
+    works = db.relationship("Work", back_populates="qcm")
 
     @classmethod
     def from_parsed_qcm(cls, parsed_qcm: ParseQCM) -> "Qcm":
@@ -65,6 +66,9 @@ class Qcm(db.Model):
                     s += f"\n            {answer.is_valid}"
         return s
 
+    def count_works(self) -> int:
+        return len(self.works)
+
 
 class QcmPart(db.Model):
     __tablename__ = "qcm_part"
@@ -94,6 +98,7 @@ class QcmPartQuestionAnswer(db.Model):
     )
     is_valid = db.Column("is_valid", db.Boolean)
     question = db.relationship("QcmPartQuestion", back_populates="answers")
+    choices = db.relationship("Choice", back_populates="answer")
 
     def __repr__(self):
         return f"QcmPartQuestionAnswer({self.answer}, {self.id_question})"
@@ -102,31 +107,67 @@ class QcmPartQuestionAnswer(db.Model):
         return self.answer
 
 
+class Student(db.Model):
+    __tablename__ = "student"
+    id = db.Column("id", db.Integer, primary_key=True)
+    name = db.Column("name", db.String(100))
+    works = db.relationship("Work", back_populates="student")
+
+    def __repr__(self):
+        return f"Student({self.id}, {self.name})"
+
+
+class Work(db.Model):
+    __tablename__ = "work"
+    id = db.Column("id", db.Integer, primary_key=True)
+    id_qcm = db.Column("id_qcm", db.Integer, db.ForeignKey("qcm.id"))
+    id_student = db.Column("id_student", db.Integer, db.ForeignKey("student.id"))
+    student = db.relationship("Student", back_populates="works")
+    choices = db.relationship("Choice", back_populates="work")
+    qcm = db.relationship("Qcm", back_populates="works")
+    student_qcm = db.UniqueConstraint("id_student", "id_qcm")
+    points = db.Column("points", db.Integer)
+
+    @classmethod
+    def from_form(cls, id_qcm: int, id_student: int, parsed_choices: list[dict]):
+        work = Work(id_qcm=id_qcm, id_student=id_student)
+        for parsed_choice in parsed_choices:
+            choice = Choice(
+                id_question=parsed_choice["id_question"],
+                id_answer=parsed_choice["id_answer"],
+            )
+            work.choices.append(choice)
+        return work
+
+    def count_points(self):
+        self.points = sum(1 for choice in self.choices if choice.answer.is_valid)
+
+    def __repr__(self):
+        return f"Work({self.id}, {self.id_qcm}, {self.id_student})"
+
+
+class Choice(db.Model):
+    __tablename__ = "choice"
+    id = db.Column("id", db.Integer, primary_key=True)
+    id_work = db.Column("id_work", db.Integer, db.ForeignKey("work.id"))
+    id_question = db.Column(
+        "id_question", db.Integer, db.ForeignKey("qcm_part_question.id")
+    )
+    id_answer = db.Column(
+        "id_answer", db.Integer, db.ForeignKey("qcm_part_question_answer.id")
+    )
+    work = db.relationship("Work", back_populates="choices")
+    work_question_answer = db.UniqueConstraint("id_work", "id_question", "id_answer")
+    answer = db.relationship("QcmPartQuestionAnswer", back_populates="choices")
+
+    def __repr__(self):
+        return f"Work({self.id}, {self.id_qcm}, {self.id_student})"
+
+
 class Marks(db.Model):
     __tablename__ = "marks"
     id = db.Column("mark_id", db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
-    qcm_id = db.Column(db.String(50))
-    answers = db.Column(db.String(400))
     points = db.Column(db.Integer)
-
-    def __init__(self, name, qcm_id, answers, points):
-        self.name = name
-        self.qcm_id = qcm_id
-        self.answers = answers
-        self.points = points
-
-    @staticmethod
-    def validate_form(form: dict) -> bool:
-        return all(("name" in form, "qcm_id" in form, "answers" in form))
-
-    @classmethod
-    def from_form(cls, form: dict) -> "Marks":
-        name = form["name"]
-        qcm_id = form["qcm_id"]
-        answers = form["answers"]
-        points = cls.calc_total(qcm_id, answers)
-        return cls(name, qcm_id, answers, points)
 
     @classmethod
     def calc_total(cls, qcm_id, answers) -> int:
@@ -190,6 +231,13 @@ class QcmFile:
         return f"Qcm({self.file})"
 
 
+##################################################################################
+##################################################################################
+#                    WRITE CRAPPY TESTS BELOW THIS LINE
+##################################################################################
+##################################################################################
+
+
 def test_parser():
     db.create_all()
 
@@ -220,4 +268,24 @@ def test_parser():
     db.session.commit()
 
 
+def test_choicer():
+    db.create_all()
+
+    student = Student(name="Robert")
+    db.session.add(student)
+    db.session.commit()
+    robert = Student.query.get(1)
+    print(robert)
+
+    id_qcm = 1
+    parsed_choices = [
+        {"id_question": 1, "id_answer": 1},
+        {"id_question": 2, "id_answer": 7},
+    ]
+    work = Work.from_form(id_qcm, robert.id, parsed_choices)
+    db.session.add(work)
+    db.session.commit()
+
+
 # test_parser()
+# test_choicer()

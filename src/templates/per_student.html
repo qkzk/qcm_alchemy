@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <style>
+        table,
+        th,
+        td {
+            border: 1px solid white;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            background-color: #D4D4D4;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h3>
+        <a href="{{ url_for('index') }}">Accueil</a>
+    </h3>
+
+    <hr />
+    {%- for message in get_flashed_messages() %}
+    {{ message }}
+    {%- endfor %}
+
+
+    {% if works %}
+    <table>
+        <thead>
+            <tr>
+                <th>QCM</th>
+                <th>Points</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for work in works %}
+            <tr>
+                <td>
+                    {{ work.qcm.title }}
+                </td>
+                <td>
+                    {{ work.points }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <caption>
+            {{ works[0].student.name }}
+        </caption>
+
+        {% else %}
+        <h2>
+            Élève introuvable.
+        </h2>
+        {% endif %}
+    </table>
+
+</body>
+
+</html>

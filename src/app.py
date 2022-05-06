@@ -1,9 +1,18 @@
-from flask import request, flash, url_for, redirect, render_template
-from .model import app, db, Marks, QcmFile
+from random import randint
+from flask import request, flash, url_for, make_response, redirect, render_template
+from .model import app, db, Choice, Marks, Qcm, QcmFile, Student, Work
 from .parser import ParseQCM
 
 
 def create_app():
+    @app.route("/")
+    def index():
+        return render_template("index.html")
+
+    @app.route("/teacher")
+    def teacher():
+        return render_template("teacher.html")
+
     @app.route("/new", methods=["GET", "POST"])
     def new():
         data = None
@@ -35,34 +44,105 @@ def create_app():
     def qcms():
         return render_template("qcms.html", qcms=Qcm.query.all())
 
-    @app.route("/")
-    def index():
-        return render_template("index.html", marks=Marks.query.all())
-
     @app.route("/marks", methods=["GET", "POST"])
     def marks():
         if request.method == "POST":
-            if not Marks.validate(request.form):
-                flash("Vous devez remplir tous les champs.", "error")
-            else:
-                mark = Marks.from_form(request.form)
-                db.session.add(mark)
-                db.session.commit()
-                flash("Réponses enregistrées.")
-                return redirect(url_for("marks"))
+            id_qcm_from_request = request.form.get("id_qcm")
+            try:
+                id_qcm = int(id_qcm_from_request)
+            except TypeError:
+                flash("QCM {id_qcm_from_request} introuvable.")
+                return render_template("marks.html")
+            qcm = Qcm.query.get(id_qcm)
+            works = Work.query.filter_by(id_qcm=id_qcm).all()
+            return render_template("marks.html", qcm=qcm)
         return render_template("marks.html")
 
-    @app.route("/qcm/<id_qcm>")
-    def qcm_view(id_qcm):
+    @app.route("/per_student/<id_student>")
+    def per_student(id_student):
+        try:
+            id_student = int(id_student)
+        except TypeError:
+            return render_template("index.html")
+        works = Work.query.filter_by(id_student=id_student).all()
+        return render_template("per_student.html", works=works)
+
+    @app.route("/marks/<id_qcm>")
+    def marks_for_qcm(id_qcm):
+        try:
+            id_qcm = int(id_qcm)
+            qcm = Qcm.query.get(id_qcm)
+        except TypeError:
+            qcm = None
+        return render_template("marks.html", qcm=qcm)
+
+    @app.route("/student")
+    def student():
+        return render_template("student.html")
+
+    @app.route("/qcm", methods=["POST"])
+    def qcm():
+        print(request.form)
+        try:
+            name = f"{request.form.get('student.name')} {request.form.get('student.firstname')}"
+            id_qcm = int(request.form.get("qcm.id"))
+        except TypeError:
+            return "<h1>Formulaire illisible</h1>"
+
         qcm = Qcm.query.get(id_qcm)
+        if qcm is None:
+            return "<h1>Qcm introuvable</h1>"
+
+        # get the student id
+        students = Student.query.filter_by(name=name).all()
+        if len(students) == 1:
+            student = students[0]
+        else:
+            if len(students) > 1:
+                # make a new student with variation of name
+                name += str(randint(1, 9))
+            student = Student(name=name)
+            db.session.add(student)
+            db.session.commit()
+        id_student = student.id
+
         print(qcm.format())
-        return render_template("qcm.html", qcm=qcm)
+
+        # create a work
+        work = Work(id_qcm=id_qcm, id_student=id_student)
+        db.session.add(work)
+        db.session.commit()
+
+        # get work id
+        id_work = work.id
+
+        resp = make_response(render_template("qcm.html", qcm=qcm, name=name))
+        resp.set_cookie("id_work", str(id_work))
+        return resp
 
     @app.route("/answers", methods=["POST"])
     def answers():
         print(request.form)
         print(dir(request.form))
-        return "<h1>ok</h1>"
+        try:
+            id_work = int(request.cookies.get("id_work"))
+        except TypeError:
+            return "<h1>Utilisateur inconnu</h1>"
+
+        print(f"id_work: {id_work}")
+
+        for k, v in request.form.items():
+            if k.startswith("Q ") and v.startswith("A "):
+                id_question = int(k.split(" ")[1])
+                id_answer = int(v.split(" ")[1])
+                choice = Choice(
+                    id_work=id_work, id_question=id_question, id_answer=id_answer
+                )
+                db.session.add(choice)
+        work = Work.query.get(id_work)
+        work.count_points()
+        db.session.commit()
+        return "<h1>Réponses enregistrées</h1>"
 
     db.create_all()
     return app
