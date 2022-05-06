@@ -1,0 +1,51 @@
+<html lang="fr">
+
+<head>
+
+</head>
+
+<body>
+
+
+
+    <div>
+        <h1>
+            Bienvenu !
+        </h1>
+    </div>
+
+    <div>
+        <h3>
+            Veuillez remplir le formulaire pour débuter le QCM :
+        </h3>
+    </div>
+
+    <form method="POST" action="{{ url_for('qcm') }}">
+        <p>
+        <div>
+            <label for="student.name">Votre nom :</label>
+            <input type="text" name="student.name" required>
+        </div>
+
+        <div>
+            <label for="student.firstname"> Votre prénom :</label>
+            <input type="text" name="student.firstname" required>
+        </div>
+
+        <div>
+            <label for"qcm.id">Le numéro du QCM :</label>
+            <input type="number" name="qcm.id" required>
+        </div>
+
+        <div>
+            <button type="submit">
+                Demarrer
+            </button>
+        </div>
+
+        </p>
+    </form>
+
+</body>
+
+</html>

@@ -3,12 +3,16 @@
 
 <head>
     <style>
-        table, th, td {
-          border: 1px solid white;
-          border-collapse: collapse;
+        table,
+        th,
+        td {
+            border: 1px solid white;
+            border-collapse: collapse;
         }
-        th, td {
-          background-color: #96D4D4;
+
+        th,
+        td {
+            background-color: #D4D4D4;
         }
     </style>
 </head>
@@ -16,7 +20,7 @@
 <body>
 
     <h3>
-        <a href="{{ url_for('qcms') }}">Tout afficher</a>
+        <a href="{{ url_for('index') }}">Accueil</a>
     </h3>
 
     <hr />
@@ -30,16 +34,34 @@
             <tr>
                 <th>Id</th>
                 <th>Titre</th>
-                <th>Date time</th>
+                <th>Date de Création</th>
+                <th>Réponses enregistrées</th>
             </tr>
         </thead>
 
         <tbody>
             {% for qcm in qcms %}
             <tr>
-                <td>{{ qcm.id }}</td>
-                <td>{{ qcm.title }}</td>
-                <td>{{ qcm.datetime }}</td>
+                <td>
+                    <a href="{{ url_for('marks') }}/{{ qcm.id}}">
+                        {{ qcm.id }}
+                    </a>
+                </td>
+                <td>
+                    <a href="{{ url_for('marks') }}/{{ qcm.id}}">
+                        {{ qcm.title }}
+                    </a>
+                </td>
+                <td>
+                    <a href="{{ url_for('marks') }}/{{ qcm.id}}">
+                        {{ qcm.datetime }}
+                    </a>
+                </td>
+                <td>
+                    <a href="{{ url_for('marks') }}/{{ qcm.id}}">
+                        {{ qcm.count_works() }}
+                    </a>
+                </td>
             </tr>
             {% endfor %}
         </tbody>

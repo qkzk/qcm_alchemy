@@ -66,6 +66,9 @@ class Qcm(db.Model):
                     s += f"\n            {answer.is_valid}"
         return s
 
+    def count_works(self) -> int:
+        return len(self.works)
+
 
 class QcmPart(db.Model):
     __tablename__ = "qcm_part"
@@ -95,6 +98,7 @@ class QcmPartQuestionAnswer(db.Model):
     )
     is_valid = db.Column("is_valid", db.Boolean)
     question = db.relationship("QcmPartQuestion", back_populates="answers")
+    choices = db.relationship("Choice", back_populates="answer")
 
     def __repr__(self):
         return f"QcmPartQuestionAnswer({self.answer}, {self.id_question})"
@@ -122,6 +126,7 @@ class Work(db.Model):
     choices = db.relationship("Choice", back_populates="work")
     qcm = db.relationship("Qcm", back_populates="works")
     student_qcm = db.UniqueConstraint("id_student", "id_qcm")
+    points = db.Column("points", db.Integer)
 
     @classmethod
     def from_form(cls, id_qcm: int, id_student: int, parsed_choices: list[dict]):
@@ -133,6 +138,9 @@ class Work(db.Model):
             )
             work.choices.append(choice)
         return work
+
+    def count_points(self):
+        self.points = sum(1 for choice in self.choices if choice.answer.is_valid)
 
     def __repr__(self):
         return f"Work({self.id}, {self.id_qcm}, {self.id_student})"
@@ -149,6 +157,8 @@ class Choice(db.Model):
         "id_answer", db.Integer, db.ForeignKey("qcm_part_question_answer.id")
     )
     work = db.relationship("Work", back_populates="choices")
+    work_question_answer = db.UniqueConstraint("id_work", "id_question", "id_answer")
+    answer = db.relationship("QcmPartQuestionAnswer", back_populates="choices")
 
     def __repr__(self):
         return f"Work({self.id}, {self.id_qcm}, {self.id_student})"
@@ -157,28 +167,7 @@ class Choice(db.Model):
 class Marks(db.Model):
     __tablename__ = "marks"
     id = db.Column("mark_id", db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
-    qcm_id = db.Column(db.String(50))
-    answers = db.Column(db.String(400))
     points = db.Column(db.Integer)
-
-    def __init__(self, name, qcm_id, answers, points):
-        self.name = name
-        self.qcm_id = qcm_id
-        self.answers = answers
-        self.points = points
-
-    @staticmethod
-    def validate_form(form: dict) -> bool:
-        return all(("name" in form, "qcm_id" in form, "answers" in form))
-
-    @classmethod
-    def from_form(cls, form: dict) -> "Marks":
-        name = form["name"]
-        qcm_id = form["qcm_id"]
-        answers = form["answers"]
-        points = cls.calc_total(qcm_id, answers)
-        return cls(name, qcm_id, answers, points)
 
     @classmethod
     def calc_total(cls, qcm_id, answers) -> int:

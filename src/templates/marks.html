@@ -1,29 +1,68 @@
 <!DOCTYPE html>
 <html>
 
+<head>
+    <style>
+        table,
+        th,
+        td {
+            border: 1px solid white;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            background-color: #D4D4D4;
+        }
+    </style>
+</head>
+
 <body>
 
-    <h3>Réponses<h3>
-            <hr />
+    <h3>
+        {% for category, message in get_flashed_messages() %}
+        <div class="alert alert-danger">
+            {{ message }}
+        </div>
+        {% endfor %}
 
-            {%- for category, message in get_flashed_messages(with_categories = true) %}
-            <div class="alert alert-danger">
-                {{ message }}
-            </div>
-            {%- endfor %}
-
+        <div>
             <form action="{{ request.path }}" method="post">
-                <label for="name">Name</label><br>
-                <input type="text" name="name" placeholder="Name" /><br>
-
-                <label for="qcm_id">QCM ID</label><br>
-                <input type="text" name="qcm_id" placeholder="qcm_id" /><br>
-
-                <label for="answers">réponses</label><br>
-                <textarea name="answers" placeholder="Réponses"></textarea><br>
-
+                <label for="id_qcm">id du QCM</label><br>
+                <input type="text" name="id_qcm" required><br>
                 <input type="submit" value="Submit" />
             </form>
+        </div>
+    </h3>
+    <div>
+        {% if qcm %}
+        <table>
+            <tr>
+                <th scole="col">
+                    Nom
+                </th>
+                <th scole="col">
+                    Points
+                </th>
+            </tr>
+            {% for work in qcm.works %}
+            <tr>
+                <th scope="row">
+                    <a href="{{ url_for('per_student', id_student=work.student.id) }}">
+                        {{ work.student.name }}
+                    </a>
+                </th>
+                <td>
+                    {{ work.points }}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        <caption>
+            {{ qcm.id}} - {{ qcm.title }} - {{ qcm.datetime }}
+        </caption>
+        {% endif %}
+    </div>
 
 </body>
 
