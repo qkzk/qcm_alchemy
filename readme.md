@@ -50,9 +50,9 @@
 
 ## Mixing answers
 
-* [x] shuffle les parts, questions, answers
-* [x] lorsqu'on envoie les answers à la vue, faut envoyer l'`id_question: id_answer` à la vue
-* [x] ensuite on compare `id_question: id_answer` avec `id_question: id(answer where is_correct)`
+- [x] shuffle les parts, questions, answers
+- [x] lorsqu'on envoie les answers à la vue, faut envoyer l'`id_question: id_answer` à la vue
+- [x] ensuite on compare `id_question: id_answer` avec `id_question: id(answer where is_correct)`
 
 
 ### Caching
@@ -88,3 +88,4 @@
     - [x] questions
     - [x] ajouter "je ne sais pas"
 - [x] serve with gunicorn
+- [x] séparer le modèle de la création des instances

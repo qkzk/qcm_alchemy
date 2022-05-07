@@ -10,12 +10,39 @@ from flask import (
     render_template,
     send_from_directory,
 )
+from flask_apscheduler import APScheduler
 
 from .model import app, db, Choice, Qcm, QcmFile, Student, Work
 from .parser import ParseQCM
 
 
+def clear_records_and_files():
+    print("cleaner is running...")
+    Qcm.clear_old_records()
+    Student.clear_old_records()
+    delete_old_files("UPLOAD_FOLDER")
+    delete_old_files("DOWNLOAD_FOLDER")
+    print("cleaner completed")
+
+
+def delete_old_files(env_name: str):
+    directory = os.path.join(os.getcwd(), app.config[env_name])
+    for filename in os.listdir(directory):
+        if filename != "readme.md":
+            os.remove(os.path.join(directory, filename))
+
+
 def create_app():
+
+    sched = APScheduler()
+    sched.add_job(
+        id="clear_records_and_files",
+        func=clear_records_and_files,
+        trigger="interval",
+        seconds=10,
+    )
+    sched.start()
+
     @app.errorhandler(404)
     def page_not_found(e):
         return render_template("404.html")
