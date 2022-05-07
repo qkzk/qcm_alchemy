@@ -1,40 +1,50 @@
-<html>
+{% extends 'base.html' %}
+{% block head %}
+{{ super() }}
+{% endblock %}
 
-<head>
-
-</head>
-
-<body>
-    <hr />
-
-    {%- for category, message in get_flashed_messages(with_categories = true) %}
-    <div class="alert alert-danger">
-        {{ message }}
-    </div>
-    {%- endfor %}
-
-    <h1>
+{% block content %}
+<div class="part">
+    <h2 class="part-title">
         Nouveau QCM
-    </h1>
+    </h2>
 
-    <div>
+    <div class="text-center question-question">
         <form action="{{ request.path }}" method="post" enctype=multipart/form-data>
-            <label for="source">Fichier source</label>
-            <input type="file" name="source" id="source">
-            <input type=submit value=Upload>
+            <label for="source" id="label">Cliquez pour choisir un fichier</label>
+
+            <input type="file" name="source" id="source" accept=".md" style="visibility:hidden">
+            <br />
+            <button type=submit style="visibility:hidden" id="submit" class="btn">
+                Envoyer
+            </button>
         </form>
     </div>
 
     {% if data %}
+    <h3>
+        Donnez le numéro à vos élèves pour qu'ils puissent démarrer le QCM :
+    </h3>
     <div>
         {% for k, v in data.items() %}
-        <h1>
+        <h2>
             {{ k }} - {{ v }}
-        </h1>
+        </h2>
         {% endfor %}
     </div>
     {% endif %}
+</div>
 
-</body>
 
-</html>
+
+<script>
+    source = document.getElementById('source');
+    label = document.getElementById('label');
+    submit = document.getElementById('submit');
+    source.onchange = function () {
+      label.textContent = 'Fichier choisi: ' + this.value;
+      submit.style.visibility = "visible";
+    };
+</script>
+
+{% endblock %}

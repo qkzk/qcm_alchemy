@@ -1,40 +1,46 @@
-<html lang="fr">
+{% extends 'base.html' %}
+{% block head %}
+{{ super() }}
+{% endblock %}
 
-<head>
-</head>
-
-<body>
+{% block content %}
+<div class="part">
+    <h1>
+        {{ name|safe }}
+    </h1>
+</div>
+<div class="qcm">
     <div>
         <h1>
-            {{ name }}
+            {{ qcm.title|safe }}
         </h1>
     </div>
-    <div>
-        <h1>
-            {{ qcm.title }}
-        </h1>
-    </div>
-    <form method="POST" action="{{ url_for('answers') }}">
+    <form method="POST" action="{{ url_for('answers') }}" id="qcm_form">
         {% for part in qcm.part %}
-        <h2>
-            {{ part.title }}
-        </h2>
-        <div>
+        <div class="part">
+            <h2 class="part-title">
+                {{ part.title|safe }}
+            </h2>
             {% for question in part.questions %}
-            <p>
-                {{ question.question }}
-            </p>
-            <p>
-                {{ question.sub_text }}
-            </p>
-            <div>
-                <div>
+            <div class="question-answers">
+                <h3 class="question-question">
+                    {{ question.question|safe }}
+                </h3>
+                <p class="question-text">
+                    {{ question.sub_text|safe }}
+                </p>
+                <div class="answers">
                     {% for answer in question.answers %}
-                    <div>
-                        <input type="radio" name="Q {{ question.id }}" value="A {{ answer.id }}">
+                    <div class="answer">
+                        <input 
+                            type="radio" 
+                            name="Q {{ question.id }}" 
+                            value="A {{ answer.id }}"
+                            autocomplete="off"
+                        >
                         </input>
                         <label for="Q {{ question.id }}">
-                            {{ answer.answer }} - {{ answer.is_valid }}
+                            {{ answer.answer|safe }}
                         </label>
                         </li>
                     </div>
@@ -44,12 +50,17 @@
             {% endfor %}
         </div>
         {% endfor %}
-        <div>
+        <div class="btn">
             <button type="submit">
                 Envoyer
             </button>
         </div>
     </form>
-</body>
-
-</html>
+</div>
+<script>
+window.onblur = function() {
+      alert("Vous avez quitté la page. Vos réponses sont enregistrées. Vous ne pouvez plus progresser dans le devoir. Votre enseignant est notifié. Vous allez être déconnecté")
+      document.getElementById("qcm_form").submit();
+    }
+</script>
+{% endblock %}

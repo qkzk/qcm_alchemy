@@ -5,6 +5,10 @@ from .parser import ParseQCM
 
 
 def create_app():
+    @app.errorhandler(404)
+    def page_not_found(e):
+        return render_template("404.html")
+
     @app.route("/")
     def index():
         return render_template("index.html")
@@ -87,11 +91,13 @@ def create_app():
             name = f"{request.form.get('student.name')} {request.form.get('student.firstname')}"
             id_qcm = int(request.form.get("qcm.id"))
         except TypeError:
-            return "<h1>Formulaire illisible</h1>"
+            return render_template(
+                "confirmation_page.html", data="Formulaire illisible"
+            )
 
         qcm = Qcm.query.get(id_qcm)
         if qcm is None:
-            return "<h1>Qcm introuvable</h1>"
+            return render_template("confirmation_page.html", data="Qcm introuvable")
 
         # get the student id
         students = Student.query.filter_by(name=name).all()
@@ -127,7 +133,7 @@ def create_app():
         try:
             id_work = int(request.cookies.get("id_work"))
         except TypeError:
-            return "<h1>Utilisateur inconnu</h1>"
+            return render_template("confirmation_page.html", data="Utilisateur inconnu")
 
         print(f"id_work: {id_work}")
 
@@ -142,7 +148,7 @@ def create_app():
         work = Work.query.get(id_work)
         work.count_points()
         db.session.commit()
-        return "<h1>Réponses enregistrées</h1>"
+        return render_template("confirmation_page.html", data="Réponses enregistrées")
 
     db.create_all()
     return app

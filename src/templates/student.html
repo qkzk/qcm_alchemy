@@ -1,51 +1,34 @@
-<html lang="fr">
+{% extends 'base.html' %}
+{% block head %}
+{{ super() }}
+{% endblock %}
 
-<head>
+{% block content %}
 
-</head>
+<div class="part">
+    <h3 class="part-title">
+        Inscrivez-vous pour débuter le QCM :
+    </h3>
+</div>
 
-<body>
 
-
-
-    <div>
-        <h1>
-            Bienvenu !
-        </h1>
-    </div>
-
-    <div>
-        <h3>
-            Veuillez remplir le formulaire pour débuter le QCM :
-        </h3>
-    </div>
-
-    <form method="POST" action="{{ url_for('qcm') }}">
-        <p>
-        <div>
-            <label for="student.name">Votre nom :</label>
-            <input type="text" name="student.name" required>
+<div class="part">
+    <form method="POST" action="{{ url_for('qcm') }}" class="form-question">
+        <div class="form-container">
+            <section>
+                <input type="text" name="student.name" required placeholder="Nom">
+                <br />
+                <input type="text" name="student.firstname" required placeholder="Prénom">
+                <br />
+                <input type="number" name="qcm.id" required placeholder="Numéro du QCM">
+                <br />
+                <button type="submit" class="btn">
+                    Demarrer
+                </button>
+            </section>
         </div>
 
-        <div>
-            <label for="student.firstname"> Votre prénom :</label>
-            <input type="text" name="student.firstname" required>
-        </div>
-
-        <div>
-            <label for"qcm.id">Le numéro du QCM :</label>
-            <input type="number" name="qcm.id" required>
-        </div>
-
-        <div>
-            <button type="submit">
-                Demarrer
-            </button>
-        </div>
-
-        </p>
     </form>
+</div>
 
-</body>
-
-</html>
+{% endblock %}

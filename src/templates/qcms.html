@@ -1,72 +1,49 @@
-<!DOCTYPE html>
-<html lang="fr">
+{% extends 'base.html' %}
+{% block head %}
+{{ super() }}
+{% endblock %}
 
-<head>
-    <style>
-        table,
-        th,
-        td {
-            border: 1px solid white;
-            border-collapse: collapse;
-        }
+{% block content %}
+<div class="part">
+    <h2 class="part-title">
+        QCMs disponibles
+    </h2>
+</div>
+<table class="center">
+    <thead>
+        <tr>
+            <th>id</th>
+            <th>titre</th>
+            <th>date de création</th>
+            <th>réponses enregistrées</th>
+        </tr>
+    </thead>
 
-        th,
-        td {
-            background-color: #D4D4D4;
-        }
-    </style>
-</head>
-
-<body>
-
-    <h3>
-        <a href="{{ url_for('index') }}">Accueil</a>
-    </h3>
-
-    <hr />
-    {%- for message in get_flashed_messages() %}
-    {{ message }}
-    {%- endfor %}
-
-
-    <table>
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Titre</th>
-                <th>Date de Création</th>
-                <th>Réponses enregistrées</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            {% for qcm in qcms %}
-            <tr>
-                <td>
-                    <a href="{{ url_for('marks') }}/{{ qcm.id}}">
-                        {{ qcm.id }}
-                    </a>
-                </td>
-                <td>
-                    <a href="{{ url_for('marks') }}/{{ qcm.id}}">
-                        {{ qcm.title }}
-                    </a>
-                </td>
-                <td>
-                    <a href="{{ url_for('marks') }}/{{ qcm.id}}">
-                        {{ qcm.datetime }}
-                    </a>
-                </td>
-                <td>
-                    <a href="{{ url_for('marks') }}/{{ qcm.id}}">
-                        {{ qcm.count_works() }}
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-</body>
-
-</html>
+    <tbody>
+        {% for qcm in qcms %}
+        <tr>
+            <td>
+                <a href="{{ url_for('marks') }}/{{ qcm.id}}">
+                    {{ qcm.id }}
+                </a>
+            </td>
+            <td>
+                <a href="{{ url_for('marks') }}/{{ qcm.id}}">
+                    {{ qcm.title }}
+                </a>
+            </td>
+            <td>
+                <a href="{{ url_for('marks') }}/{{ qcm.id}}">
+                    {{ qcm.datetime }}
+                </a>
+            </td>
+            <td>
+                <a href="{{ url_for('marks') }}/{{ qcm.id}}">
+                    {{ qcm.count_works() }}
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

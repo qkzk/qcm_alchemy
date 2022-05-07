@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+{% if data %}
+<div class="part">
+    <h2>
+        {{ data }}
+    </h2>
+</div>
+{% endif %}
+{% endblock %}
