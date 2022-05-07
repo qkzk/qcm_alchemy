@@ -32,7 +32,7 @@
 
 - [x] exporter les notes d'un QCM
 - [x] télécharger un csv
-- [ ] nettoyer la bdd après l'envoi et régulièrement (RGPD)
+- [x] nettoyer la bdd après l'envoi et régulièrement (RGPD)
 
 ### Views
 
@@ -73,3 +73,6 @@
 - [x] latex
 - [x] block content etc.
 - [x] exporter en csv
+- [x] nettoyer
+    - [x] la bdd
+    - [x] les fichiers downloadés

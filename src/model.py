@@ -1,12 +1,34 @@
 import csv
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
+
+from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
+
 from .parser import ParseQCM
 
-app = Flask(__name__)
+
+def clear_records_and_files():
+    print("cleaner is running...")
+    Qcm.clear_old_records()
+    Student.clear_old_records()
+    delete_old_files("UPLOAD_FOLDER")
+    delete_old_files("DOWNLOAD_FOLDER")
+    print("cleaner completed")
+
+
+##################################################################################
+##################################################################################
+#                                   RUNTIME
+##################################################################################
+##################################################################################
+
+sched = BackgroundScheduler(daemon=True)
+sched.add_job(clear_records_and_files, "interval", seconds=10)
+sched.start()
+
 UPLOAD_FOLDER = "uploads/"
 DOWNLOAD_FOLDER = "downloads/"
 ALLOWED_EXTENSIONS = {"md"}
@@ -20,6 +42,29 @@ app.config["SECRET_KEY"] = "random string"
 
 db = SQLAlchemy(app)
 
+if "sqlite" in app.config["SQLALCHEMY_DATABASE_URI"]:
+
+    def _fk_pragma_on_connect(dbapi_con, con_record):  # noqa
+        dbapi_con.execute("pragma foreign_keys=ON")
+
+    with app.app_context():
+        from sqlalchemy import event
+
+        event.listen(db.engine, "connect", _fk_pragma_on_connect)
+
+##################################################################################
+##################################################################################
+#                                   OBJECTS
+##################################################################################
+##################################################################################
+
+
+def delete_old_files(env_name: str):
+    directory = os.path.join(os.getcwd(), app.config[env_name])
+    for filename in os.listdir(directory):
+        if filename != "readme.md":
+            os.remove(os.path.join(directory, filename))
+
 
 class QcmPaserError(Exception):
     pass
@@ -30,8 +75,12 @@ class Qcm(db.Model):
     id = db.Column("id", db.Integer, primary_key=True)
     title = db.Column(db.String(100))
     datetime = db.Column(db.DateTime)
-    part = db.relationship("QcmPart", back_populates="qcm")
-    works = db.relationship("Work", back_populates="qcm")
+    part = db.relationship(
+        "QcmPart", back_populates="qcm", cascade="all,delete", passive_deletes=True
+    )
+    works = db.relationship(
+        "Work", back_populates="qcm", cascade="all,delete", passive_deletes=True
+    )
 
     @classmethod
     def from_parsed_qcm(cls, parsed_qcm: ParseQCM) -> "Qcm":
@@ -72,14 +121,28 @@ class Qcm(db.Model):
     def count_works(self) -> int:
         return len(self.works)
 
+    @classmethod
+    def clear_old_records(cls):
+        now = datetime.now()
+        two_days_ago = now - timedelta(minutes=2)
+        cls.query.filter(cls.datetime < two_days_ago).delete()
+        db.session.commit()
+
 
 class QcmPart(db.Model):
     __tablename__ = "qcm_part"
     id = db.Column("id", db.Integer, primary_key=True)
     title = db.Column(db.String(100))
-    id_qcm = db.Column("id_qcm", db.Integer, db.ForeignKey("qcm.id"))
-    qcm = db.relationship("Qcm", back_populates="part")
-    questions = db.relationship("QcmPartQuestion", back_populates="part")
+    id_qcm = db.Column(
+        "id_qcm", db.Integer, db.ForeignKey("qcm.id", ondelete="CASCADE")
+    )
+    qcm = db.relationship("Qcm", back_populates="part", passive_deletes=True)
+    questions = db.relationship(
+        "QcmPartQuestion",
+        back_populates="part",
+        cascade="all,delete",
+        passive_deletes=True,
+    )
 
 
 class QcmPartQuestion(db.Model):
@@ -87,9 +150,16 @@ class QcmPartQuestion(db.Model):
     id = db.Column("id", db.Integer, primary_key=True)
     question = db.Column(db.String(400))
     sub_text = db.Column(db.String(400))
-    id_part = db.Column("id_part", db.Integer, db.ForeignKey("qcm_part.id"))
-    part = db.relationship("QcmPart", back_populates="questions")
-    answers = db.relationship("QcmPartQuestionAnswer", back_populates="question")
+    id_part = db.Column(
+        "id_part", db.Integer, db.ForeignKey("qcm_part.id", ondelete="CASCADE")
+    )
+    part = db.relationship("QcmPart", back_populates="questions", passive_deletes=True)
+    answers = db.relationship(
+        "QcmPartQuestionAnswer",
+        back_populates="question",
+        cascade="all,delete",
+        passive_deletes=True,
+    )
 
 
 class QcmPartQuestionAnswer(db.Model):
@@ -97,11 +167,18 @@ class QcmPartQuestionAnswer(db.Model):
     id = db.Column("id", db.Integer, primary_key=True)
     answer = db.Column(db.String(200))
     id_question = db.Column(
-        "id_question", db.Integer, db.ForeignKey("qcm_part_question.id")
+        "id_question",
+        db.Integer,
+        db.ForeignKey(
+            "qcm_part_question.id",
+            ondelete="CASCADE",
+        ),
     )
     is_valid = db.Column("is_valid", db.Boolean)
-    question = db.relationship("QcmPartQuestion", back_populates="answers")
-    choices = db.relationship("Choice", back_populates="answer")
+    question = db.relationship(
+        "QcmPartQuestion", back_populates="answers", passive_deletes=True
+    )
+    choices = db.relationship("Choice", back_populates="answer", passive_deletes=True)
 
     def __repr__(self):
         return f"QcmPartQuestionAnswer({self.answer}, {self.id_question})"
@@ -113,8 +190,18 @@ class QcmPartQuestionAnswer(db.Model):
 class Student(db.Model):
     __tablename__ = "student"
     id = db.Column("id", db.Integer, primary_key=True)
+    datetime = db.Column("datetime", db.DateTime)
     name = db.Column("name", db.String(100))
-    works = db.relationship("Work", back_populates="student")
+    works = db.relationship(
+        "Work", back_populates="student", cascade="all,delete", passive_deletes=True
+    )
+
+    @classmethod
+    def clear_old_records(cls):
+        now = datetime.now()
+        two_days_ago = now - timedelta(minutes=2)
+        cls.query.filter(cls.datetime < two_days_ago).delete()
+        db.session.commit()
 
     def __repr__(self):
         return f"Student({self.id}, {self.name})"
@@ -123,10 +210,16 @@ class Student(db.Model):
 class Work(db.Model):
     __tablename__ = "work"
     id = db.Column("id", db.Integer, primary_key=True)
-    id_qcm = db.Column("id_qcm", db.Integer, db.ForeignKey("qcm.id"))
-    id_student = db.Column("id_student", db.Integer, db.ForeignKey("student.id"))
+    id_qcm = db.Column(
+        "id_qcm", db.Integer, db.ForeignKey("qcm.id", ondelete="CASCADE")
+    )
+    id_student = db.Column(
+        "id_student", db.Integer, db.ForeignKey("student.id", ondelete="CASCADE")
+    )
     student = db.relationship("Student", back_populates="works")
-    choices = db.relationship("Choice", back_populates="work")
+    choices = db.relationship(
+        "Choice", back_populates="work", cascade="all,delete", passive_deletes=True
+    )
     qcm = db.relationship("Qcm", back_populates="works")
     student_qcm = db.UniqueConstraint("id_student", "id_qcm")
     points = db.Column("points", db.Integer)
@@ -176,32 +269,27 @@ class Work(db.Model):
 class Choice(db.Model):
     __tablename__ = "choice"
     id = db.Column("id", db.Integer, primary_key=True)
-    id_work = db.Column("id_work", db.Integer, db.ForeignKey("work.id"))
+    id_work = db.Column(
+        "id_work", db.Integer, db.ForeignKey("work.id", ondelete="CASCADE")
+    )
     id_question = db.Column(
-        "id_question", db.Integer, db.ForeignKey("qcm_part_question.id")
+        "id_question",
+        db.Integer,
+        db.ForeignKey("qcm_part_question.id", ondelete="CASCADE"),
     )
     id_answer = db.Column(
-        "id_answer", db.Integer, db.ForeignKey("qcm_part_question_answer.id")
+        "id_answer",
+        db.Integer,
+        db.ForeignKey("qcm_part_question_answer.id", ondelete="CASCADE"),
     )
-    work = db.relationship("Work", back_populates="choices")
+    work = db.relationship("Work", back_populates="choices", passive_deletes=True)
     work_question_answer = db.UniqueConstraint("id_work", "id_question", "id_answer")
-    answer = db.relationship("QcmPartQuestionAnswer", back_populates="choices")
+    answer = db.relationship(
+        "QcmPartQuestionAnswer", back_populates="choices", passive_deletes=True
+    )
 
     def __repr__(self):
         return f"Work({self.id}, {self.id_qcm}, {self.id_student})"
-
-
-class Marks(db.Model):
-    __tablename__ = "marks"
-    id = db.Column("mark_id", db.Integer, primary_key=True)
-    points = db.Column(db.Integer)
-
-    @classmethod
-    def calc_total(cls, qcm_id, answers) -> int:
-        return 0
-
-    def __repr__(self):
-        return f"Marks({self.id}, {self.name}, {self.qcm_id}, {self.total})"
 
 
 class QcmFileError(Exception):
@@ -217,9 +305,10 @@ class QcmFile:
         print("parsing...")
 
     def save_file(self, file: "werkzeug.datastructures.FileStorage"):
-        self.filename = os.path.join(
+        full_path = os.path.join(
             app.config["UPLOAD_FOLDER"], secure_filename(file.filename)
         )
+        self.filename = full_path
         self.file.save(self.filename)
 
     @classmethod
