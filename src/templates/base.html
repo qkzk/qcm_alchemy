@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    {% block head %}
+    <title>QCM</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}" />
+    {% endblock %}
+    {% block mathjax %}
+      <script>
+        MathJax = {
+          tex: {
+            tags: 'all',
+            inlineMath: [ ['$','$'], ["\(","\)"] ],
+            processEscapes: true,
+            packages: ['base', 'newcommand', 'action'],
+          },
+        };
+      </script>
+      <script id="MathJax-script" async src="{{url_for('static', filename='mathjax/tex-chtml.js')}}"></script>
+    {% endblock %}
+  </head>
+
+  <body>
+    {% block body %}
+      <h1>
+        <a href="/">
+          QCM
+        </a>
+      </h1>
+      {% block content %}{% endblock %}
+      <!-- <div class="logout">
+        <a href="/">Accueil</a>
+        -
+        <a href="/logout">Se déconnecter</a>
+      </div> -->
+    {% endblock %}
+  </body>
+
+</html>
+
+

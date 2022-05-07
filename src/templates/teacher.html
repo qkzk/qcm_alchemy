@@ -1,19 +1,22 @@
-<html>
+{% extends 'base.html' %}
+{% block head %}
+{{ super() }}
+{% endblock %}
 
-<head>
-</head>
-
-
-<body>
-    <div>
-        <a href="{{ url_for('new') }}">Nouveau QCM</a>
+{% block content %}
+<div class="part">
+<h2 class="part-title">
+    <div class="margin-bottom">
+    <a href="{{ url_for('new') }}" class="margin-bottom">Nouveau QCM</a>
     </div>
-    <div>
-        <a href="{{ url_for('qcms') }}">Liste des QCM</a>
+    
+    <div class="margin-bottom">
+    <a href="{{ url_for('qcms') }}" class="margin-bottom">Liste des QCM</a>
     </div>
-    <div>
-        <a href="{{ url_for('marks') }}">Notes</a>
+    
+    <div class="margin-bottom">
+    <a href="{{ url_for('marks') }}" class="margin-bottom">Notes</a>
     </div>
-</body>
-
-</html>
+</h2>
+</div>
+{% endblock %}

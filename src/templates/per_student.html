@@ -1,66 +1,41 @@
-<!DOCTYPE html>
-<html lang="fr">
+{% extends 'base.html' %}
+{% block head %}
+{{ super() }}
+{% endblock %}
 
-<head>
-    <style>
-        table,
-        th,
-        td {
-            border: 1px solid white;
-            border-collapse: collapse;
-        }
+{% block content %}
+{% if works %}
+<div class="part">
+    <h2 class="part-title">
+        Résultats de l'élève : {{ works[0].student.name|safe }}
+    </h2>
+    <div class="qcm">
+        <table class="center">
+            <thead>
+                <tr>
+                    <th>QCM</th>
+                    <th>Points</th>
+                </tr>
+            </thead>
 
-        th,
-        td {
-            background-color: #D4D4D4;
-        }
-    </style>
-</head>
-
-<body>
-
-    <h3>
-        <a href="{{ url_for('index') }}">Accueil</a>
-    </h3>
-
-    <hr />
-    {%- for message in get_flashed_messages() %}
-    {{ message }}
-    {%- endfor %}
-
-
-    {% if works %}
-    <table>
-        <thead>
-            <tr>
-                <th>QCM</th>
-                <th>Points</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            {% for work in works %}
-            <tr>
-                <td>
-                    {{ work.qcm.title }}
-                </td>
-                <td>
-                    {{ work.points }}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-        <caption>
-            {{ works[0].student.name }}
-        </caption>
-
-        {% else %}
-        <h2>
-            Élève introuvable.
-        </h2>
-        {% endif %}
-    </table>
-
-</body>
-
-</html>
+            <tbody>
+                {% for work in works %}
+                <tr>
+                    <td>
+                        {{ work.qcm.title|safe }}
+                    </td>
+                    <td>
+                        {{ work.points }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<h2>
+    Élève introuvable
+</h2>
+{% endif %}
+{% endblock %}

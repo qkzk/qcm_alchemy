@@ -1,25 +1,17 @@
-<!DOCTYPE html>
-<html lang="fr">
+{% extends 'base.html' %}
+{% block head %}
+{{ super() }}
+{% endblock %}
 
-<head></head>
-
-<body>
-
-    <h3>
-        <a href="{{ url_for('index') }}">QCM</a>
-    </h3>
-
-    <hr />
-    {%- for message in get_flashed_messages() %}
-    {{ message }}
-    {%- endfor %}
-
-    <div>
-        <a href="{{ url_for('student') }}">Élève</a>
-    </div>
-    <div>
-        <a href="{{ url_for('teacher') }}">Professeur</a>
-    </div>
-</body>
-
-</html>
+{% block content %}
+<div class="part">
+    <h2>
+    <a href="{{ url_for('student') }}">Élève</a>
+    </h2>
+</div>
+<div class="part">
+    <h2>
+    <a href="{{ url_for('teacher') }}">Professeur</a>
+    </h2>
+</div>
+{% endblock %}

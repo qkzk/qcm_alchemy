@@ -21,7 +21,7 @@
 - [x] regrouper les résultats
 - [ ] chronomètre
 - [x] cookies
-- [ ] mode anti triche
+- [x] mode anti triche
 
 ### Marks
 
@@ -44,9 +44,10 @@
 
 ### Style
 
-- [ ] base
-- [ ] custom for admin
-- [ ] custom for student
+- [x] base
+- [x] custom for teacher
+- [x] custom for student
+- [x] latex
 
 ## Mixing answers
 
@@ -69,3 +70,6 @@
     - [x] ensemble des qcm
     - [x] notes d'un qcm
     - [x] notes d'un étudiant
+- [x] style pour chaque page
+- [x] latex
+- [x] block content etc.
