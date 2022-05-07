@@ -49,6 +49,11 @@
             </tr>
             {% endfor %}
         </table>
+        <h2 class="part-title">
+            <a href="{{ url_for('marks_export', id_qcm=qcm.id) }}">
+                Exporter en CSV
+            </a>
+        </h2>
         {% endif %}
     </div>
 </div>

@@ -162,4 +162,5 @@ cython_debug/
 # own
 *qcm.db
 *nohup.out
+*.csv
 
