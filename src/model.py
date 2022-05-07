@@ -3,68 +3,10 @@ import os
 from datetime import datetime, timedelta
 from random import shuffle
 
-from apscheduler.schedulers.background import BackgroundScheduler
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 
 from .parser import ParseQCM
-
-
-def clear_records_and_files():
-    print("cleaner is running...")
-    Qcm.clear_old_records()
-    Student.clear_old_records()
-    delete_old_files("UPLOAD_FOLDER")
-    delete_old_files("DOWNLOAD_FOLDER")
-    print("cleaner completed")
-
-
-##################################################################################
-##################################################################################
-#                                   RUNTIME
-##################################################################################
-##################################################################################
-
-sched = BackgroundScheduler(daemon=True)
-sched.add_job(clear_records_and_files, "interval", seconds=10)
-sched.start()
-
-UPLOAD_FOLDER = "uploads/"
-DOWNLOAD_FOLDER = "downloads/"
-ALLOWED_EXTENSIONS = {"md"}
-
-app = Flask(__name__)
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-app.config["DOWNLOAD_FOLDER"] = DOWNLOAD_FOLDER
-app.config["MAX_CONTENT_LENGTH"] = 16 * 1000 * 1000
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///../db/qcm.db"
-app.config["SECRET_KEY"] = "random string"
-
-db = SQLAlchemy(app)
-
-if "sqlite" in app.config["SQLALCHEMY_DATABASE_URI"]:
-
-    def _fk_pragma_on_connect(dbapi_con, con_record):  # noqa
-        dbapi_con.execute("pragma foreign_keys=ON")
-
-    with app.app_context():
-        from sqlalchemy import event
-
-        event.listen(db.engine, "connect", _fk_pragma_on_connect)
-
-##################################################################################
-##################################################################################
-#                                   OBJECTS
-##################################################################################
-##################################################################################
-
-
-def delete_old_files(env_name: str):
-    directory = os.path.join(os.getcwd(), app.config[env_name])
-    for filename in os.listdir(directory):
-        if filename != "readme.md":
-            os.remove(os.path.join(directory, filename))
+from .create_app import app, db, ALLOWED_EXTENSIONS
 
 
 class QcmPaserError(Exception):
