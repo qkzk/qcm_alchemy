@@ -199,5 +199,6 @@ def create_app():
         db.session.commit()
         return render_template("confirmation_page.html", data="Réponses enregistrées")
 
-    db.create_all()
+    # db.create_all()
+    db.init_app(app)
     return app
