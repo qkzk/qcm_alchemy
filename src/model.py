@@ -1,3 +1,4 @@
+import csv
 import os
 from datetime import datetime
 from flask import Flask
@@ -7,10 +8,12 @@ from .parser import ParseQCM
 
 app = Flask(__name__)
 UPLOAD_FOLDER = "uploads/"
+DOWNLOAD_FOLDER = "downloads/"
 ALLOWED_EXTENSIONS = {"md"}
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+app.config["DOWNLOAD_FOLDER"] = DOWNLOAD_FOLDER
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1000 * 1000
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///../db/qcm.db"
 app.config["SECRET_KEY"] = "random string"
@@ -144,6 +147,30 @@ class Work(db.Model):
 
     def __repr__(self):
         return f"Work({self.id}, {self.id_qcm}, {self.id_student})"
+
+    @classmethod
+    def write_export(cls, id_qcm: int) -> str:
+        works = cls.query.filter_by(id_qcm=id_qcm).all()
+        if works:
+            filename = f"export-{id_qcm}.csv"
+            with open(
+                os.path.join(app.config["DOWNLOAD_FOLDER"], filename), "w"
+            ) as csv_file:
+                fieldnames = ["QCM_ID", "Titre", "Nom", "Points"]
+                dictwriter = csv.DictWriter(csv_file, fieldnames=fieldnames)
+                dictwriter.writeheader()
+                for work in works:
+                    dictwriter.writerow(
+                        {
+                            "QCM_ID": work.id_qcm,
+                            "Titre": work.qcm.title,
+                            "Nom": work.student.name,
+                            "Points": work.points,
+                        }
+                    )
+
+            return filename
+        return ""
 
 
 class Choice(db.Model):

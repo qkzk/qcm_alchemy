@@ -1,5 +1,14 @@
+import os
 from random import randint
-from flask import request, flash, url_for, make_response, redirect, render_template
+from flask import (
+    request,
+    flash,
+    url_for,
+    make_response,
+    redirect,
+    render_template,
+    send_from_directory,
+)
 from .model import app, db, Choice, Marks, Qcm, QcmFile, Student, Work
 from .parser import ParseQCM
 
@@ -61,6 +70,16 @@ def create_app():
             works = Work.query.filter_by(id_qcm=id_qcm).all()
             return render_template("marks.html", qcm=qcm)
         return render_template("marks.html")
+
+    @app.route("/marks/export/<int:id_qcm>")
+    def marks_export(id_qcm):
+        try:
+            id_qcm = int(id_qcm)
+            path = Work.write_export(id_qcm)
+            directory = os.path.join(os.getcwd(), app.config["DOWNLOAD_FOLDER"])
+            return send_from_directory(directory=directory, path=path)
+        except TypeError:
+            return render_template("index.html")
 
     @app.route("/per_student/<id_student>")
     def per_student(id_student):

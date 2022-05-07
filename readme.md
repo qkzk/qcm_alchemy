@@ -30,9 +30,8 @@
 
 ### Export Marks
 
-- [ ] exporter les notes d'un QCM
-- [ ] envoyer à l'enseignant un csv
-- [ ] télécharger un csv
+- [x] exporter les notes d'un QCM
+- [x] télécharger un csv
 - [ ] nettoyer la bdd après l'envoi et régulièrement (RGPD)
 
 ### Views
@@ -73,3 +72,4 @@
 - [x] style pour chaque page
 - [x] latex
 - [x] block content etc.
+- [x] exporter en csv
