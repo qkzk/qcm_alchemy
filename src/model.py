@@ -204,9 +204,10 @@ class Work(db.Model):
         works = cls.query.filter_by(id_qcm=id_qcm).all()
         if works:
             filename = f"export-{id_qcm}.csv"
-            with open(
-                os.path.join(os.getcwd(), app.config["DOWNLOAD_FOLDER"], filename), "w"
-            ) as csv_file:
+            fullpath = os.path.join(
+                os.getcwd(), app.config["DOWNLOAD_FOLDER"], filename
+            )
+            with open(fullpath, "w") as csv_file:
                 fieldnames = ["QCM_ID", "Titre", "Nom", "Points"]
                 dictwriter = csv.DictWriter(csv_file, fieldnames=fieldnames)
                 dictwriter.writeheader()
