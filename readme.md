@@ -16,12 +16,12 @@
 ### Export -> html
 
 - [x] mélanger
-- [ ] présenter une question par page
-- [ ] lien entre les pages
 - [x] regrouper les résultats
-- [ ] chronomètre
 - [x] cookies
 - [x] mode anti triche
+- [ ] chronomètre
+- [ ] présenter une question par page
+- [ ] lien entre les pages
 
 ### Marks
 
@@ -63,8 +63,8 @@
 ### Serving
 
 - [x] gunicorn
-- [ ] real db ?
-- [ ] GCP
+- [x] postgres
+- [x] heroku (i don't understand why I can't use GCP...)
 
 
 ## Steps
@@ -89,11 +89,25 @@
     - [x] ajouter "je ne sais pas"
 - [x] serve with gunicorn
 - [x] séparer le modèle de la création des instances
-- [ ] déployer qq part : **HEROKU**
+- [x] déployer qq part : **HEROKU : [qcmqkzk](https://qcmqkzk.herokuapp.com/)**
     - [x] vues 
     - [x] upload
     - [x] download
-    - [ ] bdd
+    - [x] bdd
 
-        * impossible de run heroku et sqlite, il faudra switch. [hero sqlite](https://devcenter.heroku.com/articles/sqlite3)
+        * impossible de run heroku et sqlite, il faut switch : [hero sqlite](https://devcenter.heroku.com/articles/sqlite3)
         * [postgres](https://towardsdatascience.com/deploy-a-micro-flask-application-into-heroku-with-postgresql-database-d95fd0c19408)
+        * Many fixes needed...
+            1. setup postgres locally following [archwiki](https://wiki.archlinux.org/title/PostgreSQL)
+            2. add postgres to heroku with [medium](https://towardsdatascience.com/deploy-a-micro-flask-application-into-heroku-with-postgresql-database-d95fd0c19408)
+                some steps are wrong :
+
+                1. Flask-Migrate doesn't work like this anymore.
+                2. the uri-database can't start with `postgres` but with `postgresql` so we have to ensure the setup is rectified IN THE CODE. Since changing it in `setup.sh` does nothing.
+                3. Once everything is working you can log into the DB with `heroku pg:psql postgresql-clear-05212 --app casting-agency-xw` where postgresql-clear-05212 is the name of the DB (found [here](https://dashboard.heroku.com/apps/qcmqkzk/resources))
+                4. You can log into the dyno with `heroku run bash`, see the logs with `heroku log --tail`
+- [ ] hammering and intense testing.
+- [ ] limit strings, safe inputs and good practices
+- [ ] refactor app
+- [ ] refactor model
+- [ ] refactor views

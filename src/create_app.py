@@ -14,8 +14,8 @@ from flask_migrate import Migrate
 UPLOAD_FOLDER = "uploads/"
 DOWNLOAD_FOLDER = "created_files/"
 ALLOWED_EXTENSIONS = {"md"}
-DEFAULT_DATABASE_PATH = "postgresql://quentin:bla@localhost/qcm"
 
+DEFAULT_DATABASE_PATH = "postgresql://quentin:bla@localhost/qcm"
 uri = os.getenv("DATABASE_URL")  # or other relevant config var
 if uri and uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
