@@ -260,8 +260,6 @@ class QcmFile:
         self.filename: str
         self.file = file
         self.save_file(file)
-        # TODO parsing
-        print("parsing...")
 
     def save_file(self, file: "werkzeug.datastructures.FileStorage"):
         full_path = os.path.join(

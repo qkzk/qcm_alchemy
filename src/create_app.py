@@ -14,6 +14,7 @@ DOWNLOAD_FOLDER = "created_files/"
 ALLOWED_EXTENSIONS = {"md"}
 
 app = Flask(__name__)
+
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["DOWNLOAD_FOLDER"] = DOWNLOAD_FOLDER
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1000 * 1000
@@ -24,7 +25,7 @@ db = SQLAlchemy(app)
 
 if "sqlite" in app.config["SQLALCHEMY_DATABASE_URI"]:
 
-    def _fk_pragma_on_connect(dbapi_con, con_record):  # noqa
+    def _fk_pragma_on_connect(dbapi_con, con_record):
         dbapi_con.execute("pragma foreign_keys=ON")
 
     with app.app_context():

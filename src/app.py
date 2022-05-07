@@ -135,7 +135,6 @@ def create_app():
 
     @app.route("/qcm", methods=["POST"])
     def qcm():
-        print(request.form)
         try:
             name = f"{request.form.get('student.name')} {request.form.get('student.firstname')}"
             id_qcm = int(request.form.get("qcm.id"))
@@ -161,8 +160,6 @@ def create_app():
             db.session.commit()
         id_student = student.id
 
-        print(qcm.format())
-
         # create a work
         work = Work(id_qcm=id_qcm, id_student=id_student)
         db.session.add(work)
@@ -177,14 +174,10 @@ def create_app():
 
     @app.route("/answers", methods=["POST"])
     def answers():
-        print(request.form)
-        print(dir(request.form))
         try:
             id_work = int(request.cookies.get("id_work"))
         except TypeError:
             return render_template("confirmation_page.html", data="Utilisateur inconnu")
-
-        print(f"id_work: {id_work}")
 
         for k, v in request.form.items():
             if k.startswith("Q ") and v.startswith("A "):
@@ -199,6 +192,6 @@ def create_app():
         db.session.commit()
         return render_template("confirmation_page.html", data="Réponses enregistrées")
 
-    db.drop_all()
+    # db.drop_all()
     db.create_all()
     return app

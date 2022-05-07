@@ -163,4 +163,4 @@ cython_debug/
 *qcm.db
 *nohup.out
 *.csv
-
+examples/
