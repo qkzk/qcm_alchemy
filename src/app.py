@@ -39,7 +39,7 @@ def create_app():
         id="clear_records_and_files",
         func=clear_records_and_files,
         trigger="interval",
-        seconds=10,
+        hours=24,
     )
     sched.start()
 

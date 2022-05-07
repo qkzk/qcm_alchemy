@@ -67,7 +67,7 @@ class Qcm(db.Model):
     @classmethod
     def clear_old_records(cls):
         now = datetime.now()
-        two_days_ago = now - timedelta(minutes=2)
+        two_days_ago = now - timedelta(hours=48)
         cls.query.filter(cls.datetime < two_days_ago).delete()
         db.session.commit()
 
@@ -157,7 +157,7 @@ class Student(db.Model):
     @classmethod
     def clear_old_records(cls):
         now = datetime.now()
-        two_days_ago = now - timedelta(minutes=2)
+        two_days_ago = now - timedelta(hours=48)
         cls.query.filter(cls.datetime < two_days_ago).delete()
         db.session.commit()
 
