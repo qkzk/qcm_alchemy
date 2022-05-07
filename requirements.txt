@@ -1,3 +1,4 @@
+markdown
 flask
 flask-sqlalchemy
 Flask-APScheduler
