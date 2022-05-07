@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from random import randint
 from flask import (
     request,
@@ -9,7 +10,8 @@ from flask import (
     render_template,
     send_from_directory,
 )
-from .model import app, db, Choice, Marks, Qcm, QcmFile, Student, Work
+
+from .model import app, db, Choice, Qcm, QcmFile, Student, Work
 from .parser import ParseQCM
 
 
@@ -78,6 +80,7 @@ def create_app():
             path = Work.write_export(id_qcm)
             directory = os.path.join(os.getcwd(), app.config["DOWNLOAD_FOLDER"])
             return send_from_directory(directory=directory, path=path)
+
         except TypeError:
             return render_template("index.html")
 
@@ -126,7 +129,7 @@ def create_app():
             if len(students) > 1:
                 # make a new student with variation of name
                 name += str(randint(1, 9))
-            student = Student(name=name)
+            student = Student(name=name, datetime=datetime.now())
             db.session.add(student)
             db.session.commit()
         id_student = student.id

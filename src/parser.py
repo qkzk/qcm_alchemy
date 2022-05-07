@@ -76,7 +76,9 @@ class ParseQCM:
         try:
             with open(input_filename) as file_content:
                 return cls(
-                    file_content.readlines(), mode=mode, code_present=code_present
+                    file_content.readlines(),
+                    mode=mode,
+                    code_present=code_present,
                 )
         except:
             print("The first argument should be a correct filepath")
