@@ -205,7 +205,7 @@ class Work(db.Model):
         if works:
             filename = f"export-{id_qcm}.csv"
             with open(
-                os.path.join(app.config["DOWNLOAD_FOLDER"], filename), "w"
+                os.path.join(os.getcwd(), app.config["DOWNLOAD_FOLDER"], filename), "w"
             ) as csv_file:
                 fieldnames = ["QCM_ID", "Titre", "Nom", "Points"]
                 dictwriter = csv.DictWriter(csv_file, fieldnames=fieldnames)
