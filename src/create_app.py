@@ -1,6 +1,8 @@
+import os
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-
+from flask_migrate import Migrate
 
 ##################################################################################
 ##################################################################################
@@ -12,16 +14,19 @@ from flask_sqlalchemy import SQLAlchemy
 UPLOAD_FOLDER = "uploads/"
 DOWNLOAD_FOLDER = "created_files/"
 ALLOWED_EXTENSIONS = {"md"}
+DEFAULT_DATABASE_PATH = "postgresql://quentin:bla@localhost/qcm"
 
 app = Flask(__name__)
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["DOWNLOAD_FOLDER"] = DOWNLOAD_FOLDER
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1000 * 1000
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///../db/qcm.db"
+# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///../db/qcm.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", DEFAULT_DATABASE_PATH)
 app.config["SECRET_KEY"] = "random string"
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 if "sqlite" in app.config["SQLALCHEMY_DATABASE_URI"]:
 

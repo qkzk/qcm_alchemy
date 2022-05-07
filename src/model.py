@@ -16,7 +16,7 @@ class QcmPaserError(Exception):
 class Qcm(db.Model):
     __tablename__ = "qcm"
     id = db.Column("id", db.Integer, primary_key=True)
-    title = db.Column(db.String(100))
+    title = db.Column(db.Text)
     datetime = db.Column(db.DateTime)
     part = db.relationship(
         "QcmPart", back_populates="qcm", cascade="all,delete", passive_deletes=True
@@ -80,7 +80,7 @@ class Qcm(db.Model):
 class QcmPart(db.Model):
     __tablename__ = "qcm_part"
     id = db.Column("id", db.Integer, primary_key=True)
-    title = db.Column(db.String(100))
+    title = db.Column(db.Text)
     id_qcm = db.Column(
         "id_qcm", db.Integer, db.ForeignKey("qcm.id", ondelete="CASCADE")
     )
@@ -101,8 +101,8 @@ class QcmPart(db.Model):
 class QcmPartQuestion(db.Model):
     __tablename__ = "qcm_part_question"
     id = db.Column("id", db.Integer, primary_key=True)
-    question = db.Column(db.String(400))
-    sub_text = db.Column(db.String(400))
+    question = db.Column(db.Text)
+    sub_text = db.Column(db.Text)
     id_part = db.Column(
         "id_part", db.Integer, db.ForeignKey("qcm_part.id", ondelete="CASCADE")
     )
@@ -123,7 +123,7 @@ class QcmPartQuestion(db.Model):
 class QcmPartQuestionAnswer(db.Model):
     __tablename__ = "qcm_part_question_answer"
     id = db.Column("id", db.Integer, primary_key=True)
-    answer = db.Column(db.String(200))
+    answer = db.Column(db.Text)
     id_question = db.Column(
         "id_question",
         db.Integer,

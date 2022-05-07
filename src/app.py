@@ -194,4 +194,5 @@ def create_app():
 
     # db.drop_all()
     db.create_all()
+
     return app

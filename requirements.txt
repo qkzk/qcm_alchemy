@@ -2,4 +2,7 @@ markdown
 flask
 flask-sqlalchemy
 Flask-APScheduler
+Flask-Migrate
+Flask-Script
 gunicorn
+psycopg2

@@ -89,3 +89,11 @@
     - [x] ajouter "je ne sais pas"
 - [x] serve with gunicorn
 - [x] séparer le modèle de la création des instances
+- [ ] déployer qq part : **HEROKU**
+    - [x] vues 
+    - [x] upload
+    - [x] download
+    - [ ] bdd
+
+        * impossible de run heroku et sqlite, il faudra switch. [hero sqlite](https://devcenter.heroku.com/articles/sqlite3)
+        * [postgres](https://towardsdatascience.com/deploy-a-micro-flask-application-into-heroku-with-postgresql-database-d95fd0c19408)
