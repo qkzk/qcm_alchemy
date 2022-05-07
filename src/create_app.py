@@ -16,13 +16,18 @@ DOWNLOAD_FOLDER = "created_files/"
 ALLOWED_EXTENSIONS = {"md"}
 DEFAULT_DATABASE_PATH = "postgresql://quentin:bla@localhost/qcm"
 
+uri = os.getenv("DATABASE_URL")  # or other relevant config var
+if uri and uri.startswith("postgres://"):
+    uri = uri.replace("postgres://", "postgresql://", 1)
+DATABASE_URL = uri if uri else DEFAULT_DATABASE_PATH
+
 app = Flask(__name__)
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["DOWNLOAD_FOLDER"] = DOWNLOAD_FOLDER
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1000 * 1000
 # app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///../db/qcm.db"
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", DEFAULT_DATABASE_PATH)
+app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SECRET_KEY"] = "random string"
 
 db = SQLAlchemy(app)
