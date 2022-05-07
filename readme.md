@@ -15,7 +15,7 @@
 
 ### Export -> html
 
-- [ ] mélanger
+- [x] mélanger
 - [ ] présenter une question par page
 - [ ] lien entre les pages
 - [x] regrouper les résultats
@@ -60,6 +60,13 @@
 - [ ] utiliser [flask caching](https://flask-caching.readthedocs.io/en/latest/)
 - [ ] stratégie : quand on veut accéder à un QCM, le cacher après l'avoir retrieve, le drop si plus de x qcm ?
 
+### Serving
+
+- [ ] gunicorn
+- [ ] real db ?
+- [ ] GCP
+
+
 ## Steps
 
 - [x] présenter un qcm
@@ -76,3 +83,7 @@
 - [x] nettoyer
     - [x] la bdd
     - [x] les fichiers downloadés
+- [x] mélanger
+    - [x] parts
+    - [x] questions
+    - [x] ajouter "je ne sais pas"

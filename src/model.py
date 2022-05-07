@@ -1,6 +1,7 @@
 import csv
 import os
 from datetime import datetime, timedelta
+from random import shuffle
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask
@@ -128,6 +129,11 @@ class Qcm(db.Model):
         cls.query.filter(cls.datetime < two_days_ago).delete()
         db.session.commit()
 
+    def shuffled_parts(self):
+        parts = list(self.part)
+        shuffle(parts)
+        return parts
+
 
 class QcmPart(db.Model):
     __tablename__ = "qcm_part"
@@ -143,6 +149,11 @@ class QcmPart(db.Model):
         cascade="all,delete",
         passive_deletes=True,
     )
+
+    def shuffled_questions(self):
+        questions = list(self.questions)
+        shuffle(questions)
+        return questions
 
 
 class QcmPartQuestion(db.Model):
@@ -160,6 +171,11 @@ class QcmPartQuestion(db.Model):
         cascade="all,delete",
         passive_deletes=True,
     )
+
+    def shuffled_answers(self):
+        answers = list(self.answers)
+        shuffle(answers)
+        return answers
 
 
 class QcmPartQuestionAnswer(db.Model):
