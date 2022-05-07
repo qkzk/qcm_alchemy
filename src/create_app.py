@@ -10,7 +10,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 
 UPLOAD_FOLDER = "uploads/"
-DOWNLOAD_FOLDER = "downloads/"
+DOWNLOAD_FOLDER = "created_files/"
 ALLOWED_EXTENSIONS = {"md"}
 
 app = Flask(__name__)
