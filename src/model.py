@@ -1,3 +1,10 @@
+"""
+title: model
+author: qkzk
+date: 2022/05/08
+
+Models used in database and views.
+"""
 import csv
 import os
 from datetime import datetime, timedelta
@@ -14,6 +21,12 @@ class QcmPaserError(Exception):
 
 
 class Qcm(db.Model):
+    """
+    Root Qcm model.
+    Its childen (`QcmPart`) holds questions which holds answers.
+    It is created after the parsing of a .md file.
+    """
+
     __tablename__ = "qcm"
     id = db.Column("id", db.Integer, primary_key=True)
     title = db.Column(db.Text)
@@ -27,6 +40,7 @@ class Qcm(db.Model):
 
     @classmethod
     def from_parsed_qcm(cls, parsed_qcm: ParseQCM) -> "Qcm":
+        """Creates a Qcm instance from a parsed QCM.md file."""
         try:
             qcm = Qcm(title=parsed_qcm.title, datetime=datetime.now())
             for parsed_part in parsed_qcm.parts:
@@ -63,22 +77,32 @@ class Qcm(db.Model):
         return s
 
     def count_works(self) -> int:
+        """Returns the number of recorded works for this QCM"""
         return len(self.works)
 
     @classmethod
     def clear_old_records(cls):
+        """Self cleaning of the database. Uses the ForeignKey to clean children as well."""
         now = datetime.now()
         two_days_ago = now - timedelta(hours=48)
         cls.query.filter(cls.datetime < two_days_ago).delete()
         db.session.commit()
 
     def shuffled_parts(self):
+        """
+        Shuffle the parts to randomize the QCM.
+        Used by the view to creates different work for students.
+        """
         parts = list(self.part)
         shuffle(parts)
         return parts
 
 
 class QcmPart(db.Model):
+    """
+    Holds the part of a QCM. A part is a `## title` and its following `### questions`.
+    """
+
     __tablename__ = "qcm_part"
     id = db.Column("id", db.Integer, primary_key=True)
     title = db.Column(db.Text)
@@ -94,12 +118,20 @@ class QcmPart(db.Model):
     )
 
     def shuffled_questions(self):
+        """Shuffle its question to randomise every test."""
         questions = list(self.questions)
         shuffle(questions)
         return questions
 
 
 class QcmPartQuestion(db.Model):
+    """
+    Holds a Question.
+    A Question starts with `### question`, followed by an optional string, then a list of
+        `- [ ] wrong answer` or
+        `- [x] valid answer.`
+    """
+
     __tablename__ = "qcm_part_question"
     id = db.Column("id", db.Integer, primary_key=True)
     question = db.Column(db.Text)
@@ -116,12 +148,19 @@ class QcmPartQuestion(db.Model):
     )
 
     def shuffled_answers(self):
+        """Shuffle the answers to randomize the test."""
         answers = list(self.answers)
         shuffle(answers)
         return answers
 
 
 class QcmPartQuestionAnswer(db.Model):
+    """
+    Holds an answer.
+    An answer is a choice which can be right or wrong.
+    It may hold some LaTex or some inline code : `$1+1=2`, `1+1 == 2`.
+    """
+
     __tablename__ = "qcm_part_question_answer"
     id = db.Column("id", db.Integer, primary_key=True)
     answer = db.Column(db.Text)
@@ -149,6 +188,12 @@ class QcmPartQuestionAnswer(db.Model):
 
 
 class Student(db.Model):
+    """
+    Holds the information about our students.
+    We records only their name and their answers. Thoses answers can't be retrieved yet.
+    All we can do is get their score.
+    """
+
     __tablename__ = "student"
     id = db.Column("id", db.Integer, primary_key=True)
     datetime = db.Column("datetime", db.DateTime)
@@ -159,6 +204,7 @@ class Student(db.Model):
 
     @classmethod
     def clear_old_records(cls):
+        """Self cleaning purpose. Delete every old student and its children (Work)."""
         now = datetime.now()
         two_days_ago = now - timedelta(hours=48)
         cls.query.filter(cls.datetime < two_days_ago).delete()
@@ -169,6 +215,9 @@ class Student(db.Model):
 
 
 class Work(db.Model):
+    """
+    Holds the choices made in the QCM form for a Student.
+    """
     __tablename__ = "work"
     id = db.Column("id", db.Integer, primary_key=True)
     id_qcm = db.Column(
@@ -186,7 +235,8 @@ class Work(db.Model):
     points = db.Column("points", db.Integer)
 
     @classmethod
-    def from_form(cls, id_qcm: int, id_student: int, parsed_choices: list[dict]):
+    def from_form(cls, id_qcm: int, id_student: int, parsed_choices: list[dict]) -> `Work`:
+        """Returns a `Work` instance extracted from a POST form"""
         work = Work(id_qcm=id_qcm, id_student=id_student)
         for parsed_choice in parsed_choices:
             choice = Choice(
@@ -196,7 +246,8 @@ class Work(db.Model):
             work.choices.append(choice)
         return work
 
-    def count_points(self):
+    def count_points(self) -> int:
+        """Used to count the right choices made by the student."""
         self.points = sum(1 for choice in self.choices if choice.answer.is_valid)
 
     def __repr__(self):
@@ -204,6 +255,9 @@ class Work(db.Model):
 
     @classmethod
     def write_export(cls, id_qcm: int) -> str:
+        """
+        Returns a `csv` content with the marks of every student who answered a QCM.
+        """
         works = cls.query.filter_by(id_qcm=id_qcm).all()
         if works:
             filename = f"export-{id_qcm}.csv"
@@ -229,6 +283,11 @@ class Work(db.Model):
 
 
 class Choice(db.Model):
+    """
+    A choice made by a Student.
+    We only know who made the choice, what Answer he/she choosed and which QCM he/she
+    was answering to.
+    """
     __tablename__ = "choice"
     id = db.Column("id", db.Integer, primary_key=True)
     id_work = db.Column(
@@ -261,6 +320,11 @@ class QcmFileError(Exception):
 
 
 class QcmFile:
+    """
+    Holds a QcmFile.
+    It should be a valid markdown file uploaded by a teacher.
+    If it's parsed correctly we send it to the db.
+    """
     def __init__(self, file: "werkzeug.datastructures.FileStorage"):
         self.filename: str
         self.file = file
@@ -275,6 +339,11 @@ class QcmFile:
 
     @classmethod
     def validate_file(cls, file: "werkzeug.datastructures.FileStorage") -> tuple:
+        """
+        Returns the couple (is_valid, message) where `is_valid` is `True` iff we could
+        parse the content. The error message is used by the view to inform the teacher
+        of the error : invalid filetype, file not found, error while parsing.
+        """
         is_valid = True
         message = ""
 
@@ -289,6 +358,7 @@ class QcmFile:
 
     @staticmethod
     def validate_filename(file: "werkzeug.datastructures.FileStorage") -> bool:
+        """True if the file has only one `"."` in its name and its extension is `.md`"""
         return (
             "." in file.filename
             and file.filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -296,13 +366,18 @@ class QcmFile:
 
     @classmethod
     def from_file(cls, file: "werkzeug.datastructures.FileStorage") -> "QcmFile":
+        """
+        Creates a QcmFile from a markdown file.
+        Raise `QcmFileError` if it's impossible.
+        """
         try:
             return cls(file)
         except Exception as e:
             print(repr(e))
             raise QcmFileError(repr(e))
 
-    def flash_message_ok(self):
+    def flash_message_ok(self) -> str:
+        """Returns a string with the destination. Used when everything went smoothly."""
         return f"Fichier uploadé dans {self.__repr__()}"
 
     def __repr__(self):

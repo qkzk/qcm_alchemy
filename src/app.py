@@ -1,7 +1,13 @@
+"""
+title: app
+author: qkzk
+date: 2022/05/08
+"""
 import os
 from datetime import datetime
 from random import randint
 from flask import (
+    Flask,
     request,
     flash,
     url_for,
@@ -17,6 +23,7 @@ from .parser import ParseQCM
 
 
 def clear_records_and_files():
+    """Scheduled task : clean the database and the old files."""
     print("cleaner is running...")
     Qcm.clear_old_records()
     Student.clear_old_records()
@@ -26,13 +33,22 @@ def clear_records_and_files():
 
 
 def delete_old_files(env_name: str):
+    """Delete old files from created_files and uploads"""
     directory = os.path.join(os.getcwd(), app.config[env_name])
     for filename in os.listdir(directory):
         if filename != "readme.md":
             os.remove(os.path.join(directory, filename))
 
 
-def create_app():
+def trunctate_string(string: str, size: int):
+    """Truncate a string after `size` chars."""
+    if len(string) > size:
+        return string[:size]
+    return string
+
+
+def create_app() -> Flask:
+    """Create a Flask Application with database and scheduler."""
 
     sched = APScheduler()
     sched.add_job(
@@ -144,6 +160,7 @@ def create_app():
     def qcm():
         try:
             name = f"{request.form.get('student.name')} {request.form.get('student.firstname')}"
+            name = trunctate_string(name, 100)
             id_qcm = int(request.form.get("qcm.id"))
         except TypeError:
             return render_template(
@@ -162,6 +179,7 @@ def create_app():
             if len(students) > 1:
                 # make a new student with variation of name
                 name += str(randint(1, 9))
+            # add the new student to database
             student = Student(name=name, datetime=datetime.now())
             db.session.add(student)
             db.session.commit()
@@ -192,12 +210,17 @@ def create_app():
 
         for k, v in request.form.items():
             if k.startswith("Q_") and v.startswith("A_"):
-                id_question = int(k.split("_")[1])
-                id_answer = int(v.split("_")[1])
-                choice = Choice(
-                    id_work=id_work, id_question=id_question, id_answer=id_answer
-                )
-                db.session.add(choice)
+                try:
+                    id_question = int(k.split("_")[1])
+                    id_answer = int(v.split("_")[1])
+                    choice = Choice(
+                        id_work=id_work, id_question=id_question, id_answer=id_answer
+                    )
+                    db.session.add(choice)
+                except TypeError:
+                    return render_template(
+                        "confirmation_page.html", data="Réponses illisibles"
+                    )
         work = Work.query.get(id_work)
         work.count_points()
         db.session.commit()

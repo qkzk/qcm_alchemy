@@ -1,25 +1,26 @@
+"""
+title: create_app
+author: qkzk
+date: 2022/05/08
+
+Create a Flask app and an sqlalchemy database.
+"""
 import os
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
-##################################################################################
-##################################################################################
-#                                   RUNTIME
-##################################################################################
-##################################################################################
-
 
 UPLOAD_FOLDER = "uploads/"
 DOWNLOAD_FOLDER = "created_files/"
 ALLOWED_EXTENSIONS = {"md"}
 
-DEFAULT_DATABASE_PATH = "postgresql://quentin:bla@localhost/qcm"
+LOCAL_DATABASE_PATH = "postgresql://quentin:bla@localhost/qcm"
 uri = os.getenv("DATABASE_URL")  # or other relevant config var
 if uri and uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
-DATABASE_URL = uri if uri else DEFAULT_DATABASE_PATH
+DATABASE_URL = uri if uri else LOCAL_DATABASE_PATH
 
 app = Flask(__name__)
 
