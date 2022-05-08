@@ -191,9 +191,9 @@ def create_app():
             return render_template("confirmation_page.html", data="Utilisateur inconnu")
 
         for k, v in request.form.items():
-            if k.startswith("Q ") and v.startswith("A "):
-                id_question = int(k.split(" ")[1])
-                id_answer = int(v.split(" ")[1])
+            if k.startswith("Q_") and v.startswith("A_"):
+                id_question = int(k.split("_")[1])
+                id_answer = int(v.split("_")[1])
                 choice = Choice(
                     id_work=id_work, id_question=id_question, id_answer=id_answer
                 )

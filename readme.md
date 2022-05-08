@@ -106,8 +106,10 @@
                 2. the uri-database can't start with `postgres` but with `postgresql` so we have to ensure the setup is rectified IN THE CODE. Since changing it in `setup.sh` does nothing.
                 3. Once everything is working you can log into the DB with `heroku pg:psql postgresql-clear-05212 --app casting-agency-xw` where postgresql-clear-05212 is the name of the DB (found [here](https://dashboard.heroku.com/apps/qcmqkzk/resources))
                 4. You can log into the dyno with `heroku run bash`, see the logs with `heroku log --tail`
-- [ ] hammering and intense testing.
-- [ ] limit strings, safe inputs and good practices
-- [ ] refactor app
-- [ ] refactor model
-- [ ] refactor views
+- [x] styling : banner, radio, infos dans base, uniformité
+- [ ] test hosting
+    - [ ] hammering and intense testing.
+    - [ ] limit strings, safe inputs and good practices
+    - [ ] refactor app
+    - [ ] refactor model
+    - [ ] refactor views

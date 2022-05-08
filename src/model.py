@@ -41,10 +41,11 @@ class Qcm(db.Model):
                     part.questions.append(question)
 
                     for parsed_answer in parsed_question.answers:
-                        parsed_answer = QcmPartQuestionAnswer(
+                        answer = QcmPartQuestionAnswer(
                             answer=parsed_answer.text, is_valid=parsed_answer.is_valid
                         )
-                        question.answers.append(parsed_answer)
+                        print(answer)
+                        question.answers.append(answer)
             return qcm
         except Exception as e:
             raise QcmPaserError(repr(e))
@@ -139,7 +140,9 @@ class QcmPartQuestionAnswer(db.Model):
     choices = db.relationship("Choice", back_populates="answer", passive_deletes=True)
 
     def __repr__(self):
-        return f"QcmPartQuestionAnswer({self.answer}, {self.id_question})"
+        return (
+            f"QcmPartQuestionAnswer({self.answer}, {self.id_question}, {self.is_valid})"
+        )
 
     def format(self) -> str:
         return self.answer
@@ -248,7 +251,9 @@ class Choice(db.Model):
     )
 
     def __repr__(self):
-        return f"Work({self.id}, {self.id_qcm}, {self.id_student})"
+        return (
+            f"Choice({self.id}, {self.id_work}, {self.id_question}, {self.id_answer})"
+        )
 
 
 class QcmFileError(Exception):
