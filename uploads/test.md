@@ -18,6 +18,16 @@ header-includes:
 
 ---
 
+## culture
+
+### Qui est-ce ?
+
+![personne](https://media.vogue.fr/photos/5d8c8e536f878f000880cbd5/16:9/w_1920%2Cc_limit/000_ARP4090096.jpg)
+
+- [x] Jacques Chirac
+- [ ] Raymond Barre
+- [ ] François Mitterand
+- [ ] Valery Giscard d'Estaing
 
 ## maths
 
