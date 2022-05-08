@@ -5,13 +5,23 @@
 
 {% block content %}
 <div class="part">
-    <h2>
+<style>
+a, 
+.bold {
+    font-weight: bold;
+}
+p {
+    padding-left: 3rem;
+    text-align: left;
+}
+</style>
+    <h1>
         Comment utiliser ce site ?
+    </h1>
+    <h2>
+        Pour l'élève
     </h2>
     <div class="question-answers">
-        <h2>
-            Pour l'élève
-        </h2>
 
         <p>Depuis 
             <a href="{{ url_for('index') }}">
@@ -26,12 +36,14 @@
         <p>
 
         Ensuite sélectionnez les bonnes réponses et n'oubliez pas de cliquer sur le bouton
-        <span class="bold">Envoyer</span>
+        <span class="bold">Envoyer</span>.
         </p>
 
-        <h3>
-            Mode anti-triche.
-        </h3>
+    </div>
+    <h2>
+        Mode anti-triche
+    </h2>
+    <div class="question-answers">
 
         <p>Afin de rendre l'évaluation un peu plus sérieuse, vous ne pouvez pas quitter
         la fenêtre. Dès que vous ouvrez un nouvel onglet ou quittez la fenêtre, vos réponses
@@ -55,17 +67,25 @@
             Là vous pouvez choisir d'envoyer un nouveau QCM ou consulter les résultats
             des précédents QCM.
 
+            Sélectionnez un fichier compatible au format .md - voir plus bas - et, une fois uploadé,
+            transmettez son numéro à vos élèves.
+
+            Ils en auront besoin pour débuter le QCM. Si vous avez perdu ce numéro, vous
+            pouvez consulter la liste des QCM disponibles depuis le menu enseignant.
+
         </p>
         <p>
             Attention, tous les QCM sont effacés ainsi que les comptes élèves 
-            et les notes après 48h. 
+            et leurs notes après 48h. 
             Pensez à récupérer vos résultats avant.
         </p>
+    </div>
 
-        <h3>
-            Format de fichiers
-        </h3>
+    <h2>
+        Format de fichiers QCM
+    </h2>
 
+    <div class="question-answers">
         <p>
             Vous pouvez consulter un 
 
@@ -85,11 +105,11 @@
             Les questions sont précédées de <code>###</code>
         </p>
         <p>
-            Les réponses sont précédées de <code>- [ ]</code> pour les mauvaises réponses
+            Les propositions sont précédées de <code>- [ ]</code> pour les mauvaises réponses
             et <code>- [x] </code> pour les bonnes réponses.
         </p>
         <p>
-            Une ou plusieurs bonne réponses par question.
+            Une ou plusieurs bonnes réponses par question.
         </p>
         <p>
             Des images peuvent être incluses, mais elles doivent être hébergées en ligne.
@@ -110,11 +130,14 @@
     </h2>
     <div class="question-answers">
         <p>
+            Je suis enseignant. Ici 
             <a href="https://qkzk.xyz">
-                Moi
+                mes cours
             </a> 
-            ou 
-            <a href="https://github.com/qkzk">moi encore</a>.
+            et là 
+            <a href="https://github.com/qkzk">
+              mes dépôts publics.
+            </a>
         </p>
     </div>
     <h2>
@@ -125,6 +148,21 @@
             Pas encore, cette version pre-alpha n'est pas assez propre. Ça devrait
             le devenir si je trouve le temps.
         </p>
+        <p>
+            C'est moche ! Oui.
+        </p>
+        <p>
+            Ça buggue ! Oui, sûrement. Ouvrez une issue sur n'importe lequel de mes
+            <a href="https://github.qkzk">
+                dépôts publics
+            </a> en attendant d'avoir un espace dédié.
+        </p>
+        <p>
+            Je trouve ça formidable blablabla ! Vous pouvez m’envoyer des bitcoins à cette adresse : 1Dzd4GqasicwsVoyBhHayZTCYQ8HnVdiSd
+
+            Ou si vous préférez Ethereum : 0xa6288d3cc9bB4FFFB5637f04b54b902916446D75
+        </p>
+        
     </div>
 
 </div>
