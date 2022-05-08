@@ -5,18 +5,19 @@
 
 {% block content %}
 <div class="part">
-<h2 class="part-title">
-    <div class="margin-bottom">
-    <a href="{{ url_for('new') }}" class="margin-bottom">Nouveau QCM</a>
+    <div class="question-answers">
+        <a href="{{ url_for('new') }}" width="100%" height="100%">
+        <h2>
+                Nouveau QCM
+        </h2>
+        </a>
     </div>
-    
-    <div class="margin-bottom">
-    <a href="{{ url_for('qcms') }}" class="margin-bottom">Liste des QCM</a>
+    <div class="question-answers">
+        <a href="{{ url_for('qcms') }}" width="100%" height="100%">
+        <h2>
+                Liste des QCMs
+        </h2>
+        </a>
     </div>
-    
-    <div class="margin-bottom">
-    <a href="{{ url_for('marks') }}" class="margin-bottom">Notes</a>
-    </div>
-</h2>
 </div>
 {% endblock %}

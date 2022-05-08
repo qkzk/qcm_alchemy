@@ -4,11 +4,6 @@
 {% endblock %}
 
 {% block content %}
-<div class="part">
-    <h1>
-        {{ name|safe }}
-    </h1>
-</div>
 <div class="qcm">
     <div>
         <h1>
@@ -26,25 +21,28 @@
                 <h3 class="question-question">
                     {{ question.question|safe }}
                 </h3>
-                <p class="question-answers form-questions">
+                <p class="question-question form-questions">
                     {{ question.sub_text|safe }}
                 </p>
                 <div class="answers">
                     {% for answer in question.shuffled_answers() %}
-                    <div class="answer">
+                    <div class="answer" id="answer_A_{{ answer.id }}">
                         <input 
                             type="radio" 
-                            name="Q {{ question.id }}" 
+                            name="Q_{{ question.id }}" 
+                            id="A_{{ answer.id }}" 
                             value="A {{ answer.id }}"
                             autocomplete="off"
+                            class="radio"
                         >
                         </input>
-                        <label for="Q {{ question.id }}">
+                        <label for="A_{{ answer.id }}">
                             {{ answer.answer|safe }}
                         </label>
-                        </li>
                     </div>
                     {% endfor %}
+                </div>
+                <div class="spacediv">
                 </div>
             </div>
             {% endfor %}
@@ -58,9 +56,34 @@
     </form>
 </div>
 <script>
-window.onblur = function() {
-      alert("Vous avez quitté la page. Vos réponses sont enregistrées. Vous ne pouvez plus progresser dans le devoir. Votre enseignant est notifié. Vous allez être déconnecté")
-      document.getElementById("qcm_form").submit();
+    // Style the input-radio (answers) elements.
+    // When checked:        background orange,  color black
+    // When not checked:    background dark,    color light
+    // Will break if the .answer.firstChild isn't a <input type="radio">
+
+    var radios = document.getElementsByClassName("radio");
+
+    for(var i = 0, max = radios.length; i < max; i++) {
+        radios[i].onclick = function() {
+            let answers = document.getElementsByClassName("answer");
+
+            for (let i = 0; i < answers.length; i++) {
+                    let answer = answers[i];
+                    if (!answer.childNodes[1].checked) {
+                        answer.style.background = "#1a1a1a";
+                    }
+                }
+
+            let parent_div = document.getElementById('answer_' + this.id);
+            parent_div.style.background = "#ffa500";
+        }
+        
     }
+</script>
+<script>
+    window.onblur = function() {
+          document.getElementById("qcm_form").submit();
+          alert("Vous avez quitté la page. Vos réponses sont enregistrées et vous ne pouvez plus progresser dans le devoir.")
+        }
 </script>
 {% endblock %}

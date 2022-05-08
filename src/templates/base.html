@@ -4,7 +4,7 @@
     {% block head %}
     <title>QCM</title>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}" />
     {% endblock %}
@@ -25,17 +25,22 @@
 
   <body>
     {% block body %}
-      <h1>
-        <a href="/">
-          QCM
-        </a>
-      </h1>
-      {% block content %}{% endblock %}
-      <!-- <div class="logout">
-        <a href="/">Accueil</a>
-        -
-        <a href="/logout">Se déconnecter</a>
-      </div> -->
+        <div id="banner">
+          <h1>
+            <a href="/">
+              QCM
+            </a>
+            {% if base_data %}
+                {{ base_data|safe }}
+            {% endif %}
+          </h1>
+        </div>
+        
+        <div id="content">
+        {% block content %}
+
+        {% endblock %}
+        </div>
     {% endblock %}
   </body>
 

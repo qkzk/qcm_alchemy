@@ -2,7 +2,7 @@ body {
   height: 100%;
   background-image: url("../img/texture.png");
   background-size: 64px 96px;
-  background-postion: center;
+  background-position: center;
   font-family: sans-serif;
 }
 
@@ -12,11 +12,44 @@ body {
   margin-right: auto;
   margin-top: 0;
   margin-bottom: 30px;
-  width: 80%;
-  border: 3px solid #bcbcbc;
-  padding: 10px;
+  max-width: 70%;
+  min-width: 40%;
+}
+
+@media only screen and (max-width: 600px) {
+  .part,
+  .form {
+    max-width: 90%;
+    min-width: 90%;
+    margin-right: 10px;
+    border-radius: 10px;
+  }
+}
+
+#banner {
+  width: 100%;
+  height: 10vh;
+  position: fixed;
   background-color: #1a1a1a;
-  border-radius: 25px;
+  margin: 0px;
+  top: 0px;
+  left: 0px;
+  z-index: 100;
+}
+
+#content {
+  width: 100%;
+  margin-top: 12vh;
+}
+
+@media only screen and (max-width: 600px) {
+  #banner {
+    position: absolute;
+  }
+
+  #content {
+    margin-top: 12vh;
+  }
 }
 
 .form {
@@ -56,9 +89,19 @@ td {
 .form-questions {
 }
 
+.question-question {
+}
+
 .question-answers {
-  margin: 0 auto;
   text-align: center;
+  padding: 10px;
+  margin-left: 0px;
+  margin-right: 0px;
+  margin-top: 30px;
+  margin-bottom: 60px;
+  border-radius: 25px;
+  border: 3px solid #bcbcbc;
+  background-color: #1a1a1a;
 }
 
 .codehilite {
@@ -76,17 +119,17 @@ td {
 }
 
 pre {
-  font-size: 16px;
+  font-size: max(1.5vw, 16px);
   margin-left: auto;
   margin-right: auto;
-  width: 80%;
+  width: 70%;
+  color: white;
 }
 
 label,
 select,
 option {
   color: #bcbcbc;
-  background-color: #1a1a1a;
   margin: 15px;
   font-weight: 14px;
 }
@@ -141,9 +184,7 @@ td.text-center {
 }
 
 .form-container {
-  /* margin: 30% auto; */
   display: block;
-  /* width: 500px; */
   text-align: center;
   padding-top: 2rem;
 }
@@ -151,4 +192,59 @@ td.text-center {
 .form-container input,
 .margin-bottom {
   margin-bottom: 10px;
+}
+
+input[type="text"],
+input[type="number"] {
+  background-color: #1a1a1a;
+  color: #dedede;
+  font-size: 24px;
+  height: 40px;
+}
+
+.answer {
+  margin-bottom: 10px;
+}
+
+input[type="radio"]:after {
+  width: 15px;
+  height: 15px;
+  border-radius: 15px;
+  top: -4px;
+  left: -4px;
+  position: relative;
+  background-color: #bcbcbc;
+  content: "";
+  display: inline-block;
+  visibility: visible;
+  border: 3px solid white;
+}
+
+input[type="radio"]:checked:after {
+  width: 15px;
+  height: 15px;
+  border-radius: 15px;
+  top: -4px;
+  left: -4px;
+  position: relative;
+  background-color: #ffa500;
+  content: "";
+  display: inline-block;
+  visibility: visible;
+  border: 3px solid white;
+}
+
+.answer {
+  padding-top: 10px;
+  padding-left: 10px;
+  padding-bottom: 10px;
+  background-color: #1a1a1a;
+}
+
+input[type="radio"]:checked ~ label {
+  color: #1a1a1a;
+}
+
+.spacediv {
+  height: 0.5em;
 }
