@@ -86,12 +86,6 @@ td {
   text-align: left;
 }
 
-.form-questions {
-}
-
-.question-question {
-}
-
 .question-answers {
   text-align: center;
   padding: 10px;
@@ -247,4 +241,24 @@ input[type="radio"]:checked ~ label {
 
 .spacediv {
   height: 0.5em;
+}
+
+.full-height {
+  min-height: 100%;
+  position: relative;
+  padding-bottom: 100px;
+}
+
+footer {
+  position: absolute;
+  bottom: 0; /* on le colle en bas */
+  min-width: 99%;
+  max-width: 100%;
+  margin: 0px;
+  height: 40px; /* Hauteur du pied de page */
+  text-align: center;
+  padding-top: 10px;
+  justify-content: center;
+  background-color: #1a1a1a;
+  color: #bcbcbc;
 }

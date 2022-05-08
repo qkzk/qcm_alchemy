@@ -67,6 +67,10 @@ def create_app() -> Flask:
     def index():
         return render_template("index.html")
 
+    @app.route("/rgpd")
+    def rgpd():
+        return render_template("rgpd.html")
+
     @app.route("/teacher")
     def teacher():
         return render_template("teacher.html")
