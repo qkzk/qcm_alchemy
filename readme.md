@@ -109,7 +109,13 @@
 - [x] styling : banner, radio, infos dans base, uniformité
 - [ ] test hosting
     - [x] hammering and intense testing. Sort of. Résultat : 13ms pour le contenu. QQ ms pour le rendu. trop jde JS.
-    - [ ] limit strings, safe inputs and good practices
-    - [ ] refactor app
-    - [ ] refactor model
-    - [ ] refactor views
+- [x] limit strings, safe inputs and good practices
+- [x] RGPD et tutoriel
+- [x] login pour enseignant ???
+    - [x] proposer un numero pour consulter les QCM notes
+    - [x] demander le numéro lorsqu'on cherche à consulter les résultats
+    - [ ] trouver un moyen de consulter les notes pas élève... compliqué
+    - [ ] migrer la database de heroku
+- [ ] refactor app
+- [ ] refactor model
+- [ ] refactor views

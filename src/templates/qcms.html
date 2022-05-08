@@ -6,10 +6,32 @@
 {% block content %}
 <div class="part">
     <h2 class="part-title">
+        Consulter un QCM
+    </h2>
+</div>
+<div class="part">
+    <form method="POST" action="{{ url_for('marks') }}" class="form-question">
+        <div class="form-container">
+            <section>
+                <input type="number" name="id_qcm" required placeholder="Numéro du QCM">
+                <br />
+                <input type="number" name="password" required placeholder="password">
+                <br />
+                <button type="submit" class="btn">
+                    Consulter
+                </button>
+            </section>
+        </div>
+
+    </form>
+</div>
+<div class="part">
+    <h2 class="part-title">
         QCMs disponibles
     </h2>
 </div>
 <table class="center">
+
     <thead>
         <tr>
             <th>id</th>
@@ -23,24 +45,16 @@
         {% for qcm in qcms %}
         <tr>
             <td>
-                <a href="{{ url_for('marks') }}/{{ qcm.id}}">
-                    {{ qcm.id }}
-                </a>
+                {{ qcm.id }}
             </td>
             <td>
-                <a href="{{ url_for('marks') }}/{{ qcm.id}}">
-                    {{ qcm.title }}
-                </a>
+                {{ qcm.title }}
             </td>
             <td>
-                <a href="{{ url_for('marks') }}/{{ qcm.id}}">
-                    {{ qcm.datetime }}
-                </a>
+                {{ qcm.datetime }}
             </td>
             <td>
-                <a href="{{ url_for('marks') }}/{{ qcm.id}}">
-                    {{ qcm.count_works() }}
-                </a>
+                {{ qcm.count_works() }}
             </td>
         </tr>
         {% endfor %}
