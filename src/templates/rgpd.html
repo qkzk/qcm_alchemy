@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+<div class="part">
+    <div class="question-answers">
+        <h2>
+            RGPD
+        </h2>
+        <div class="question">
+            <p>
+                Ce site n'utilise qu'un cookie, pour gérer la session de l'utilisateur
+                et relever le QCM auquel il participe.
+            </p>
+
+            <p>
+                Les informations suivantes sont enregistrées :
+            </p>
+
+            <p>
+                Le contenu d'un QCM envoyé. Il est effacé après 48h.
+            </p>
+
+            <p>
+                Les noms, prénoms et réponses des élèves. Cela permet à l'enseignant d'attribuer une note.
+                Ces données sont effacées toutes les 48h.
+            </p>
+
+            <p>
+                Le site et la base de données sont hébergés par Amazon Web Service en Irlande.
+            </p>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
