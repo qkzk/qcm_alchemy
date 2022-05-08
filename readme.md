@@ -108,7 +108,7 @@
                 4. You can log into the dyno with `heroku run bash`, see the logs with `heroku log --tail`
 - [x] styling : banner, radio, infos dans base, uniformité
 - [ ] test hosting
-    - [ ] hammering and intense testing.
+    - [x] hammering and intense testing. Sort of. Résultat : 13ms pour le contenu. QQ ms pour le rendu. trop jde JS.
     - [ ] limit strings, safe inputs and good practices
     - [ ] refactor app
     - [ ] refactor model
