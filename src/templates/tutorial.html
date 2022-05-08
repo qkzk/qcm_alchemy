@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+<div class="part">
+    <h2>
+        Comment utiliser ce site ?
+    </h2>
+    <div class="question-answers">
+        <h2>
+            Pour l'élève
+        </h2>
+
+        <p>Depuis 
+            <a href="{{ url_for('index') }}">
+                l'accueil
+            </a>
+        choisir le lien 
+            <a href="{{ url_for('student') }}">
+                Élève.
+            </a>
+        Saisir vos nom et prénom ainsi que le numéro du QCM transmis par votre enseignant.
+        </p>
+        <p>
+
+        Ensuite sélectionnez les bonnes réponses et n'oubliez pas de cliquer sur le bouton
+        <span class="bold">Envoyer</span>
+        </p>
+
+        <h3>
+            Mode anti-triche.
+        </h3>
+
+        <p>Afin de rendre l'évaluation un peu plus sérieuse, vous ne pouvez pas quitter
+        la fenêtre. Dès que vous ouvrez un nouvel onglet ou quittez la fenêtre, vos réponses
+        sont enregistrées et vous ne pouvez plus progresser.
+        </p>
+    </div>
+    <h2>
+        Pour l'enseignant
+    </h2>
+    <div class="question-answers">
+
+
+        <p>Depuis 
+            <a href="{{ url_for('index') }}">
+                l'accueil
+            </a>
+        choisir le lien 
+            <a href="{{ url_for('teacher') }}">
+                Professeur.
+            </a>
+            Là vous pouvez choisir d'envoyer un nouveau QCM ou consulter les résultats
+            des précédents QCM.
+
+        </p>
+        <p>
+            Attention, tous les QCM sont effacés ainsi que les comptes élèves 
+            et les notes après 48h. 
+            Pensez à récupérer vos résultats avant.
+        </p>
+
+        <h3>
+            Format de fichiers
+        </h3>
+
+        <p>
+            Vous pouvez consulter un 
+
+            <a href={{ url_for('static', filename='markdown/exemple.md') }}>
+                exemple ici.
+            </a>
+
+            Pour résumer :
+        </p>
+        <p>
+            Du markdown
+        </p>
+        <p>
+            Les titres des parties sont précédés de <code>##</code>
+        </p>
+        <p>
+            Les questions sont précédées de <code>###</code>
+        </p>
+        <p>
+            Les réponses sont précédées de <code>- [ ]</code> pour les mauvaises réponses
+            et <code>- [x] </code> pour les bonnes réponses.
+        </p>
+        <p>
+            Une ou plusieurs bonne réponses par question.
+        </p>
+        <p>
+            Des images peuvent être incluses, mais elles doivent être hébergées en ligne.
+        </p>
+        <p>
+            Vous pouvez inclure du code, ou du LaTeX,
+            ainsi que vous pouvez le voir dans l'exemple.
+        </p>
+        <p>
+            Le parser est assez rudimentaire, vous devez respecter scrupuleusement le format.
+            Partez de 
+            <a href={{ url_for('static', filename='markdown/exemple.md') }}>
+                l'exemple ici.
+            </a>
+    </div>
+    <h2>
+        Qui a crée ce site ?
+    </h2>
+    <div class="question-answers">
+        <p>
+            <a href="https://qkzk.xyz">
+                Moi
+            </a> 
+            ou 
+            <a href="https://github.com/qkzk">moi encore</a>.
+        </p>
+    </div>
+    <h2>
+        Est-ce open-source ?
+    </h2>
+    <div class="question-answers">
+        <p>
+            Pas encore, cette version pre-alpha n'est pas assez propre. Ça devrait
+            le devenir si je trouve le temps.
+        </p>
+    </div>
+
+</div>
+{% endblock %}
