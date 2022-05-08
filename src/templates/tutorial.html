@@ -66,12 +66,28 @@ p {
             </a>
             Là vous pouvez choisir d'envoyer un nouveau QCM ou consulter les résultats
             des précédents QCM.
+        </p>
+        <p>
 
-            Sélectionnez un fichier compatible au format .md - voir plus bas - et, une fois uploadé,
+            Pour envoyer un nouveau QCM, sélectionnez un fichier compatible au format .md - voir plus bas - et, une fois uploadé,
             transmettez son numéro à vos élèves.
 
             Ils en auront besoin pour débuter le QCM. Si vous avez perdu ce numéro, vous
             pouvez consulter la liste des QCM disponibles depuis le menu enseignant.
+
+            Conservez le mot de passe à quatre chiffres fourni, sans lui vous ne pourriez pas consulter vos notes !
+        </p>
+        <p>
+            Une fois l'évaluation terminée, depuis le menu  
+            <a href="{{ url_for('teacher') }}">
+                Professeur,
+            </a>
+            choisissez 
+             <a href="{{ url_for('qcms') }}">
+                Liste des QCMs.
+            </a>
+            et vous pourrez consulter la liste des QCMs disponibles. De là, avec le <span class"bold">mot de passe à quatre chiffres</span>
+            vous pouvez récupérer vos notes, à l'écran ou en CSV. 
 
         </p>
         <p>
