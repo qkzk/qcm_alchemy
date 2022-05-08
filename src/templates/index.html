@@ -5,13 +5,19 @@
 
 {% block content %}
 <div class="part">
-    <h2>
-    <a href="{{ url_for('student') }}">Élève</a>
-    </h2>
-</div>
-<div class="part">
-    <h2>
-    <a href="{{ url_for('teacher') }}">Professeur</a>
-    </h2>
+    <div class="question-answers">
+        <a href="{{ url_for('student') }}" width="100%" height="100%">
+        <h2>
+                Élève
+        </h2>
+        </a>
+    </div>
+    <div class="question-answers">
+        <a href="{{ url_for('teacher') }}" width="100%" height="100%">
+        <h2>
+                Professeur
+        </h2>
+        </a>
+    </div>
 </div>
 {% endblock %}

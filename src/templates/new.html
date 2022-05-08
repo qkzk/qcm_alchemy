@@ -5,16 +5,20 @@
 
 {% block content %}
 <div class="part">
-    <h2 class="part-title">
-        Nouveau QCM
-    </h2>
 
-    <div class="text-center question-question">
+    <div class="text-center question-answers">
+        <h2 class="part-title">
+            Nouveau QCM
+        </h2>
         <form action="{{ request.path }}" method="post" enctype=multipart/form-data>
-            <label for="source" id="label">Cliquez pour choisir un fichier</label>
+            <label for="source" id="label">
+                Cliquez pour choisir un fichier
+            </label>
 
             <input type="file" name="source" id="source" accept=".md" style="visibility:hidden">
+
             <br />
+            
             <button type=submit style="visibility:hidden" id="submit" class="btn">
                 Envoyer
             </button>
@@ -38,6 +42,7 @@
 
 
 <script>
+    /// Make the upload button visible when a file is selected
     source = document.getElementById('source');
     label = document.getElementById('label');
     submit = document.getElementById('submit');

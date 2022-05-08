@@ -86,6 +86,30 @@ def create_app():
     def qcms():
         return render_template("qcms.html", qcms=Qcm.query.all())
 
+    @app.route("/marks/export/<int:id_qcm>")
+    def marks_export(id_qcm):
+        try:
+            id_qcm = int(id_qcm)
+            path = Work.write_export(id_qcm)
+            directory = os.path.join(os.getcwd(), app.config["DOWNLOAD_FOLDER"])
+            return send_from_directory(directory=directory, path=path)
+
+        except TypeError:
+            return render_template("index.html")
+
+    @app.route("/per_student/<id_student>")
+    def per_student(id_student):
+        format_name = ""
+        try:
+            id_student = int(id_student)
+        except TypeError:
+            return render_template("index.html")
+        student = Student.query.get(id_student)
+        if student:
+            format_name = f" - {student.name}"
+        works = Work.query.filter_by(id_student=id_student).all()
+        return render_template("per_student.html", works=works, base_data=format_name)
+
     @app.route("/marks", methods=["GET", "POST"])
     def marks():
         if request.method == "POST":
@@ -100,34 +124,17 @@ def create_app():
             return render_template("marks.html", qcm=qcm)
         return render_template("marks.html")
 
-    @app.route("/marks/export/<int:id_qcm>")
-    def marks_export(id_qcm):
-        try:
-            id_qcm = int(id_qcm)
-            path = Work.write_export(id_qcm)
-            directory = os.path.join(os.getcwd(), app.config["DOWNLOAD_FOLDER"])
-            return send_from_directory(directory=directory, path=path)
-
-        except TypeError:
-            return render_template("index.html")
-
-    @app.route("/per_student/<id_student>")
-    def per_student(id_student):
-        try:
-            id_student = int(id_student)
-        except TypeError:
-            return render_template("index.html")
-        works = Work.query.filter_by(id_student=id_student).all()
-        return render_template("per_student.html", works=works)
-
     @app.route("/marks/<id_qcm>")
     def marks_for_qcm(id_qcm):
+        format_title = ""
         try:
             id_qcm = int(id_qcm)
             qcm = Qcm.query.get(id_qcm)
+            if qcm:
+                format_title = f" - {qcm.id} - {qcm.title}"
         except TypeError:
             qcm = None
-        return render_template("marks.html", qcm=qcm)
+        return render_template("marks.html", qcm=qcm, base_data=format_title)
 
     @app.route("/student")
     def student():
@@ -168,7 +175,11 @@ def create_app():
         # get work id
         id_work = work.id
 
-        resp = make_response(render_template("qcm.html", qcm=qcm, name=name))
+        format_name = f" - Nom: {name}"
+
+        resp = make_response(
+            render_template("qcm.html", qcm=qcm, name=name, base_data=format_name)
+        )
         resp.set_cookie("id_work", str(id_work))
         return resp
 
