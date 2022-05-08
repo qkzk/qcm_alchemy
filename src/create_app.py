@@ -15,6 +15,7 @@ from flask_migrate import Migrate
 UPLOAD_FOLDER = "uploads/"
 DOWNLOAD_FOLDER = "created_files/"
 ALLOWED_EXTENSIONS = {"md"}
+MAXPASSWORD = 2147483647
 
 LOCAL_DATABASE_PATH = "postgresql://quentin:bla@localhost/qcm"
 uri = os.getenv("DATABASE_URL")  # or other relevant config var

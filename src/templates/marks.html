@@ -6,16 +6,6 @@
 {% block content %}
 
 <div class="part">
-    <!-- <form action="{{ request.path }}" method="post"> -->
-    <!--     <div class="form-container"> -->
-    <!--         <section> -->
-    <!--             <input type="text" name="id_qcm" required placeholder="id du QCM"> -->
-    <!--             <button class="btn" type="submit"> -->
-    <!--                 OK -->
-    <!--             </button> -->
-    <!--         </section> -->
-    <!--     </div> -->
-    <!-- </form> -->
 </div>
 <div>
     {% if qcm %}
@@ -39,9 +29,7 @@
             {% for work in qcm.works %}
             <tr>
                 <th scope="row">
-                    <a href="{{ url_for('per_student', id_student=work.student.id) }}">
                         {{ work.student.name|safe }}
-                    </a>
                 </th>
                 <td class="text-center">
                     {{ work.points }}
@@ -50,10 +38,20 @@
             {% endfor %}
         </table>
         <h2 class="part-title">
-            <a href="{{ url_for('marks_export', id_qcm=qcm.id) }}">
                 Exporter en CSV
-            </a>
         </h2>
+            <form method="POST" action="{{ url_for('export') }}" class="form-question">
+                <div class="form-container">
+                    <section>
+                        <input type="hidden" name="id_qcm" value="{{ qcm.id }}">
+                        <input type="number" name="password" required placeholder="password">
+                        <br />
+                        <button type="submit" class="btn">
+                            Exporter
+                        </button>
+                    </section>
+                </div>
+            </form>
         {% endif %}
     </div>
 </div>

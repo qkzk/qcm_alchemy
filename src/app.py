@@ -18,7 +18,7 @@ from flask import (
 )
 from flask_apscheduler import APScheduler
 
-from .model import app, db, Choice, Qcm, QcmFile, Student, Work
+from .model import app, db, Choice, Qcm, QcmFile, Student, Work, hasher
 from .parser import ParseQCM
 
 
@@ -93,11 +93,13 @@ def create_app() -> Flask:
                     qcm_file = QcmFile.from_file(file)
                     message = qcm_file.flash_message_ok()
                     parsed_qcm = ParseQCM.from_file(qcm_file.filename)
-                    qcm = Qcm.from_parsed_qcm(parsed_qcm)
+                    qcm, password = Qcm.from_parsed_qcm(parsed_qcm)
                     db.session.add(qcm)
                     db.session.commit()
-                    flash(f"{message}. Parsing correct, id_qcm : {qcm.id}")
-                    data = {"qcm_id": qcm.id}
+                    flash(
+                        f"{message}. Chargé avec succès, numéro : {qcm.id}, password : {password}"
+                    )
+                    data = {"qcm_id": qcm.id, "password": password}
 
                 except Exception as e:
                     flash(f"Fichier impossible à lire. {repr(e)}")
@@ -110,43 +112,64 @@ def create_app() -> Flask:
     def qcms():
         return render_template("qcms.html", qcms=Qcm.query.all())
 
-    @app.route("/marks/export/<int:id_qcm>")
-    def marks_export(id_qcm):
-        try:
-            id_qcm = int(id_qcm)
-            path = Work.write_export(id_qcm)
-            directory = os.path.join(os.getcwd(), app.config["DOWNLOAD_FOLDER"])
-            return send_from_directory(directory=directory, path=path)
-
-        except TypeError:
-            return render_template("index.html")
-
-    @app.route("/per_student/<id_student>")
-    def per_student(id_student):
-        format_name = ""
-        try:
-            id_student = int(id_student)
-        except TypeError:
-            return render_template("index.html")
-        student = Student.query.get(id_student)
-        if student:
-            format_name = f" - {student.name}"
-        works = Work.query.filter_by(id_student=id_student).all()
-        return render_template("per_student.html", works=works, base_data=format_name)
-
-    @app.route("/marks", methods=["GET", "POST"])
-    def marks():
+    @app.route("/export", methods=["POST"])
+    def export():
         if request.method == "POST":
-            id_qcm_from_request = request.form.get("id_qcm")
             try:
-                id_qcm = int(id_qcm_from_request)
+                id_qcm = int(request.form.get("id_qcm"))
+                qcm = Qcm.query.get(id_qcm)
+                password = int(request.form.get("password"))
+                hashed = hasher(password)
+                print(f"Export received: password: {password}, hashed: {hashed}")
+                if hashed == qcm.password:
+                    print("Export: password match !")
+                    path = Work.write_export(id_qcm)
+                    directory = os.path.join(os.getcwd(), app.config["DOWNLOAD_FOLDER"])
+                    print("view export", directory, path)
+                    return send_from_directory(directory=directory, path=path)
+                else:
+                    return render_template(
+                        "confirmation_page.html", data="Mauvais mot de passe"
+                    )
+
             except TypeError:
-                flash("QCM {id_qcm_from_request} introuvable.")
-                return render_template("marks.html")
-            qcm = Qcm.query.get(id_qcm)
-            works = Work.query.filter_by(id_qcm=id_qcm).all()
+                return render_template("index.html")
+
+    # impossible ATM faudrait une vraie authentification, ce dont j'ai pas envie
+    # @app.route("/per_student/", method=["POST"])
+    # def per_student():
+    #     id_qcm = request.form.get("id_qcm")
+    #     password = request.form.get("password")
+    #     id_student = request.form.get("id_student")
+    #     format_name = ""
+    #     try:
+    #         qcm = Qcm.query.get(int(id_qcm))
+    #         id_student = int(id_student)
+    #     except TypeError:
+    #         return render_template("index.html")
+    #     if not hasher(password) == qcm.password:
+    #         return render_template("confirmation_page.html", data="Requête illisible")
+    #     student = Student.query.get(id_student)
+    #     if student:
+    #         format_name = f" - {student.name}"
+    #     works = Work.query.filter_by(id_student=id_student).all()
+    #     return render_template("per_student.html", works=works, base_data=format_name)
+
+    @app.route("/marks", methods=["POST"])
+    def marks():
+        id_qcm_from_request = request.form.get("id_qcm")
+        try:
+            id_qcm = int(id_qcm_from_request)
+        except TypeError:
+            flash("QCM {id_qcm_from_request} introuvable.")
+            return render_template("marks.html")
+        qcm = Qcm.query.get(id_qcm)
+        password = request.form.get("password")
+        hashed = hasher(password)
+        print(f"marks received: password: {password}, hashed: {hashed}")
+        if qcm.password == hashed:
             return render_template("marks.html", qcm=qcm)
-        return render_template("marks.html")
+        return render_template("confirmation_page.html", data="Mauvais password.")
 
     @app.route("/marks/<id_qcm>")
     def marks_for_qcm(id_qcm):

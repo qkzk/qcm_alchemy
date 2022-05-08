@@ -7,13 +7,20 @@ Models used in database and views.
 """
 import csv
 import os
+import hashlib
 from datetime import datetime, timedelta
-from random import shuffle
+from random import randint, shuffle
+from typing import Union
 
 from werkzeug.utils import secure_filename
 
 from .parser import ParseQCM
 from .create_app import app, db, ALLOWED_EXTENSIONS
+
+
+def hasher(thing: Union[int, str, None]):
+    """Hash a password into a hexdigest."""
+    return hashlib.sha256(str(thing).encode("utf-8")).hexdigest()
 
 
 class QcmPaserError(Exception):
@@ -31,6 +38,7 @@ class Qcm(db.Model):
     id = db.Column("id", db.Integer, primary_key=True)
     title = db.Column(db.Text)
     datetime = db.Column(db.DateTime)
+    password = db.Column(db.String(64))
     part = db.relationship(
         "QcmPart", back_populates="qcm", cascade="all,delete", passive_deletes=True
     )
@@ -39,10 +47,17 @@ class Qcm(db.Model):
     )
 
     @classmethod
-    def from_parsed_qcm(cls, parsed_qcm: ParseQCM) -> "Qcm":
+    def from_parsed_qcm(cls, parsed_qcm: ParseQCM) -> tuple["Qcm", int]:
         """Creates a Qcm instance from a parsed QCM.md file."""
         try:
-            qcm = Qcm(title=parsed_qcm.title, datetime=datetime.now())
+            password = randint(1000, 9999)
+            hashed = hasher(password)
+            print(f"Created: password: {password}, hashed: {hashed}")
+            qcm = Qcm(
+                title=parsed_qcm.title,
+                datetime=datetime.now(),
+                password=hashed,
+            )
             for parsed_part in parsed_qcm.parts:
                 part = QcmPart(title=parsed_part.title)
                 qcm.part.append(part)
@@ -60,7 +75,7 @@ class Qcm(db.Model):
                         )
                         print(answer)
                         question.answers.append(answer)
-            return qcm
+            return qcm, password
         except Exception as e:
             raise QcmPaserError(repr(e))
 
@@ -281,6 +296,7 @@ class Work(db.Model):
                         }
                     )
 
+            print("write_export", fullpath, filename)
             return filename
         return ""
 
