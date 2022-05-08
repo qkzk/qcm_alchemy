@@ -218,6 +218,7 @@ class Work(db.Model):
     """
     Holds the choices made in the QCM form for a Student.
     """
+
     __tablename__ = "work"
     id = db.Column("id", db.Integer, primary_key=True)
     id_qcm = db.Column(
@@ -235,7 +236,9 @@ class Work(db.Model):
     points = db.Column("points", db.Integer)
 
     @classmethod
-    def from_form(cls, id_qcm: int, id_student: int, parsed_choices: list[dict]) -> `Work`:
+    def from_form(
+        cls, id_qcm: int, id_student: int, parsed_choices: list[dict]
+    ) -> "Work":
         """Returns a `Work` instance extracted from a POST form"""
         work = Work(id_qcm=id_qcm, id_student=id_student)
         for parsed_choice in parsed_choices:
@@ -288,6 +291,7 @@ class Choice(db.Model):
     We only know who made the choice, what Answer he/she choosed and which QCM he/she
     was answering to.
     """
+
     __tablename__ = "choice"
     id = db.Column("id", db.Integer, primary_key=True)
     id_work = db.Column(
@@ -325,6 +329,7 @@ class QcmFile:
     It should be a valid markdown file uploaded by a teacher.
     If it's parsed correctly we send it to the db.
     """
+
     def __init__(self, file: "werkzeug.datastructures.FileStorage"):
         self.filename: str
         self.file = file
