@@ -9,12 +9,12 @@ import csv
 import os
 import hashlib
 from datetime import datetime, timedelta
-from random import randint, shuffle
+from random import shuffle
 from typing import Union
 
 from werkzeug.utils import secure_filename
 
-from .parser import ParseQCM
+from .parser import ParseQCM, QCM_Part, QCM_Question, QCM_Answer
 from .create_app import app, db, ALLOWED_EXTENSIONS
 
 
@@ -23,7 +23,14 @@ def hasher(thing: Union[int, str, None]):
     return hashlib.sha256(str(thing).encode("utf-8")).hexdigest()
 
 
-class QcmPaserError(Exception):
+def get_join_path_from_key(key: str, filename: str) -> str:
+    """
+    Returns the full path from  a valid `app` config key and a filename.
+    """
+    return os.path.join(os.getcwd(), app.config[key], filename)
+
+
+class QcmParserError(Exception):
     pass
 
 
@@ -47,37 +54,22 @@ class Qcm(db.Model):
     )
 
     @classmethod
-    def from_parsed_qcm(cls, parsed_qcm: ParseQCM) -> tuple["Qcm", int]:
-        """Creates a Qcm instance from a parsed QCM.md file."""
+    def from_parser(cls, parsed_qcm: ParseQCM, password: int) -> "Qcm":
+        """
+        Creates a Qcm instance from a parsed QCM.md file.
+        Raise `QcmPaserError` if anything went wrong.
+        """
         try:
-            password = randint(1000, 9999)
-            hashed = hasher(password)
-            print(f"Created: password: {password}, hashed: {hashed}")
             qcm = Qcm(
                 title=parsed_qcm.title,
                 datetime=datetime.now(),
-                password=hashed,
+                password=hasher(password),
             )
             for parsed_part in parsed_qcm.parts:
-                part = QcmPart(title=parsed_part.title)
-                qcm.part.append(part)
-
-                for parsed_question in parsed_part.questions:
-                    question = QcmPartQuestion(
-                        question=parsed_question.question_title,
-                        sub_text=parsed_question.text,
-                    )
-                    part.questions.append(question)
-
-                    for parsed_answer in parsed_question.answers:
-                        answer = QcmPartQuestionAnswer(
-                            answer=parsed_answer.text, is_valid=parsed_answer.is_valid
-                        )
-                        print(answer)
-                        question.answers.append(answer)
-            return qcm, password
+                qcm.part.append(QcmPart.from_parser(parsed_part))
+            return qcm
         except Exception as e:
-            raise QcmPaserError(repr(e))
+            raise QcmParserError(repr(e))
 
     def format(self):
         s = f"{self.id} - {self.title}"
@@ -112,6 +104,9 @@ class Qcm(db.Model):
         shuffle(parts)
         return parts
 
+    def validate_password(self, password: Union[str, None]) -> bool:
+        return hasher(password) == self.password
+
 
 class QcmPart(db.Model):
     """
@@ -133,10 +128,19 @@ class QcmPart(db.Model):
     )
 
     def shuffled_questions(self):
-        """Shuffle its question to randomise every test."""
+        """Shuffle its questions to randomize for the student view."""
         questions = list(self.questions)
         shuffle(questions)
         return questions
+
+    @classmethod
+    def from_parser(cls, parsed_part: QCM_Part) -> "QcmPart":
+        """Creates a database part from  a parsed part."""
+        part = cls(title=parsed_part.title)
+
+        for parsed_question in parsed_part.questions:
+            part.questions.append(QcmPartQuestion.from_parser(parsed_question))
+        return part
 
 
 class QcmPartQuestion(db.Model):
@@ -167,6 +171,17 @@ class QcmPartQuestion(db.Model):
         answers = list(self.answers)
         shuffle(answers)
         return answers
+
+    @classmethod
+    def from_parser(cls, parsed_question: QCM_Question) -> "QcmPartQuestion":
+        """Creates a database record Question from  a parsed question."""
+        question = cls(
+            question=parsed_question.question_title,
+            sub_text=parsed_question.text,
+        )
+        for parsed_answer in parsed_question.answers:
+            question.answers.append(QcmPartQuestionAnswer.from_parser(parsed_answer))
+        return question
 
 
 class QcmPartQuestionAnswer(db.Model):
@@ -200,6 +215,11 @@ class QcmPartQuestionAnswer(db.Model):
 
     def format(self) -> str:
         return self.answer
+
+    @classmethod
+    def from_parser(cls, parsed_answer: QCM_Answer) -> "QcmPartQuestionAnswer":
+        """Creates an answer record from a parsed answer."""
+        return cls(answer=parsed_answer.text, is_valid=parsed_answer.is_valid)
 
 
 class Student(db.Model):
@@ -261,13 +281,14 @@ class Work(db.Model):
         """Returns a `Work` instance extracted from a POST form"""
         work = Work(id_qcm=id_qcm, id_student=id_student)
         for parsed_choice in parsed_choices:
-            choice = Choice(
-                id_question=parsed_choice["id_question"],
-                id_answer=parsed_choice["id_answer"],
-                datetime=datetime.now(),
-                is_submitted=False,
+            work.choices.append(
+                Choice(
+                    id_question=parsed_choice["id_question"],
+                    id_answer=parsed_choice["id_answer"],
+                    datetime=datetime.now(),
+                    is_submitted=False,
+                )
             )
-            work.choices.append(choice)
         return work
 
     def count_points(self):
@@ -277,6 +298,18 @@ class Work(db.Model):
     def __repr__(self):
         return f"Work({self.id}, {self.id_qcm}, {self.id_student})"
 
+    def format_dict(self) -> dict:
+        """Format itself into a dict for exporting as CSV file."""
+        return {
+            "Nom": self.student.name,
+            "Points": self.points,
+            "Horaire": self.datetime,
+        }
+
+    def format_title(self) -> str:
+        """Format itself into a title line for exporting as CSV file."""
+        return f"id_qcm: {self.qcm.id} - Titre: {self.qcm.title} - Crée: {self.qcm.datetime}\n"
+
     @classmethod
     def write_export(cls, id_qcm: int) -> str:
         """
@@ -285,23 +318,13 @@ class Work(db.Model):
         works = cls.query.filter_by(id_qcm=id_qcm).all()
         if works:
             filename = f"export-{id_qcm}.csv"
-            fullpath = os.path.join(
-                os.getcwd(), app.config["DOWNLOAD_FOLDER"], filename
-            )
+            fullpath = get_join_path_from_key("DOWNLOAD_FOLDER", filename)
             with open(fullpath, "w") as csv_file:
-                csv_file.write(
-                    f"id_qcm: {works[0].qcm.id} - Titre: {works[0].qcm.title} - Crée: {works[0].qcm.datetime}\n"
-                )
+                csv_file.write(works[0].format_title())
                 dictwriter = csv.DictWriter(csv_file, fieldnames=cls.fieldnames)
                 dictwriter.writeheader()
                 for work in works:
-                    dictwriter.writerow(
-                        {
-                            "Nom": work.student.name,
-                            "Points": work.points,
-                            "Horaire": work.datetime,
-                        }
-                    )
+                    dictwriter.writerow(work.format_dict())
 
             print("write_export", fullpath, filename)
             return filename
@@ -311,8 +334,8 @@ class Work(db.Model):
 class Choice(db.Model):
     """
     A choice made by a Student.
-    We only know who made the choice, what Answer he/she choosed and which QCM he/she
-    was answering to.
+    We only know who made the choice, what Answer the student choosed and which QCM
+    the student was answering to.
     """
 
     __tablename__ = "choice"
@@ -403,10 +426,6 @@ class QcmFile:
         except Exception as e:
             print(repr(e))
             raise QcmFileError(repr(e))
-
-    def flash_message_ok(self) -> str:
-        """Returns a string with the destination. Used when everything went smoothly."""
-        return f"Fichier uploadé dans {self.__repr__()}"
 
     def __repr__(self):
         return f"Qcm({self.file})"

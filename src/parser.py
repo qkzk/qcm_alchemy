@@ -180,11 +180,11 @@ class QCM_Question:
         answers = []
         for line in self.lines[self.end_text :]:
             if line.startswith("- ["):
-                answers.append(Answer.from_line(line))
+                answers.append(QCM_Answer.from_line(line))
         return answers
 
 
-class Answer:
+class QCM_Answer:
     """Holds an answer and a status, valid or not"""
 
     def __init__(self, text: str, is_valid: bool):
@@ -192,7 +192,7 @@ class Answer:
         self.is_valid = is_valid
 
     @classmethod
-    def from_line(cls, line: str):
+    def from_line(cls, line: str) -> "QCM_Answer":
         text = no_p_markdown(line[5:])
         is_valid = "[x]" in line[:5]
         return cls(text, is_valid)

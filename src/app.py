@@ -18,7 +18,7 @@ from flask import (
 )
 from flask_apscheduler import APScheduler
 
-from .model import app, db, Choice, Qcm, QcmFile, Student, Work, hasher
+from .model import app, db, Choice, Qcm, QcmFile, Student, Work
 from .parser import ParseQCM
 
 
@@ -47,9 +47,44 @@ def trunctate_string(string: str, size: int):
     return string
 
 
+def find_or_add_student(students: list[Student], name: str) -> int:
+    if len(students) == 1:
+        student = students[0]
+    else:
+        if len(students) > 1:
+            # make a new student with variation of name
+            name += str(randint(1, 9))
+        # add the new student to database
+        student = Student(name=name, datetime=datetime.now())
+        db.session.add(student)
+        db.session.commit()
+    return student.id
+
+
+def insert_from_file(file: "werkzeug.datastructures.FileStorage") -> dict:
+    """
+    Insert a QCM in database from a downloaded file which has .md extension.
+    """
+    qcm_file = QcmFile.from_file(file)
+    parsed_qcm = ParseQCM.from_file(qcm_file.filename)
+    password = randint(1000, 9999)
+    qcm = Qcm.from_parser(parsed_qcm, password)
+    db.session.add(qcm)
+    db.session.commit()
+    data = {"qcm_id": qcm.id, "password": password}
+    print(data)
+    return data
+
+
+def insert_choice(key: str, value: str, id_work: int):
+    id_question = int(key.split("_")[1])
+    id_answer = int(value.split("_")[1])
+    choice = Choice(id_work=id_work, id_question=id_question, id_answer=id_answer)
+    db.session.add(choice)
+
+
 def create_app() -> Flask:
     """Create a Flask Application with database and scheduler."""
-
     sched = APScheduler()
     sched.add_job(
         id="clear_records_and_files",
@@ -81,30 +116,19 @@ def create_app() -> Flask:
 
     @app.route("/new", methods=["GET", "POST"])
     def new():
-        data = None
-        if request.method == "POST":
-            file = request.files.get("source")
-            is_valid_file, error_message = QcmFile.validate_file(file)
-            if not is_valid_file:
-                flash(error_message)
-                data = {"invalid file", repr(file)}
-            else:
-                try:
-                    qcm_file = QcmFile.from_file(file)
-                    message = qcm_file.flash_message_ok()
-                    parsed_qcm = ParseQCM.from_file(qcm_file.filename)
-                    qcm, password = Qcm.from_parsed_qcm(parsed_qcm)
-                    db.session.add(qcm)
-                    db.session.commit()
-                    flash(
-                        f"{message}. Chargé avec succès, numéro : {qcm.id}, password : {password}"
-                    )
-                    data = {"qcm_id": qcm.id, "password": password}
+        if request.method == "GET":
+            return render_template("new.html", data=None)
 
-                except Exception as e:
-                    flash(f"Fichier impossible à lire. {repr(e)}")
-                    print(repr(e))
-                    data = {"Fichier illisible": repr(e)}
+        file = request.files.get("source")
+        is_valid_file, error_message = QcmFile.validate_file(file)
+        if is_valid_file:
+            try:
+                data = insert_from_file(file)
+            except Exception as e:
+                print(repr(e))
+                data = {"Fichier illisible": repr(e)}
+        else:
+            data = {"invalid file", error_message}
 
         return render_template("new.html", data=data)
 
@@ -114,46 +138,20 @@ def create_app() -> Flask:
 
     @app.route("/export", methods=["POST"])
     def export():
-        if request.method == "POST":
-            try:
-                id_qcm = int(request.form.get("id_qcm"))
-                qcm = Qcm.query.get(id_qcm)
-                password = int(request.form.get("password"))
-                hashed = hasher(password)
-                print(f"Export received: password: {password}, hashed: {hashed}")
-                if hashed == qcm.password:
-                    print("Export: password match !")
-                    path = Work.write_export(id_qcm)
-                    directory = os.path.join(os.getcwd(), app.config["DOWNLOAD_FOLDER"])
-                    print("view export", directory, path)
-                    return send_from_directory(directory=directory, path=path)
-                else:
-                    return render_template(
-                        "confirmation_page.html", data="Mauvais mot de passe"
-                    )
+        try:
+            id_qcm = int(request.form.get("id_qcm"))
+            qcm = Qcm.query.get(id_qcm)
+            if qcm.validate_password(request.form.get("password")):
+                path = Work.write_export(id_qcm)
+                directory = os.path.join(os.getcwd(), app.config["DOWNLOAD_FOLDER"])
+                return send_from_directory(directory=directory, path=path)
+            else:
+                return render_template(
+                    "confirmation_page.html", data="Mauvais mot de passe"
+                )
 
-            except TypeError:
-                return render_template("index.html")
-
-    # impossible ATM faudrait une vraie authentification, ce dont j'ai pas envie
-    # @app.route("/per_student/", method=["POST"])
-    # def per_student():
-    #     id_qcm = request.form.get("id_qcm")
-    #     password = request.form.get("password")
-    #     id_student = request.form.get("id_student")
-    #     format_name = ""
-    #     try:
-    #         qcm = Qcm.query.get(int(id_qcm))
-    #         id_student = int(id_student)
-    #     except TypeError:
-    #         return render_template("index.html")
-    #     if not hasher(password) == qcm.password:
-    #         return render_template("confirmation_page.html", data="Requête illisible")
-    #     student = Student.query.get(id_student)
-    #     if student:
-    #         format_name = f" - {student.name}"
-    #     works = Work.query.filter_by(id_student=id_student).all()
-    #     return render_template("per_student.html", works=works, base_data=format_name)
+        except TypeError:
+            return render_template("index.html")
 
     @app.route("/marks", methods=["POST"])
     def marks():
@@ -164,24 +162,9 @@ def create_app() -> Flask:
             flash("QCM {id_qcm_from_request} introuvable.")
             return render_template("marks.html")
         qcm = Qcm.query.get(id_qcm)
-        password = request.form.get("password")
-        hashed = hasher(password)
-        print(f"marks received: password: {password}, hashed: {hashed}")
-        if qcm.password == hashed:
+        if qcm.validate_password(request.form.get("password")):
             return render_template("marks.html", qcm=qcm)
         return render_template("confirmation_page.html", data="Mauvais password.")
-
-    @app.route("/marks/<id_qcm>")
-    def marks_for_qcm(id_qcm):
-        format_title = ""
-        try:
-            id_qcm = int(id_qcm)
-            qcm = Qcm.query.get(id_qcm)
-            if qcm:
-                format_title = f" - {qcm.id} - {qcm.title}"
-        except TypeError:
-            qcm = None
-        return render_template("marks.html", qcm=qcm, base_data=format_title)
 
     @app.route("/student")
     def student():
@@ -204,17 +187,7 @@ def create_app() -> Flask:
 
         # get the student id
         students = Student.query.filter_by(name=name).all()
-        if len(students) == 1:
-            student = students[0]
-        else:
-            if len(students) > 1:
-                # make a new student with variation of name
-                name += str(randint(1, 9))
-            # add the new student to database
-            student = Student(name=name, datetime=datetime.now())
-            db.session.add(student)
-            db.session.commit()
-        id_student = student.id
+        id_student = find_or_add_student(students, name)
 
         # create a work
         work = Work(
@@ -226,15 +199,12 @@ def create_app() -> Flask:
         db.session.add(work)
         db.session.commit()
 
-        # get work id
-        id_work = work.id
-
         format_name = f" - Nom: {name}"
 
         resp = make_response(
             render_template("qcm.html", qcm=qcm, name=name, base_data=format_name)
         )
-        resp.set_cookie("id_work", str(id_work))
+        resp.set_cookie("id_work", str(work.id))
         return resp
 
     @app.route("/answers", methods=["POST"])
@@ -250,15 +220,10 @@ def create_app() -> Flask:
                 "confirmation_page.html", data="Vous avez déjà répondu à ce QCM."
             )
 
-        for k, v in request.form.items():
-            if k.startswith("Q_") and v.startswith("A_"):
+        for key, value in request.form.items():
+            if key.startswith("Q_") and value.startswith("A_"):
                 try:
-                    id_question = int(k.split("_")[1])
-                    id_answer = int(v.split("_")[1])
-                    choice = Choice(
-                        id_work=id_work, id_question=id_question, id_answer=id_answer
-                    )
-                    db.session.add(choice)
+                    insert_choice(key, value, id_work)
                 except TypeError:
                     return render_template(
                         "confirmation_page.html", data="Réponses illisibles"
