@@ -217,7 +217,12 @@ def create_app() -> Flask:
         id_student = student.id
 
         # create a work
-        work = Work(id_qcm=id_qcm, id_student=id_student)
+        work = Work(
+            id_qcm=id_qcm,
+            id_student=id_student,
+            datetime=datetime.now(),
+            is_submitted=False,
+        )
         db.session.add(work)
         db.session.commit()
 
@@ -239,6 +244,12 @@ def create_app() -> Flask:
         except TypeError:
             return render_template("confirmation_page.html", data="Utilisateur inconnu")
 
+        work = Work.query.get(id_work)
+        if work.is_submitted:
+            return render_template(
+                "confirmation_page.html", data="Vous avez déjà répondu à ce QCM."
+            )
+
         for k, v in request.form.items():
             if k.startswith("Q_") and v.startswith("A_"):
                 try:
@@ -252,7 +263,7 @@ def create_app() -> Flask:
                     return render_template(
                         "confirmation_page.html", data="Réponses illisibles"
                     )
-        work = Work.query.get(id_work)
+        work.is_submitted = True
         work.count_points()
         db.session.commit()
         return render_template("confirmation_page.html", data="Réponses enregistrées")

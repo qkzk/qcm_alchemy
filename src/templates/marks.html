@@ -25,6 +25,9 @@
                 <th scole="col" class="text-center">
                     Points
                 </th>
+                <th>
+                    Horaire
+                </th>
             </tr>
             {% for work in qcm.works %}
             <tr>
@@ -34,6 +37,9 @@
                 <td class="text-center">
                     {{ work.points }}
                 </td>
+                <td>
+                    {{ work.datetime }}
+                </dt>
             </tr>
             {% endfor %}
         </table>

@@ -246,9 +246,13 @@ class Work(db.Model):
     choices = db.relationship(
         "Choice", back_populates="work", cascade="all,delete", passive_deletes=True
     )
+    datetime = db.Column("datetime", db.DateTime)
+    is_submitted = db.Column("is_submitted", db.Boolean)
     qcm = db.relationship("Qcm", back_populates="works")
     student_qcm = db.UniqueConstraint("id_student", "id_qcm")
     points = db.Column("points", db.Integer)
+
+    fieldnames = ("Nom", "Points", "Horaire")
 
     @classmethod
     def from_form(
@@ -260,11 +264,13 @@ class Work(db.Model):
             choice = Choice(
                 id_question=parsed_choice["id_question"],
                 id_answer=parsed_choice["id_answer"],
+                datetime=datetime.now(),
+                is_submitted=False,
             )
             work.choices.append(choice)
         return work
 
-    def count_points(self) -> int:
+    def count_points(self):
         """Used to count the right choices made by the student."""
         self.points = sum(1 for choice in self.choices if choice.answer.is_valid)
 
@@ -283,16 +289,17 @@ class Work(db.Model):
                 os.getcwd(), app.config["DOWNLOAD_FOLDER"], filename
             )
             with open(fullpath, "w") as csv_file:
-                fieldnames = ["QCM_ID", "Titre", "Nom", "Points"]
-                dictwriter = csv.DictWriter(csv_file, fieldnames=fieldnames)
+                csv_file.write(
+                    f"id_qcm: {works[0].qcm.id} - Titre: {works[0].qcm.title} - Crée: {works[0].qcm.datetime}\n"
+                )
+                dictwriter = csv.DictWriter(csv_file, fieldnames=cls.fieldnames)
                 dictwriter.writeheader()
                 for work in works:
                     dictwriter.writerow(
                         {
-                            "QCM_ID": work.id_qcm,
-                            "Titre": work.qcm.title,
                             "Nom": work.student.name,
                             "Points": work.points,
+                            "Horaire": work.datetime,
                         }
                     )
 
