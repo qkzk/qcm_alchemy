@@ -105,7 +105,12 @@ class Qcm(db.Model):
         return parts
 
     def validate_password(self, password: Union[str, None]) -> bool:
+        """True iff the hashed password is correct."""
         return hasher(password) == self.password
+
+    def flat_questions_formatted(self):
+        """Returns a flat list of every of this QCM question, formatted."""
+        return [question.format() for part in self.part for question in part.questions]
 
 
 class QcmPart(db.Model):
@@ -183,6 +188,12 @@ class QcmPartQuestion(db.Model):
             question.answers.append(QcmPartQuestionAnswer.from_parser(parsed_answer))
         return question
 
+    def __repr__(self):
+        return f"QcmPartQuestion({self.question}, {self.sub_text}, {self.id_part})"
+
+    def format(self):
+        return f"{self.question} {self.sub_text}"
+
 
 class QcmPartQuestionAnswer(db.Model):
     """
@@ -193,7 +204,7 @@ class QcmPartQuestionAnswer(db.Model):
 
     __tablename__ = "qcm_part_question_answer"
     id = db.Column("id", db.Integer, primary_key=True)
-    answer = db.Column(db.Text)
+    answer = db.Column("answer", db.Text)
     id_question = db.Column(
         "id_question",
         db.Integer,
@@ -272,7 +283,7 @@ class Work(db.Model):
     student_qcm = db.UniqueConstraint("id_student", "id_qcm")
     points = db.Column("points", db.Integer)
 
-    fieldnames = ("Nom", "Points", "Horaire")
+    _fieldnames = ["Nom", "Points", "Horaire"]
 
     @classmethod
     def from_form(
@@ -300,11 +311,20 @@ class Work(db.Model):
 
     def format_dict(self) -> dict:
         """Format itself into a dict for exporting as CSV file."""
-        return {
+        row = {
             "Nom": self.student.name,
             "Points": self.points,
             "Horaire": self.datetime,
         }
+        for choice in self.choices:
+            row[choice.answer.question.format()] = [choice.answer.answer]
+
+        return row
+
+    @property
+    def fieldnames(self) -> list:
+        """Creates a fiednames list."""
+        return self._fieldnames + self.qcm.flat_questions_formatted()
 
     def format_title(self) -> str:
         """Format itself into a title line for exporting as CSV file."""
@@ -319,9 +339,9 @@ class Work(db.Model):
         if works:
             filename = f"export-{id_qcm}.csv"
             fullpath = get_join_path_from_key("DOWNLOAD_FOLDER", filename)
-            with open(fullpath, "w") as csv_file:
+            with open(fullpath, "w", encoding="utf-8") as csv_file:
                 csv_file.write(works[0].format_title())
-                dictwriter = csv.DictWriter(csv_file, fieldnames=cls.fieldnames)
+                dictwriter = csv.DictWriter(csv_file, fieldnames=works[0].fieldnames)
                 dictwriter.writeheader()
                 for work in works:
                     dictwriter.writerow(work.format_dict())
