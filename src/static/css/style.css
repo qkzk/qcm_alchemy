@@ -141,6 +141,11 @@ pre {
   color: var(--main-pre-color);
 }
 
+textarea {
+  color: var(--main-text-color);
+  background-color: var(--main-bg-color);
+}
+
 label,
 select,
 option {
