@@ -18,7 +18,7 @@ from flask import (
 )
 from flask_apscheduler import APScheduler
 
-from .model import app, db, Choice, Qcm, QcmFile, Student, Work
+from .model import app, db, Choice, Qcm, QcmFile, Student, Text, Work
 from .parser import ParseQCM
 
 
@@ -68,7 +68,12 @@ def insert_from_file(file: "werkzeug.datastructures.FileStorage") -> dict:
     qcm_file = QcmFile.from_file(file)
     parsed_qcm = ParseQCM.from_file(qcm_file.filename)
     password = randint(1000, 9999)
-    qcm = Qcm.from_parser(parsed_qcm, password)
+    try:
+        qcm = Qcm.from_parser(parsed_qcm, password)
+        print(qcm)
+    except Exception as e:
+        print(repr(e))
+        raise e
     db.session.add(qcm)
     db.session.commit()
     data = {"qcm_id": qcm.id, "password": password}
@@ -76,7 +81,15 @@ def insert_from_file(file: "werkzeug.datastructures.FileStorage") -> dict:
     return data
 
 
+def insert_textarea(key: str, value: str, id_work: int):
+    """Insert a textarea answer into the database. Doesn't commit."""
+    id_question = int(key.split("_")[1])
+    text = Text(id_work=id_work, id_question=id_question, text=value.strip())
+    db.session.add(text)
+
+
 def insert_choice(key: str, value: str, id_work: int):
+    """Insert a choice into the database. Doesn't commit."""
     id_question = int(key.split("_")[1])
     id_answer = int(value.split("_")[1])
     choice = Choice(id_work=id_work, id_question=id_question, id_answer=id_answer)
@@ -230,6 +243,14 @@ def create_app() -> Flask:
                     return render_template(
                         "confirmation_page.html", data="Réponses illisibles"
                     )
+            elif key.startswith("T_"):
+                try:
+                    insert_textarea(key, value, id_work)
+                except TypeError:
+                    return render_template(
+                        "confirmation_page.html", data="Réponses illisibles"
+                    )
+
         work.is_submitted = True
         work.count_points()
         db.session.commit()

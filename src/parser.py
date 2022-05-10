@@ -137,6 +137,7 @@ class QCM_Question:
         self.mode = mode
         self.start_text, self.question_title = self.read_title()
         self.text, self.end_text = self.read_text()
+        self.is_text_question = False
         self.answers = self.read_answers()
 
     def __repr__(self):
@@ -179,7 +180,10 @@ class QCM_Question:
         """returns a list of answers from the content"""
         answers = []
         for line in self.lines[self.end_text :]:
-            if line.startswith("- ["):
+            if line.startswith("- [t]"):
+                self.is_text_question = True
+                return []
+            elif line.startswith("- ["):
                 answers.append(QCM_Answer.from_line(line))
         return answers
 

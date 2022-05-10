@@ -151,9 +151,12 @@ class QcmPart(db.Model):
 class QcmPartQuestion(db.Model):
     """
     Holds a Question.
-    A Question starts with `### question`, followed by an optional string, then a list of
+    A Question starts with `### question`, followed by an optional string,
+    then a single line with:
+        `- [t]` wich is a question whose answer is a text provided by the student.
+     or a list of
         `- [ ] wrong answer` or
-        `- [x] valid answer.`
+        `- [x] valid answer.` or
     """
 
     __tablename__ = "qcm_part_question"
@@ -163,9 +166,16 @@ class QcmPartQuestion(db.Model):
     id_part = db.Column(
         "id_part", db.Integer, db.ForeignKey("qcm_part.id", ondelete="CASCADE")
     )
+    is_text_question = db.Column(db.Boolean)
     part = db.relationship("QcmPart", back_populates="questions", passive_deletes=True)
     answers = db.relationship(
         "QcmPartQuestionAnswer",
+        back_populates="question",
+        cascade="all,delete",
+        passive_deletes=True,
+    )
+    texts = db.relationship(
+        "Text",
         back_populates="question",
         cascade="all,delete",
         passive_deletes=True,
@@ -183,6 +193,7 @@ class QcmPartQuestion(db.Model):
         question = cls(
             question=parsed_question.question_title,
             sub_text=parsed_question.text,
+            is_text_question=parsed_question.is_text_question,
         )
         for parsed_answer in parsed_question.answers:
             question.answers.append(QcmPartQuestionAnswer.from_parser(parsed_answer))
@@ -281,7 +292,11 @@ class Work(db.Model):
     is_submitted = db.Column("is_submitted", db.Boolean)
     qcm = db.relationship("Qcm", back_populates="works")
     student_qcm = db.UniqueConstraint("id_student", "id_qcm")
+    is_text = db.Column("is_text", db.Boolean)
     points = db.Column("points", db.Integer)
+    texts = db.relationship(
+        "Text", back_populates="work", cascade="all,delete", passive_deletes=True
+    )
 
     _fieldnames = ["Nom", "Points", "Horaire"]
 
@@ -318,6 +333,8 @@ class Work(db.Model):
         }
         for choice in self.choices:
             row[choice.answer.question.format()] = [choice.answer.answer]
+        for text in self.texts:
+            row[text.question.format()] = [text.text]
 
         return row
 
@@ -383,6 +400,32 @@ class Choice(db.Model):
         return (
             f"Choice({self.id}, {self.id_work}, {self.id_question}, {self.id_answer})"
         )
+
+
+class Text(db.Model):
+    """
+    A text typed by a student.
+    """
+
+    __tablename__ = "text"
+    id = db.Column("id", db.Integer, primary_key=True)
+    text = db.Column("text", db.Text)
+    id_work = db.Column(
+        "id_work", db.Integer, db.ForeignKey("work.id", ondelete="CASCADE")
+    )
+    id_question = db.Column(
+        "id_question",
+        db.Integer,
+        db.ForeignKey("qcm_part_question.id", ondelete="CASCADE"),
+    )
+    work = db.relationship("Work", back_populates="texts", passive_deletes=True)
+    question = db.relationship(
+        "QcmPartQuestion", back_populates="texts", passive_deletes=True
+    )
+    work_question = db.UniqueConstraint("id_work", "id_question")
+
+    def __repr__(self):
+        return f"Text({self.id}, {self.id_work}, {self.id_question}, {self.text})"
 
 
 class QcmFileError(Exception):
