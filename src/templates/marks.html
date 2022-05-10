@@ -29,18 +29,26 @@
                     Horaire
                 </th>
             </tr>
-            {% for work in qcm.works %}
+            {% for index, work in enumerate(qcm.works) %}
+            <form method="POST", action="{{ url_for('work', id_qcm=qcm.id, index=index, password=password) }}">
             <tr>
                 <th scope="row">
+                    <button type=submit class="no-border transparent-background">
                     {{ work.student.name|safe }}
+                    </button>
                 </th>
                 <td class="text-center">
+                    <button type=submit class="no-border transparent-background">
                     {{ work.points }}
+                    </button>
                 </td>
                 <td>
+                    <button type=submit class="no-border transparent-background">
                     {{ work.datetime }}
+                    </button>
                 </dt>
             </tr>
+            </form>
             {% endfor %}
         </table>
         <h2 class="part-title">

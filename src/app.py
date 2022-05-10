@@ -107,6 +107,10 @@ def create_app() -> Flask:
     )
     sched.start()
 
+    @app.context_processor
+    def inject_enumerate():
+        return dict(enumerate=enumerate)
+
     @app.errorhandler(404)
     def page_not_found(e):
         return render_template("404.html")
@@ -170,20 +174,60 @@ def create_app() -> Flask:
 
     @app.route("/marks", methods=["POST"])
     def marks():
-        id_qcm_from_request = request.form.get("id_qcm")
+        id_qcm_from_request = request.values.get("id_qcm")
         try:
             id_qcm = int(id_qcm_from_request)
         except TypeError:
-            flash("QCM {id_qcm_from_request} introuvable.")
             return render_template("marks.html")
         qcm = Qcm.query.get(id_qcm)
-        if qcm.validate_password(request.form.get("password")):
-            return render_template("marks.html", qcm=qcm)
+        password = request.values.get("password")
+        if qcm.validate_password(password):
+            return render_template("marks.html", qcm=qcm, password=password)
         return render_template("confirmation_page.html", data="Mauvais password.")
 
     @app.route("/student")
     def student():
         return render_template("student.html")
+
+    @app.route("/work", methods=["GET", "POST"])
+    def work():
+        print("work", request.values)
+        try:
+            id_qcm = int(request.values.get("id_qcm"))
+            index = int(request.values.get("index"))
+        except TypeError:
+            raise
+            return render_template("confirmation_page.html", data="Travail introuvable")
+
+        password = int(request.values.get("password"))
+        qcm = Qcm.query.get(id_qcm)
+        if request.values.get("preview") is not None:
+            return render_template(
+                "work.html",
+                qcm=qcm,
+                index=index,
+                password=password,
+                base_data=f"- Prévisualiser",
+                work=None,
+            )
+        try:
+            work = qcm.works[index]
+        except IndexError:
+            return render_template("confirmation_page.html", data="Mauvais index")
+        if not qcm:
+            return render_template("confirmation_page.html", data="QCM introuvable")
+        if not work:
+            return render_template("confirmation_page.html", data="Travail introuvable")
+        if not qcm.validate_password(password):
+            return render_template("confirmation_page.html", data="Mauvais password")
+        return render_template(
+            "work.html",
+            qcm=qcm,
+            index=index,
+            password=password,
+            work=work,
+            base_data=f"- Nom: {work.student.name} - Score: {work.points}",
+        )
 
     @app.route("/qcm", methods=["POST"])
     def qcm():

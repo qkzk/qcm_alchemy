@@ -4,10 +4,11 @@
 ## Roadmap
 
 ### Features
+
 - [x] mode anti triche
 - [ ] chronomètre
 - [ ] multiple valid answers
-- [ ] text answers
+- [x] text answers
 - [ ] move something ??? geogebra like object
 
 ### Models
@@ -123,5 +124,7 @@
     - [x] migrer la database de heroku
 - [x] refactor app
 - [x] refactor model
+- [x] Text answers
+- [x] light/dark mode
 - [ ] refactor views
 - [ ] remove `setup.sh` from git history. The longer I wait, the worse it gets.
