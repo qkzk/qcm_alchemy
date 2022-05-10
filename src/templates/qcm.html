@@ -55,35 +55,8 @@
         </div>
     </form>
 </div>
-<script>
-    // Style the input-radio (answers) elements.
-    // When checked:        background orange,  color black
-    // When not checked:    background dark,    color light
-    // Will break if the .answer.firstChild isn't a <input type="radio">
-
-    var radios = document.getElementsByClassName("radio");
-
-    for(var i = 0, max = radios.length; i < max; i++) {
-        radios[i].onclick = function() {
-            let answers = document.getElementsByClassName("answer");
-
-            for (let i = 0; i < answers.length; i++) {
-                    let answer = answers[i];
-                    if (!answer.childNodes[1].checked) {
-                        answer.style.background = "#1a1a1a";
-                    }
-                }
-
-            let parent_div = document.getElementById('answer_' + this.id);
-            parent_div.style.background = "#ffa500";
-        }
-        
-    }
+<script id="chosen_label_switcher" src={{ url_for('static', filename='javascript/chosen_label_theme_switcher.js') }}>
 </script>
-<script>
-    window.onblur = function() {
-          document.getElementById("qcm_form").submit();
-          alert("Vous avez quitté la page. Vos réponses sont enregistrées et vous ne pouvez plus progresser dans le devoir.")
-        }
+<script id="anticheat" src={{ url_for('static', filename='javascript/anticheat.js') }}>
 </script>
 {% endblock %}

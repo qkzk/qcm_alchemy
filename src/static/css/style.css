@@ -1,6 +1,27 @@
 body {
-  height: 100%;
+  --main-bg-color: #eaeaea;
+  --main-button-color: black;
+  --main-border-color: black;
+  --main-chosen-color: #ffa500;
+  --main-number-color: #232323;
+  --main-text-color: #656565;
+  --main-pre-color: black;
+  background-image: url("../img/texture_white.png");
+}
+
+body.dark-theme {
+  --main-bg-color: #1a1a1a;
+  --main-button-color: white;
+  --main-border-color: white;
+  --main-chosen-color: #ffa500;
+  --main-number-color: #dedede;
+  --main-text-color: #bcbcbc;
+  --main-pre-color: white;
   background-image: url("../img/texture.png");
+}
+
+body {
+  height: 100%;
   background-size: 64px 96px;
   background-position: center;
   font-family: sans-serif;
@@ -30,7 +51,7 @@ body {
   width: 100%;
   height: 10vh;
   position: fixed;
-  background-color: #1a1a1a;
+  background-color: var(--main-bg-color);
   margin: 0px;
   top: 0px;
   left: 0px;
@@ -73,13 +94,13 @@ a,
 .logout,
 .admin-link {
   text-align: center;
-  color: #bcbcbc;
+  color: var(--main-text-color);
 }
 
 .error,
 .white,
 label {
-  color: #bcbcbc;
+  color: var(--main-text-color);
 }
 
 td {
@@ -94,13 +115,13 @@ td {
   margin-top: 30px;
   margin-bottom: 60px;
   border-radius: 25px;
-  border: 3px solid #bcbcbc;
-  background-color: #1a1a1a;
+  border: 3px solid var(--main-text-color);
+  background-color: var(--main-bg-color);
 }
 
 .codehilite {
   margin: 0 auto;
-  color: #bcbcbc;
+  color: var(--main-text-color);
   text-align: left;
 }
 
@@ -109,7 +130,7 @@ td {
   text-align: left;
   margin: 0 auto;
   padding: 10px;
-  color: #bcbcbc;
+  color: var(--main-text-color);
 }
 
 pre {
@@ -117,13 +138,13 @@ pre {
   margin-left: auto;
   margin-right: auto;
   width: 70%;
-  color: white;
+  color: var(--main-pre-color);
 }
 
 label,
 select,
 option {
-  color: #bcbcbc;
+  color: var(--main-text-color);
   margin: 15px;
   font-weight: 14px;
 }
@@ -134,8 +155,8 @@ option {
 }
 
 button {
-  color: #fff;
-  background-color: #1a1a1a;
+  color: var(--main-button-color);
+  background-color: var(--main-bg-color);
   font-size: 18px;
   padding: 5px;
 }
@@ -158,13 +179,13 @@ table.center {
 table,
 th,
 td {
-  border: 1px solid white;
+  border: 1px solid var(--main-border-color);
   border-collapse: collapse;
 }
 
 th,
 td {
-  color: #bcbcbc;
+  color: var(--main-text-color);
   padding-left: 1rem;
   padding-right: 1rem;
   padding-top: 0.5rem;
@@ -175,6 +196,10 @@ div.text-center,
 th.text-center,
 td.text-center {
   text-align: center;
+}
+
+.colored-background {
+  background-color: var(--main-bg-color);
 }
 
 .form-container {
@@ -190,8 +215,8 @@ td.text-center {
 
 input[type="text"],
 input[type="number"] {
-  background-color: #1a1a1a;
-  color: #dedede;
+  background-color: var(--main-bg-color);
+  color: var(--main-number-color);
   font-size: 24px;
   height: 40px;
 }
@@ -207,11 +232,11 @@ input[type="radio"]:after {
   top: -4px;
   left: -4px;
   position: relative;
-  background-color: #bcbcbc;
+  background-color: var(--main-text-color);
   content: "";
   display: inline-block;
   visibility: visible;
-  border: 3px solid white;
+  border: 3px solid var(--main-border-color);
 }
 
 input[type="radio"]:checked:after {
@@ -221,22 +246,22 @@ input[type="radio"]:checked:after {
   top: -4px;
   left: -4px;
   position: relative;
-  background-color: #ffa500;
+  background-color: var(--main-chosen-color);
   content: "";
   display: inline-block;
   visibility: visible;
-  border: 3px solid white;
+  border: 3px solid var(--main-border-color);
 }
 
 .answer {
   padding-top: 10px;
   padding-left: 10px;
   padding-bottom: 10px;
-  background-color: #1a1a1a;
+  background-color: var(--main-bg-color);
 }
 
 input[type="radio"]:checked ~ label {
-  color: #1a1a1a;
+  color: black;
 }
 
 .spacediv {
@@ -259,6 +284,6 @@ footer {
   text-align: center;
   padding-top: 10px;
   justify-content: center;
-  background-color: #1a1a1a;
-  color: #bcbcbc;
+  background-color: var(--main-bg-color);
+  color: var(--main-text-color);
 }

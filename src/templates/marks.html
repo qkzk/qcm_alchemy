@@ -17,7 +17,7 @@
         <h3 class="part-title">
             {{ qcm.id}} - {{ qcm.title|safe }} - {{ qcm.datetime }}
         </h3>
-        <table class="center">
+        <table class="center colored-background">
             <tr>
                 <th scole="col">
                     Nom
@@ -25,14 +25,14 @@
                 <th scole="col" class="text-center">
                     Points
                 </th>
-                <th>
+                <th scope="col">
                     Horaire
                 </th>
             </tr>
             {% for work in qcm.works %}
             <tr>
                 <th scope="row">
-                        {{ work.student.name|safe }}
+                    {{ work.student.name|safe }}
                 </th>
                 <td class="text-center">
                     {{ work.points }}
@@ -44,7 +44,7 @@
             {% endfor %}
         </table>
         <h2 class="part-title">
-                Exporter en CSV
+            Exporter en CSV
         </h2>
             <form method="POST" action="{{ url_for('export') }}" class="form-question">
                 <div class="form-container">

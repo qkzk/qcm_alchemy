@@ -4,6 +4,7 @@
 {% endblock %}
 
 {% block content %}
+<link href="{{ url_for('static', filename='css/text_left.css') }}" rel="stylesheet">
 <div class="part">
     <div class="question-answers">
         <h2>
@@ -11,8 +12,7 @@
         </h2>
         <div class="question">
             <p>
-                Ce site n'utilise qu'un cookie, pour gérer la session de l'utilisateur
-                et relever le QCM auquel il participe.
+                Ce site utilise quelques cookies pour retenir le QCM choisi par l'élève et maintenir une session.
             </p>
 
             <p>
