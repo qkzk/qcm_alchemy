@@ -9,17 +9,10 @@
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}" />
     {% endblock %}
     {% block mathjax %}
-      <script>
-        MathJax = {
-          tex: {
-            tags: 'all',
-            inlineMath: [ ['$','$'], ["\(","\)"] ],
-            processEscapes: true,
-            packages: ['base', 'newcommand', 'action'],
-          },
-        };
+      <script id="mathjax_settings" src="{{ url_for('static', filename='javascript/mathjax_settings.js') }}">
       </script>
-      <script id="MathJax-script" async src="{{url_for('static', filename='mathjax/tex-chtml.js')}}"></script>
+      <script id="MathJax-script" async src="{{url_for('static', filename='mathjax/tex-chtml.js')}}">
+      </script>
     {% endblock %}
   </head>
 
@@ -27,6 +20,10 @@
     {% block body %}
         <div id="banner">
           <h1>
+            <button id="theme-switcher">
+                🌙
+            </button>
+            &nbsp; &nbsp; &nbsp; &nbsp;
             <a href="/">
               QCM
             </a>
@@ -37,13 +34,15 @@
         </div>
         
         <div id="content">
-        {% block content %}
+            {% block content %}
 
-        {% endblock %}
+            {% endblock %}
         </div>
     {% endblock %}
-  </body>
 
+    <script id="theme-switcher" src="{{ url_for('static', filename='javascript/theme_switcher.js') }}">
+    </script>
+  </body>
 </html>
 
 

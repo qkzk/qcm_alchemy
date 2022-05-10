@@ -3,6 +3,13 @@
 
 ## Roadmap
 
+### Features
+- [x] mode anti triche
+- [ ] chronomètre
+- [ ] multiple valid answers
+- [ ] text answers
+- [ ] move something ??? geogebra like object
+
 ### Models
 
 - [x] QCM original
@@ -18,8 +25,6 @@
 - [x] mélanger
 - [x] regrouper les résultats
 - [x] cookies
-- [x] mode anti triche
-- [ ] chronomètre
 - [ ] présenter une question par page
 - [ ] lien entre les pages
 
@@ -107,7 +112,7 @@
                 3. Once everything is working you can log into the DB with `heroku pg:psql postgresql-clear-05212 --app casting-agency-xw` where postgresql-clear-05212 is the name of the DB (found [here](https://dashboard.heroku.com/apps/qcmqkzk/resources))
                 4. You can log into the dyno with `heroku run bash`, see the logs with `heroku log --tail`
 - [x] styling : banner, radio, infos dans base, uniformité
-- [ ] test hosting
+- [x] test hosting
     - [x] hammering and intense testing. Sort of. Résultat : 13ms pour le contenu. QQ ms pour le rendu. trop jde JS.
 - [x] limit strings, safe inputs and good practices
 - [x] RGPD et tutoriel
@@ -115,7 +120,8 @@
     - [x] proposer un numero pour consulter les QCM notes
     - [x] demander le numéro lorsqu'on cherche à consulter les résultats
     - [ ] trouver un moyen de consulter les notes pas élève... compliqué
-    - [ ] migrer la database de heroku
-- [ ] refactor app
-- [ ] refactor model
+    - [x] migrer la database de heroku
+- [x] refactor app
+- [x] refactor model
 - [ ] refactor views
+- [ ] remove `setup.sh` from git history. The longer I wait, the worse it gets.
