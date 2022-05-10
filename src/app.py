@@ -150,7 +150,9 @@ def create_app() -> Flask:
                     "confirmation_page.html", data="Mauvais mot de passe"
                 )
 
-        except TypeError:
+        except TypeError as e:
+            print(repr(e))
+            raise e
             return render_template("index.html")
 
     @app.route("/marks", methods=["POST"])
