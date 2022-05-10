@@ -6,6 +6,9 @@ body {
   --main-number-color: #232323;
   --main-text-color: #656565;
   --main-pre-color: black;
+  --main-selected-right: #bbffcc;
+  --main-selected-wrong: #ffbbcc;
+  --main-not-selected-but-right: #ffa500;
   background-image: url("../img/texture_white.png");
 }
 
@@ -17,6 +20,9 @@ body.dark-theme {
   --main-number-color: #dedede;
   --main-text-color: #bcbcbc;
   --main-pre-color: white;
+  --main-selected-right: #228833;
+  --main-selected-wrong: #882233;
+  --main-not-selected-but-right: #886611;
   background-image: url("../img/texture.png");
 }
 
@@ -119,6 +125,14 @@ td {
   background-color: var(--main-bg-color);
 }
 
+.no-border {
+  border: none;
+}
+
+.transparent-background {
+  background-color: rgba(0, 0, 0, 0);
+}
+
 .codehilite {
   margin: 0 auto;
   color: var(--main-text-color);
@@ -144,6 +158,16 @@ pre {
 textarea {
   color: var(--main-text-color);
   background-color: var(--main-bg-color);
+}
+
+.selected-wrong {
+  background-color: var(--main-selected-wrong); /* red */
+}
+.selected-right {
+  background-color: var(--main-selected-right); /* green */
+}
+.not-selected-but-right {
+  background-color: var(--main-not-selected-but-right);
 }
 
 label,

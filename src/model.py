@@ -367,6 +367,20 @@ class Work(db.Model):
             return filename
         return ""
 
+    def get_text(self, id_question: int) -> str:
+        return (
+            Text.query.filter_by(id_work=self.id, id_question=id_question).first().text
+        )
+
+    def is_correct(self, answser_id: int) -> bool:
+        return QcmPartQuestionAnswer.query.get(answser_id).is_valid
+
+    def is_selected(self, id_question, id_answer):
+        for choice in self.choices:
+            if choice.id_question == id_question and choice.id_answer == id_answer:
+                return True
+        return False
+
 
 class Choice(db.Model):
     """
