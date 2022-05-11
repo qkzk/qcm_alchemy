@@ -6,26 +6,30 @@
 {% block content %}
 <div class="qcm">
     <div>
-        <h1>{% if work %}
+        {% if work %}
+            <h1>
+                {{ work.student.name|safe }}
+                &nbsp;
+            </h1>
+            <h2>
                 {% if index > 0 %}
-                    <form style="display: inline" method="POST" action="{{ url_for('work', id_qcm=qcm.id, index=index-1, password=password) }}" id="previous">
-                        <button type="submit" class="no-border transparent-background">Precedent</button>
-                    </form>
+                    <a href="{{ url_for('work', id_qcm=qcm.id, index=index-1) }}" id="previous">
+                        Precedent
+                    </a>
                     &nbsp;
                 {% endif %}
-                {{ work.student.name|safe }}
-                    &nbsp;
-                    <form style="display: inline" method="POST" action="{{ url_for('marks', id_qcm=qcm.id, password=password) }}" id="previous">
-                        <button type="submit" class="no-border transparent-background">Liste</button>
-                    </form>
+                <a href="{{ url_for('marks', id_qcm=qcm.id) }}" id="previous">
+                    Liste
+                </a>
+            
                 {% if index < (qcm.works|length - 1) %}
                     &nbsp;
-                    <form style="display: inline" method="POST" action="{{ url_for('work', id_qcm=qcm.id, index=index+1, password=password) }}" id="next">
-                        <button type="submit" class="no-border transparent-background">Suivant</button>
-                    </form>
+                    <a href="{{ url_for('work', id_qcm=qcm.id, index=index+1) }}" id="next">
+                        Suivant
+                    </a>
                 {% endif %}
-            {% endif %}
-        </h1>
+            </h2>
+        {% endif %}
     </div>
     <div>
         <h1>

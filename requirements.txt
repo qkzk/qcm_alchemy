@@ -1,5 +1,6 @@
 markdown
 flask
+flask-login
 flask-sqlalchemy
 Flask-APScheduler
 Flask-Migrate

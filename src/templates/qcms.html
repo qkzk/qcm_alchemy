@@ -10,22 +10,6 @@
     </h2>
 </div>
 <div class="part">
-    <form method="POST" action="{{ url_for('marks') }}" class="form-question">
-        <div class="form-container">
-            <section>
-                <input type="number" name="id_qcm" required placeholder="Numéro du QCM">
-                <br />
-                <input type="number" name="password" required placeholder="password">
-                <br />
-                <button type="submit" class="btn">
-                    Consulter
-                </button>
-            </section>
-        </div>
-
-    </form>
-</div>
-<div class="part">
     <h2 class="part-title">
         QCMs disponibles
     </h2>
@@ -45,16 +29,24 @@
         {% for qcm in qcms %}
         <tr>
             <td>
-                {{ qcm.id }}
+                <a href="{{ url_for('marks', id_qcm=qcm.id) }}">
+                    {{ qcm.id }}
+                </a>
             </td>
             <td>
-                {{ qcm.title }}
+                <a href="{{ url_for('marks', id_qcm=qcm.id) }}">
+                    {{ qcm.title }}
+                </a>
             </td>
             <td>
-                {{ qcm.datetime }}
+                <a href="{{ url_for('marks', id_qcm=qcm.id) }}">
+                    {{ qcm.datetime }}
+                </a>
             </td>
             <td>
-                {{ qcm.count_works() }}
+                <a href="{{ url_for('marks', id_qcm=qcm.id) }}">
+                    {{ qcm.count_works() }}
+                </a>
             </td>
         </tr>
         {% endfor %}

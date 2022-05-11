@@ -128,3 +128,13 @@
 - [x] light/dark mode
 - [ ] refactor views
 - [ ] remove `setup.sh` from git history. The longer I wait, the worse it gets.
+- [ ] login
+    - [x] flask login
+    - [x] forcer les enseignants à se logguer
+    - [x] empecher les enseignants de consulter des autres QCM que les leurs
+    - [ ] comment stocker des token dans heroku ?
+    - [ ] migrer la bdd de heroku
+    - [ ] refactor tous les nouveaux trucs, les textes etc.
+    - [ ] tout tester 50 fois
+    - [ ] créer une adresse expres ?
+    - [ ] utiliser une adresse du nom de domaine ???

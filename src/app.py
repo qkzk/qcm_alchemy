@@ -4,25 +4,34 @@ author: qkzk
 date: 2022/05/08
 """
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from random import randint
+import secrets
 from typing import Union
 
 from flask import (
     Flask,
-    request,
-    flash,
-    url_for,
     make_response,
     redirect,
     render_template,
+    request,
     send_from_directory,
+    session,
+    url_for,
 )
 from flask_apscheduler import APScheduler
+from flask_login import (
+    LoginManager,
+    current_user,
+    login_required,
+    login_user,
+    logout_user,
+)
 from werkzeug.datastructures import ImmutableMultiDict
 
-from .model import app, db, Choice, Qcm, QcmFile, Student, Text, Work
+from .model import app, db, Choice, Qcm, QcmFile, ResetKey, Student, Teacher, Text, Work
 from .parser import ParseQCM
+from .sendmail import EmailSender
 
 
 def clear_records_and_files():
@@ -64,19 +73,18 @@ def find_or_add_student(students: list[Student], name: str) -> int:
     return student.id
 
 
-def insert_from_file(file: "werkzeug.datastructures.FileStorage") -> dict:
+def insert_from_file(file: "werkzeug.datastructures.FileStorage", current_user) -> dict:
     """
     Insert a QCM in database from a downloaded file which has .md extension.
     """
     qcm_file = QcmFile.from_file(file)
     parsed_qcm = ParseQCM.from_file(qcm_file.filename)
-    password = randint(1000, 9999)
     try:
-        qcm = Qcm.from_parser(parsed_qcm, password)
+        qcm = Qcm.from_parser(parsed_qcm, current_user.id)
         print(qcm)
         db.session.add(qcm)
         db.session.commit()
-        data = {"qcm_id": qcm.id, "password": password}
+        data = {"qcm_id": qcm.id}
         print(data)
         return data
     except Exception as e:
@@ -134,16 +142,11 @@ def construct_qcm_resonse(qcm: Qcm, name: str, work: Work):
     return resp
 
 
-def validate_qcm_work(
-    qcm: Qcm, work: Work, password: Union[str, None]
-) -> tuple[bool, str]:
-
+def validate_qcm_work(qcm: Qcm, work: Work) -> tuple[bool, str]:
     if not qcm:
         return False, "QCM introuvable"
     if not work:
         return False, "Travail introuvable"
-    if not qcm.validate_password(password):
-        return False, "Mauvais password"
     return True, ""
 
 
@@ -158,9 +161,22 @@ def create_app() -> Flask:
     )
     sched.start()
 
+    login = LoginManager(app)
+    login.login_view = "login"
+
+    @app.before_request
+    def make_session_permanent():
+        """Limit sessions duration to 60 minutes."""
+        session.permanent = True
+        app.permanent_session_lifetime = timedelta(minutes=60)
+
     @app.context_processor
     def inject_enumerate():
         return dict(enumerate=enumerate)
+
+    @login.user_loader
+    def load_user(id):
+        return Teacher.query.get(id)
 
     @app.errorhandler(404)
     def page_not_found(e):
@@ -169,6 +185,107 @@ def create_app() -> Flask:
     @app.route("/")
     def index():
         return render_template("index.html")
+
+    @app.route("/login", methods=["GET", "POST"])
+    def login():
+        if request.method == "POST":
+            email = request.form.get("email")
+            clear_password = request.form.get("password")
+            teacher = Teacher.from_email(email)
+            if teacher is None:
+                print("teacher unknown")
+                return redirect(url_for("login"))
+            if teacher.check_password_hash(clear_password):
+                print("login successful")
+                login_user(teacher)
+                return redirect(url_for("teacher"))
+
+        return render_template("login.html")
+
+    @app.route("/logout")
+    def logout():
+        logout_user()
+        return redirect(url_for("login"))
+
+    @app.route("/new_teacher", methods=["GET", "POST"])
+    def new_teacher():
+        if request.method == "POST":
+            email = request.form.get("email")
+            clear_password = request.form.get("password")
+            if email is None or clear_password is None:
+                print(f"new_teacher: can't read form. {email} - {clear_password}")
+                return render_template("new_teacher.html")
+            teacher = Teacher.insert(email, clear_password)
+            if teacher is not None:
+                print(f"teacher {teacher} inserted... redirecting")
+                return redirect(url_for("login"))
+
+        return render_template("new_teacher.html")
+
+    @app.route("/forgotten_password", methods=["GET", "POST"])
+    def forgotten_password():
+        data = {}
+        if request.method == "POST":
+            email = request.form.get("email")
+            if email is not None:
+                teacher = Teacher.from_email(email)
+                if teacher is None:
+                    return render_template("404.html")
+                key = secrets.token_urlsafe(16)
+                ResetKey.remove_key(teacher.id)
+                reset_key = ResetKey(
+                    key=key, id_teacher=teacher.id, datetime=datetime.now()
+                )
+                db.session.add(reset_key)
+                db.session.commit()
+                EmailSender(
+                    "qcm.serveur@lyceedesflandres.fr",
+                    email,
+                    "QCM: reset password",
+                    f"""Cher utilisateur,
+
+Réinitialisez votre mot de passe en suivant ce lient : 
+
+https://qcmqkzk.herokuapp.com/reset_password/{teacher.id}/{key} 
+
+Ce lien est valable une heure.
+
+                                                The QCM serveur.
+                    """,
+                ).send_message()
+            data = {
+                "message": "Suivez les instructions dans le mail pour réinitialiser votre mot de passe."
+            }
+
+        return render_template("forgotten_password.html", data=data)
+
+    @app.route("/reset_password/<teacher_id>/<key>")
+    def reset_password_from_key(teacher_id, key):
+        teacher = ResetKey.query.filter_by(key=key).first_or_404().teacher
+        if ResetKey.key_match(teacher_id, key):
+            ResetKey.remove_key(teacher.id)
+            data = {
+                "teacher_id": teacher.id,
+                "email": teacher.email,
+                "reset": True,
+            }
+            return render_template("reset_password.html", data=data)
+        return render_template("404.html")
+
+    @app.route("/reset_password", methods=["POST"])
+    def reset_password():
+        email = request.form.get("email")
+        password = request.form.get("password")
+        teacher_id = request.form.get("teacher_id")
+        teacher = Teacher.query.get(teacher_id)
+        if teacher is None:
+            return render_template("404.html")
+        teacher.update_password(password)
+        data = {
+            "message": "password set successfully. You can login now",
+            "reset": False,
+        }
+        return render_template("reset_password.html", data=data)
 
     @app.route("/rgpd")
     def rgpd():
@@ -179,10 +296,12 @@ def create_app() -> Flask:
         return render_template("tutorial.html")
 
     @app.route("/teacher")
+    @login_required
     def teacher():
-        return render_template("teacher.html")
+        return render_template("teacher.html", current_user=current_user)
 
     @app.route("/new", methods=["GET", "POST"])
+    @login_required
     def new():
         if request.method == "GET":
             return render_template("new.html", data=None)
@@ -190,53 +309,38 @@ def create_app() -> Flask:
         file = request.files.get("source")
         is_valid_file, error_message = QcmFile.validate_file(file)
         if is_valid_file:
-            data = insert_from_file(file)
+            data = insert_from_file(file, current_user)
         else:
             data = {"Fichier invalide": error_message}
 
         return render_template("new.html", data=data)
 
-    @app.route("/qcms")
-    def qcms():
-        return render_template("qcms.html", qcms=Qcm.query.all())
+    @app.route("/qcms/<teacher_id>")
+    @login_required
+    def qcms(teacher_id):
+        return render_template(
+            "qcms.html", qcms=Qcm.query.filter_by(id_teacher=teacher_id).all()
+        )
 
-    @app.route("/export", methods=["POST"])
-    def export():
-        try:
-            id_qcm = int(request.form.get("id_qcm"))
-            qcm = Qcm.query.get(id_qcm)
-            if qcm.validate_password(request.form.get("password")):
-                path = Work.write_export(id_qcm)
-                directory = os.path.join(os.getcwd(), app.config["DOWNLOAD_FOLDER"])
-                return send_from_directory(directory=directory, path=path)
-            else:
-                return render_template(
-                    "confirmation_page.html", data="Mauvais mot de passe"
-                )
+    @app.route("/export/<int:qcm_id>")
+    @login_required
+    def export(qcm_id: int):
+        path = Work.write_export(qcm_id)
+        directory = os.path.join(os.getcwd(), app.config["DOWNLOAD_FOLDER"])
+        return send_from_directory(directory=directory, path=path)
 
-        except TypeError as e:
-            print(repr(e))
-            raise e
-            return render_template("index.html")
-
-    @app.route("/marks", methods=["POST"])
-    def marks():
-        id_qcm_from_request = request.values.get("id_qcm")
-        try:
-            id_qcm = int(id_qcm_from_request)
-        except TypeError:
-            return render_template("marks.html")
+    @app.route("/marks/<int:id_qcm>")
+    @login_required
+    def marks(id_qcm):
         qcm = Qcm.query.get(id_qcm)
-        password = request.values.get("password")
-        if qcm.validate_password(password):
-            return render_template("marks.html", qcm=qcm, password=password)
-        return render_template("confirmation_page.html", data="Mauvais password.")
+        return render_template("marks.html", qcm=qcm)
 
     @app.route("/student")
     def student():
         return render_template("student.html")
 
     @app.route("/work", methods=["GET", "POST"])
+    @login_required
     def work():
         print("work", request.values)
         try:
@@ -245,14 +349,12 @@ def create_app() -> Flask:
         except TypeError:
             return render_template("confirmation_page.html", data="Travail introuvable")
 
-        password = request.values.get("password")
         qcm = Qcm.query.get(id_qcm)
         if request.values.get("preview") is not None:
             return render_template(
                 "work.html",
                 qcm=qcm,
                 index=index,
-                password=password,
                 base_data=f"- Prévisualiser",
                 work=None,
             )
@@ -260,14 +362,13 @@ def create_app() -> Flask:
             work = qcm.works[index]
         except IndexError:
             return render_template("confirmation_page.html", data="Mauvais index")
-        is_complete, error_message = validate_qcm_work(qcm, work, password)
+        is_complete, error_message = validate_qcm_work(qcm, work)
         if not is_complete:
             return render_template("confirmation_page.html", data=error_message)
         return render_template(
             "work.html",
             qcm=qcm,
             index=index,
-            password=password,
             work=work,
             base_data=f"- Nom: {work.student.name} - Score: {work.points}",
         )
