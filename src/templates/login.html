@@ -3,33 +3,42 @@
   {{ super() }}
 {% endblock %}
 
-{% block body %}
-  {% block content %}
+{% block content %}
+
       <div class=part>
-        <h2>
-        Login
-        </h2> 
+        <div class="question-answers">
+            <h2>
+                <a href="{{ url_for('new_teacher') }}">
+                    S'inscrire
+                </a>
+            </h2>
+          </div>
+      </div>
+      <div class=part>
         <div class="login question-answers">
           <form id="form_login" action="/login" method="POST">
-            <table class="question-answers">
-              <tbody>
+              <h2>
+                  Se connecter
+              </h2> 
+            <table class="question-answers center no-border">
+              <tbody class="no-border">
                 <tr>
-                  <td>
+                  <td class="no-border">
                     <label for="email">
                       Email
                     </label>
                   </td>
-                  <td>
-                    <input type="text" name="email" value="">
+                  <td class="no-border">
+                    <input type="text" name="email" value="" required>
                   </td>
                 </tr>
                 <tr>
-                  <td>
+                  <td class="no-border">
                     <label for="password">
                       Mot de passe
                     </label>
                   </td>
-                  <td>
+                  <td class="no-border">
                     <input type="password" name="password" value="" required>
                   </td>
                 </tr>
@@ -43,10 +52,9 @@
           </form>
           <div class="white">
             <a href="/forgotten_password">
-              Forgotten_password
+              Mot de passe oublié
             </a>
           </div>
         </div>
       </div>
-  {% endblock %}
 {% endblock %}

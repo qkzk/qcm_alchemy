@@ -132,6 +132,8 @@
     - [x] flask login
     - [x] forcer les enseignants à se logguer
     - [x] empecher les enseignants de consulter des autres QCM que les leurs
+    - [ ] problème des librairies qui foirent voir l'import initial dans sendmail
+            comment résoudre ça dans heroku ?
     - [ ] comment stocker des token dans heroku ?
     - [ ] migrer la bdd de heroku
     - [ ] refactor tous les nouveaux trucs, les textes etc.
