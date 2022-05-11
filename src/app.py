@@ -6,6 +6,8 @@ date: 2022/05/08
 import os
 from datetime import datetime
 from random import randint
+from typing import Union
+
 from flask import (
     Flask,
     request,
@@ -17,6 +19,7 @@ from flask import (
     send_from_directory,
 )
 from flask_apscheduler import APScheduler
+from werkzeug.datastructures import ImmutableMultiDict
 
 from .model import app, db, Choice, Qcm, QcmFile, Student, Text, Work
 from .parser import ParseQCM
@@ -71,14 +74,13 @@ def insert_from_file(file: "werkzeug.datastructures.FileStorage") -> dict:
     try:
         qcm = Qcm.from_parser(parsed_qcm, password)
         print(qcm)
+        db.session.add(qcm)
+        db.session.commit()
+        data = {"qcm_id": qcm.id, "password": password}
+        print(data)
+        return data
     except Exception as e:
-        print(repr(e))
-        raise e
-    db.session.add(qcm)
-    db.session.commit()
-    data = {"qcm_id": qcm.id, "password": password}
-    print(data)
-    return data
+        return {"Fichier illisible": repr(e)}
 
 
 def insert_textarea(key: str, value: str, id_work: int):
@@ -94,6 +96,55 @@ def insert_choice(key: str, value: str, id_work: int):
     id_answer = int(value.split("_")[1])
     choice = Choice(id_work=id_work, id_question=id_question, id_answer=id_answer)
     db.session.add(choice)
+
+
+def read_id_work_from_cookie(cookies: ImmutableMultiDict[str, str]) -> int:
+    try:
+        return int(cookies.get("id_work"))
+    except TypeError:
+        return -1
+
+
+def insert_answers_from_request(form: ImmutableMultiDict[str, str], id_work: int):
+    """
+    Insert the received answers from a POST form.
+    Returns True if the insertion went without error
+    """
+    for key, value in form.items():
+        if key.startswith("Q_") and value.startswith("A_"):
+            try:
+                insert_choice(key, value, id_work)
+            except TypeError:
+                return False
+        elif key.startswith("T_"):
+            try:
+                insert_textarea(key, value, id_work)
+            except TypeError:
+                return False
+    return True
+
+
+def construct_qcm_resonse(qcm: Qcm, name: str, work: Work):
+
+    format_name = f" - Nom: {name}"
+    resp = make_response(
+        render_template("qcm.html", qcm=qcm, name=name, base_data=format_name)
+    )
+    resp.set_cookie("id_work", str(work.id))
+    return resp
+
+
+def validate_qcm_work(
+    qcm: Qcm, work: Work, password: Union[str, None]
+) -> tuple[bool, str]:
+
+    if not qcm:
+        return False, "QCM introuvable"
+    if not work:
+        return False, "Travail introuvable"
+    if not qcm.validate_password(password):
+        return False, "Mauvais password"
+    return True, ""
 
 
 def create_app() -> Flask:
@@ -139,13 +190,9 @@ def create_app() -> Flask:
         file = request.files.get("source")
         is_valid_file, error_message = QcmFile.validate_file(file)
         if is_valid_file:
-            try:
-                data = insert_from_file(file)
-            except Exception as e:
-                print(repr(e))
-                data = {"Fichier illisible": repr(e)}
+            data = insert_from_file(file)
         else:
-            data = {"invalid file", error_message}
+            data = {"Fichier invalide": error_message}
 
         return render_template("new.html", data=data)
 
@@ -196,10 +243,9 @@ def create_app() -> Flask:
             id_qcm = int(request.values.get("id_qcm"))
             index = int(request.values.get("index"))
         except TypeError:
-            raise
             return render_template("confirmation_page.html", data="Travail introuvable")
 
-        password = int(request.values.get("password"))
+        password = request.values.get("password")
         qcm = Qcm.query.get(id_qcm)
         if request.values.get("preview") is not None:
             return render_template(
@@ -214,12 +260,9 @@ def create_app() -> Flask:
             work = qcm.works[index]
         except IndexError:
             return render_template("confirmation_page.html", data="Mauvais index")
-        if not qcm:
-            return render_template("confirmation_page.html", data="QCM introuvable")
-        if not work:
-            return render_template("confirmation_page.html", data="Travail introuvable")
-        if not qcm.validate_password(password):
-            return render_template("confirmation_page.html", data="Mauvais password")
+        is_complete, error_message = validate_qcm_work(qcm, work, password)
+        if not is_complete:
+            return render_template("confirmation_page.html", data=error_message)
         return render_template(
             "work.html",
             qcm=qcm,
@@ -249,29 +292,15 @@ def create_app() -> Flask:
         id_student = find_or_add_student(students, name)
 
         # create a work
-        work = Work(
-            id_qcm=id_qcm,
-            id_student=id_student,
-            datetime=datetime.now(),
-            is_submitted=False,
-        )
-        db.session.add(work)
-        db.session.commit()
+        work = Work.create_and_commit(id_qcm=id_qcm, id_student=id_student)
 
-        format_name = f" - Nom: {name}"
-
-        resp = make_response(
-            render_template("qcm.html", qcm=qcm, name=name, base_data=format_name)
-        )
-        resp.set_cookie("id_work", str(work.id))
-        return resp
+        return construct_qcm_resonse(qcm, name, work)
 
     @app.route("/answers", methods=["POST"])
     def answers():
-        try:
-            id_work = int(request.cookies.get("id_work"))
-        except TypeError:
-            return render_template("confirmation_page.html", data="Utilisateur inconnu")
+        id_work = read_id_work_from_cookie(request.cookies)
+        if id_work == -1:
+            render_template("confirmation_page.html", data="Utilisateur inconnu")
 
         work = Work.query.get(id_work)
         if work.is_submitted:
@@ -279,21 +308,8 @@ def create_app() -> Flask:
                 "confirmation_page.html", data="Vous avez déjà répondu à ce QCM."
             )
 
-        for key, value in request.form.items():
-            if key.startswith("Q_") and value.startswith("A_"):
-                try:
-                    insert_choice(key, value, id_work)
-                except TypeError:
-                    return render_template(
-                        "confirmation_page.html", data="Réponses illisibles"
-                    )
-            elif key.startswith("T_"):
-                try:
-                    insert_textarea(key, value, id_work)
-                except TypeError:
-                    return render_template(
-                        "confirmation_page.html", data="Réponses illisibles"
-                    )
+        if not insert_answers_from_request(request.form, id_work):
+            return render_template("confirmation_page.html", data="Réponses illisibles")
 
         work.is_submitted = True
         work.count_points()

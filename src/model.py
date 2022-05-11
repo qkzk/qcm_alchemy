@@ -301,20 +301,17 @@ class Work(db.Model):
     _fieldnames = ["Nom", "Points", "Horaire"]
 
     @classmethod
-    def from_form(
-        cls, id_qcm: int, id_student: int, parsed_choices: list[dict]
-    ) -> "Work":
+    def create_and_commit(cls, id_qcm: int, id_student: int) -> "Work":
         """Returns a `Work` instance extracted from a POST form"""
-        work = Work(id_qcm=id_qcm, id_student=id_student)
-        for parsed_choice in parsed_choices:
-            work.choices.append(
-                Choice(
-                    id_question=parsed_choice["id_question"],
-                    id_answer=parsed_choice["id_answer"],
-                    datetime=datetime.now(),
-                    is_submitted=False,
-                )
-            )
+
+        work = cls(
+            id_qcm=id_qcm,
+            id_student=id_student,
+            datetime=datetime.now(),
+            is_submitted=False,
+        )
+        db.session.add(work)
+        db.session.commit()
         return work
 
     def count_points(self):
