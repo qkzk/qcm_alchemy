@@ -33,14 +33,9 @@
                 {{ data["qcm_id"] }}
                 <div class="spacediv"></div>
                 <div class="spacediv"></div>
-                <div class="spacediv"></div>
-                Conservez ce mot de passe pour consulter et exporter vos notes :
-                <div class="spacediv"></div>
-                {{ data["password"] }}
-                <div class="spacediv"></div>
             </h3>
             <h2>
-                <a href={{ url_for('work', id_qcm=data['qcm_id'], password=data['password'], index=0, preview=1) }}>
+                <a href={{ url_for('work', id_qcm=data['qcm_id'], index=0, preview=1) }}>
                     Visualiser votre QCM
                 </a>
             </h2>

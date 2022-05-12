@@ -132,12 +132,12 @@
     - [x] flask login
     - [x] forcer les enseignants à se logguer
     - [x] empecher les enseignants de consulter des autres QCM que les leurs
-    - [?] requirements.txt
-    - [?] problème des librairies qui foirent voir l'import initial dans sendmail
+    - [x] requirements.txt
+    - [x] problème des librairies qui foirent voir l'import initial dans sendmail
             comment résoudre ça dans heroku ?
-    - [?] comment stocker des token dans heroku ?
-    - [ ] refactor tous les nouveaux trucs, les textes etc.
-    - [ ] migrer la bdd de heroku
+    - [x] comment stocker des token dans heroku ?
+    - [x] refactor tous les nouveaux trucs, les textes etc.
+    - [x] migrer la bdd de heroku
     - [ ] tout tester 50 fois
     - [ ] créer une adresse expres ?
     - [ ] utiliser une adresse du nom de domaine ???

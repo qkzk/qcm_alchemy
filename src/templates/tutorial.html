@@ -46,7 +46,32 @@
     </h2>
     <div class="question-answers">
 
+        <p>
+            L'objectif de ce site est de créer des évaluations rapidement, 
+            les partager simplement, consulter les réponses
+            et les scores sans devoir compter les points.
+        </p>
 
+        <p>
+            Les enseignants doivent s'enregistrer avec un email - pas encore de confirmation... 
+            c'est prévu, on ne sait pas quand.
+        </p>
+        <p>
+            Pas encore de désinscription, cela ne devrait pas tarder.
+        </p>
+        <p>
+            Une fois enregistrés, ils peuvent se connecter.
+
+            Un mot de passe égaré peut être réinitialisé avec une clé envoyée par email.
+            Celle-ci est valide une heure.
+        </p>
+        <p>
+            Ce mot de passe est haché et personne n'y a accès.
+        </p>
+        <p>
+            Ensuite :
+
+        </p>
         <p>Depuis 
             <a href="{{ url_for('index') }}">
                 l'accueil
@@ -56,29 +81,47 @@
                 Professeur.
             </a>
             Là vous pouvez choisir d'envoyer un nouveau QCM ou consulter les résultats
-            des précédents QCM.
+            de vos précédents QCM.
         </p>
         <p>
 
-            Pour envoyer un nouveau QCM, sélectionnez un fichier compatible au format .md - voir plus bas - et, une fois uploadé,
-            transmettez son numéro à vos élèves.
+            Pour envoyer un nouveau QCM, sélectionnez un fichier compatible au format .md 
+            - voir plus bas - et, une fois uploadé,
+            transmettez son numéro à vos élèves qui en auront besoin pour débuter le QCM.
+        </p>
+        <p>
+            Si vous avez perdu ce numéro, vous
+            pouvez consulter la liste de vos QCM disponibles depuis le menu enseignant.
 
-            Ils en auront besoin pour débuter le QCM. Si vous avez perdu ce numéro, vous
-            pouvez consulter la liste des QCM disponibles depuis le menu enseignant.
+        </p>
+        <p>
+            Vous pouvez visualiser votre QCM après son dépôt et avant de le partager à vos élèves.
 
-            Conservez le mot de passe à quatre chiffres fourni, sans lui vous ne pourriez pas consulter vos notes !
+        </p>
+        <p>
+            Vos QCM sont personnels, seul l'auteur peut les consulter. Il est en le propriétaire.
+            Nous ne sommes donc pas responsable du contenu qu'il contient, ne pouvant même pas le consulter.
+
         </p>
         <p>
             Une fois l'évaluation terminée, depuis le menu  
             <a href="{{ url_for('teacher') }}">
                 Professeur,
             </a>
-            choisissez 
-             <a href="{{ url_for('qcms') }}">
-                Liste des QCMs.
-            </a>
-            et vous pourrez consulter la liste des QCMs disponibles. De là, avec le <span class"bold">mot de passe à quatre chiffres</span>
-            vous pouvez récupérer vos notes, à l'écran ou en CSV. 
+            choisissez "Liste des QCMs"
+            
+            et vous verrez la liste des QCMs disponibles. 
+        </p>
+        <p>
+            De là, vous pouvez consulter les travaux des élèves et visualiser leurs réponses.
+            Vous pouvez aussi simplement consulter les scores obtenus : 1 bonne réponse = 1 point, pas de barème encore...
+
+        </p>
+        <p>
+            L'enseignant peut exporter les scores et les réponses au format csv.
+
+            Le csv rendu est un peu lourd, en effet il contient les réponses à toutes les questions. Les tableurs l'ouvrent sans difficulté.
+            Les deux premières colonnes contiennent le nom et le score, si c'est tout ce dont vous avez besoin.
 
         </p>
         <p>
@@ -109,21 +152,36 @@
             Les titres des parties sont précédés de <code>##</code>
         </p>
         <p>
-            Les questions sont précédées de <code>###</code>
+            Les questions sont de deux natures : choix multiple ou zone de texte. 
+            Elles sont précédées de <code>###</code>
         </p>
         <p>
-            Les propositions sont précédées de <code>- [ ]</code> pour les mauvaises réponses
+            Pour les questions à choix multiple :
+            Les propositions sont précédées de <code>- [ ]</code> pour les mauvaises réponses   
             et <code>- [x] </code> pour les bonnes réponses.
         </p>
         <p>
-            Une ou plusieurs bonnes réponses par question.
+            Une ou plusieurs bonnes réponses par question. Mais le candidat ne peut choisir qu'une réponse.
         </p>
         <p>
-            Des images peuvent être incluses, mais elles doivent être hébergées en ligne.
+            Pour les questions avec une zone de texte, il faut 
+            <span class="bold">une seule ligne après la question</span> au format
+            <code>- [t]</code>
+        </p>
+        <p>
+            Des images peuvent être incluses, <span class="bold">mais elles doivent être hébergées en ligne.</span>
         </p>
         <p>
             Vous pouvez inclure du code, ou du LaTeX,
             ainsi que vous pouvez le voir dans l'exemple.
+        </p>
+        <p>
+        Par exemple :
+        <p>
+            <code>$\int_1^2x dx = \frac{3}{2}$</code> est rendu en LaTeX : <span class="answer">$\int_1^2x dx = \frac{3}{2}$</span> 
+        </p>
+        <p>
+            <code>`1 + 2 == 3`</code> est présenté comme du code : <code>1 + 2 == 3</code>.
         </p>
         <p>
             Le parser est assez rudimentaire, vous devez respecter scrupuleusement le format.
@@ -170,6 +228,29 @@
             Ou si vous préférez Ethereum : 0xa6288d3cc9bB4FFFB5637f04b54b902916446D75
         </p>
         
+    </div>
+    <h2>
+        C'est quoi le projet ?
+    </h2>
+    <div class="question-answers">
+        <p>
+            Me simplifier la vie, je n'aime pas les copies.
+        <p>
+        <p>
+            Je compte ajouter :
+        </p>
+        <p>
+            Export d'un QCM au format .pdf, randomisé, avec un nombre de sujets variable.
+            On imprime un seul document et on distribue directement. Utile si les élèves n'ont pas
+            de poste.
+        </p>
+        <p>
+            Désinscription, confirmation du mail, effacement des comptes inactifs après x semaines.
+        </p>
+        <p>
+            Améliorer le rendu, l'ui et tout l'aspect graphique. C'est loin d'être mon point fort,
+            si quelqu'un a le courage...
+        </p>
     </div>
 
 </div>
