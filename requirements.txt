@@ -1,8 +1,12 @@
 markdown
 flask
+flask-login
 flask-sqlalchemy
 Flask-APScheduler
 Flask-Migrate
 Flask-Script
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
 gunicorn
 psycopg2

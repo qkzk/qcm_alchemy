@@ -9,63 +9,53 @@
 </div>
 <div>
     {% if qcm %}
-    <div class="part">
-        <h2 class="part-title">
-            Résultats du QCM : 
-        </h2>
-        <br />
-        <h3 class="part-title">
-            {{ qcm.id}} - {{ qcm.title|safe }} - {{ qcm.datetime }}
-        </h3>
-        <table class="center colored-background">
-            <tr>
-                <th scole="col">
-                    Nom
-                </th>
-                <th scole="col" class="text-center">
-                    Points
-                </th>
-                <th scope="col">
-                    Horaire
-                </th>
-            </tr>
-            {% for index, work in enumerate(qcm.works) %}
-            <form method="POST", action="{{ url_for('work', id_qcm=qcm.id, index=index, password=password) }}">
-            <tr>
-                <th scope="row">
-                    <button type=submit class="no-border transparent-background">
-                    {{ work.student.name|safe }}
-                    </button>
-                </th>
-                <td class="text-center">
-                    <button type=submit class="no-border transparent-background">
-                    {{ work.points }}
-                    </button>
-                </td>
-                <td>
-                    <button type=submit class="no-border transparent-background">
-                    {{ work.datetime }}
-                    </button>
-                </dt>
-            </tr>
-            </form>
-            {% endfor %}
-        </table>
-        <h2 class="part-title">
-            Exporter en CSV
-        </h2>
-            <form method="POST" action="{{ url_for('export') }}" class="form-question">
-                <div class="form-container">
-                    <section>
-                        <input type="hidden" name="id_qcm" value="{{ qcm.id }}">
-                        <input type="number" name="password" required placeholder="password">
-                        <br />
-                        <button type="submit" class="btn">
-                            Exporter
+        <div class="part">
+            <h2 class="part-title">
+                Résultats du QCM : 
+            </h2>
+            <br />
+            <h3 class="part-title">
+                {{ qcm.id}} - {{ qcm.title|safe }} - {{ qcm.datetime }}
+            </h3>
+            <table class="center colored-background">
+                <tr>
+                    <th scole="col">
+                        Nom
+                    </th>
+                    <th scole="col" class="text-center">
+                        Points
+                    </th>
+                    <th scope="col">
+                        Horaire
+                    </th>
+                </tr>
+                {% for index, work in enumerate(qcm.works) %}
+                <form method="POST", action="{{ url_for('work', id_qcm=qcm.id, index=index) }}">
+                <tr>
+                    <th scope="row">
+                        <button type=submit class="no-border transparent-background">
+                        {{ work.student.name|safe }}
                         </button>
-                    </section>
-                </div>
-            </form>
+                    </th>
+                    <td class="text-center">
+                        <button type=submit class="no-border transparent-background">
+                        {{ work.points }}
+                        </button>
+                    </td>
+                    <td>
+                        <button type=submit class="no-border transparent-background">
+                        {{ work.datetime }}
+                        </button>
+                    </dt>
+                </tr>
+                </form>
+                {% endfor %}
+            </table>
+            <h2 class="part-title">
+                <a href="{{ url_for('export', qcm_id=qcm.id) }}" class="form-question">
+                    Exporter en CSV
+                </a>
+            </h2>
         {% endif %}
     </div>
 </div>

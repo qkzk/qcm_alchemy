@@ -7,20 +7,16 @@ Models used in database and views.
 """
 import csv
 import os
-import hashlib
 from datetime import datetime, timedelta
 from random import shuffle
 from typing import Union
 
+from flask_login import UserMixin
+from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
 from .parser import ParseQCM, QCM_Part, QCM_Question, QCM_Answer
 from .create_app import app, db, ALLOWED_EXTENSIONS
-
-
-def hasher(thing: Union[int, str, None]):
-    """Hash a password into a hexdigest."""
-    return hashlib.sha256(str(thing).encode("utf-8")).hexdigest()
 
 
 def get_join_path_from_key(key: str, filename: str) -> str:
@@ -45,7 +41,8 @@ class Qcm(db.Model):
     id = db.Column("id", db.Integer, primary_key=True)
     title = db.Column(db.Text)
     datetime = db.Column(db.DateTime)
-    password = db.Column(db.String(64))
+    id_teacher = db.Column(db.Integer, db.ForeignKey("teacher.id", ondelete="CASCADE"))
+    teacher = db.relationship("Teacher", back_populates="qcms", passive_deletes=True)
     part = db.relationship(
         "QcmPart", back_populates="qcm", cascade="all,delete", passive_deletes=True
     )
@@ -54,7 +51,7 @@ class Qcm(db.Model):
     )
 
     @classmethod
-    def from_parser(cls, parsed_qcm: ParseQCM, password: int) -> "Qcm":
+    def from_parser(cls, parsed_qcm: ParseQCM, teacher_id) -> "Qcm":
         """
         Creates a Qcm instance from a parsed QCM.md file.
         Raise `QcmPaserError` if anything went wrong.
@@ -63,7 +60,7 @@ class Qcm(db.Model):
             qcm = Qcm(
                 title=parsed_qcm.title,
                 datetime=datetime.now(),
-                password=hasher(password),
+                id_teacher=teacher_id,
             )
             for parsed_part in parsed_qcm.parts:
                 qcm.part.append(QcmPart.from_parser(parsed_part))
@@ -103,10 +100,6 @@ class Qcm(db.Model):
         parts = list(self.part)
         shuffle(parts)
         return parts
-
-    def validate_password(self, password: Union[str, None]) -> bool:
-        """True iff the hashed password is correct."""
-        return hasher(password) == self.password
 
     def flat_questions_formatted(self):
         """Returns a flat list of every of this QCM question, formatted."""
@@ -258,6 +251,10 @@ class Student(db.Model):
     works = db.relationship(
         "Work", back_populates="student", cascade="all,delete", passive_deletes=True
     )
+    id_teacher = db.Column(db.Integer, db.ForeignKey("teacher.id", ondelete="CASCADE"))
+    teacher = db.relationship(
+        "Teacher", back_populates="students", passive_deletes=True
+    )
 
     @classmethod
     def clear_old_records(cls):
@@ -273,7 +270,7 @@ class Student(db.Model):
 
 class Work(db.Model):
     """
-    Holds the choices made in the QCM form for a Student.
+    Holds the choices and text answers made in the QCM form by a Student.
     """
 
     __tablename__ = "work"
@@ -365,14 +362,20 @@ class Work(db.Model):
         return ""
 
     def get_text(self, id_question: int) -> str:
+        """Returns the textarea answer for a given `id_question`"""
         return (
             Text.query.filter_by(id_work=self.id, id_question=id_question).first().text
         )
 
     def is_correct(self, answser_id: int) -> bool:
+        """True iff the choice made is correct"""
         return QcmPartQuestionAnswer.query.get(answser_id).is_valid
 
     def is_selected(self, id_question, id_answer):
+        """
+        True iff the answer `id_answer` is selected by a student
+        for a question `id_question`.
+        """
         for choice in self.choices:
             if choice.id_question == id_question and choice.id_answer == id_answer:
                 return True
@@ -415,7 +418,7 @@ class Choice(db.Model):
 
 class Text(db.Model):
     """
-    A text typed by a student.
+    A text typed by a student in a `<textarea>` form field.
     """
 
     __tablename__ = "text"
@@ -437,6 +440,117 @@ class Text(db.Model):
 
     def __repr__(self):
         return f"Text({self.id}, {self.id_work}, {self.id_question}, {self.text})"
+
+
+class Teacher(UserMixin, db.Model):
+    """
+    A teacher.
+    They must have :
+    * (unique) email,
+    * password,
+
+    They have :
+    * students,
+    * qcms
+    """
+
+    __tablename__ = "teacher"
+    id = db.Column("id", db.Integer, primary_key=True)
+    email = db.Column("email", db.String(120), unique=True, nullable=False)
+    password = db.Column("password", db.String(120))
+    qcms = db.relationship(
+        "Qcm", back_populates="teacher", cascade="all,delete", passive_deletes=True
+    )
+    keys = db.relationship(
+        "ResetKey", back_populates="teacher", cascade="all,delete", passive_deletes=True
+    )
+    students = db.relationship(
+        "Student",
+        back_populates="teacher",
+        cascade="all,delete",
+        passive_deletes=True,
+    )
+
+    @classmethod
+    def get_from_email(cls, email: str) -> Union["Teacher", None]:
+        """
+        Get a teacher with that email. Returns `None` if they're not found.
+        """
+        teachers = cls.query.filter_by(email=email).all()
+        if not teachers:
+            print("No teacher with email", email)
+            return None
+        if len(teachers) != 1:
+            print("Multiple teachers with email", email, teachers)
+            return None
+        return teachers[0]
+
+    def check_password_hash(self, clear_password):
+        return check_password_hash(self.password, clear_password)
+
+    @classmethod
+    def insert(cls, email: str, clear_password: str) -> Union["Teacher", None]:
+        """
+        Insert a new teacher in DB and commit.
+        Returns `None` if a teacher with same email already exists.
+        """
+        if cls.get_from_email(email) is not None:
+            print(f"teacher {email} already exists.")
+            return None
+        password = generate_password_hash(clear_password)
+        teacher = Teacher(email=email, password=password)
+        db.session.add(teacher)
+        db.session.commit()
+        print(f"successfully inserted {teacher} in database.")
+        return teacher
+
+    def update_password(self, clear_password):
+        self.password = generate_password_hash(clear_password)
+        db.session.commit()
+
+    def __repr__(self):
+        return f"Teacher({self.email})"
+
+
+class ResetKey(db.Model):
+    """
+    Holds the reset key
+    """
+
+    __tablename__ = "reset_key"
+    id = db.Column("id", db.Integer, primary_key=True)
+    key = db.Column("key", db.Text, nullable=False)
+    id_teacher = db.Column(
+        "id_teacher",
+        db.Integer,
+        db.ForeignKey("teacher.id", ondelete="CASCADE"),
+        unique=True,
+        nullable=False,
+    )
+    datetime = db.Column("datetime", db.DateTime)
+    teacher = db.relationship("Teacher", back_populates="keys", passive_deletes=True)
+
+    @classmethod
+    def remove_key(cls, id_teacher: int):
+        keys = cls.query.filter_by(id_teacher=id_teacher).delete()
+        db.session.commit()
+
+    @classmethod
+    def from_id_teacher(cls, id_teacher):
+        keys = cls.query.filter_by(id_teacher=id_teacher).all()
+        if not keys:
+            return None
+        if len(keys) > 1:
+            raise ValueError("too much")
+        return keys[0]
+
+    @classmethod
+    def key_match(cls, teacher_id, key):
+        keys = cls.query.filter_by(key=key, id_teacher=teacher_id).all()
+        if not len(keys) == 1:
+            return False
+        key = keys[0]
+        return (datetime.now() - key.datetime).total_seconds() < 3600
 
 
 class QcmFileError(Exception):
@@ -510,56 +624,3 @@ class QcmFile:
 #                    WRITE CRAPPY TESTS BELOW THIS LINE
 ##################################################################################
 ##################################################################################
-
-
-def test_parser():
-    db.create_all()
-
-    parsed_qcm = ParseQCM.from_file(
-        "uploads/test_nocode.md", mode="web", code_present=False
-    )
-
-    print(parsed_qcm)
-
-    qcm = Qcm(title=parsed_qcm.title)
-    for parsed_part in parsed_qcm.parts:
-        part = QcmPart(title=parsed_part.title)
-        qcm.part.append(part)
-
-        for parsed_question in parsed_part.questions:
-            question = QcmPartQuestion(
-                question=parsed_question.question_title, sub_text=parsed_question.text
-            )
-            part.questions.append(question)
-
-            for parsed_answer in parsed_question.answers:
-                parsed_answer = QcmPartQuestionAnswer(
-                    answer=parsed_answer.text, is_valid=parsed_answer.is_valid
-                )
-                question.answers.append(parsed_answer)
-
-    db.session.add(qcm)
-    db.session.commit()
-
-
-def test_choicer():
-    db.create_all()
-
-    student = Student(name="Robert")
-    db.session.add(student)
-    db.session.commit()
-    robert = Student.query.get(1)
-    print(robert)
-
-    id_qcm = 1
-    parsed_choices = [
-        {"id_question": 1, "id_answer": 1},
-        {"id_question": 2, "id_answer": 7},
-    ]
-    work = Work.from_form(id_qcm, robert.id, parsed_choices)
-    db.session.add(work)
-    db.session.commit()
-
-
-# test_parser()
-# test_choicer()

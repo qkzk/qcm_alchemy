@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block head %}
+  {{ super() }}
+{% endblock %}
+
+{% block content %}
+
+      <div class=part>
+        <div class="question-answers">
+            <h2>
+                <a href="{{ url_for('new_teacher') }}">
+                    S'inscrire
+                </a>
+            </h2>
+          </div>
+      </div>
+      <div class=part>
+        <div class="login question-answers">
+          <form id="form_login" action="/login" method="POST">
+              <h2>
+                  Se connecter
+              </h2> 
+            <table class="question-answers center no-border">
+              <tbody class="no-border">
+                <tr>
+                  <td class="no-border">
+                    <label for="email">
+                      Email
+                    </label>
+                  </td>
+                  <td class="no-border">
+                    <input type="text" name="email" value="" required>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="no-border">
+                    <label for="password">
+                      Mot de passe
+                    </label>
+                  </td>
+                  <td class="no-border">
+                    <input type="password" name="password" value="" required>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <p>
+              <button type="submit" name="button" value="Envoyer">
+                Envoyer
+              </button>
+            </p>
+          </form>
+          <div class="white">
+            <a href="/forgotten_password">
+              Mot de passe oublié
+            </a>
+          </div>
+        </div>
+      </div>
+{% endblock %}

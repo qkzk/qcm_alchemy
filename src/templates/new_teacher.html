@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block head %}
+  {{ super() }}
+{% endblock %}
+
+{% block content %}
+  <div class=part>
+    <div class="login question-answers">
+        <h2>
+            Inscrivez-vous
+        </h2> 
+      <form id="form_login" action="/new_teacher" method="POST">
+        <table class="question-answers center no-border">
+          <tbody>
+            <tr>
+              <td class="no-border">
+                <label for="email">
+                  Email
+                </label>
+              </td>
+              <td class="no-border">
+                <input type="text" name="email" value="" required>
+              </td>
+            </tr>
+            <tr>
+              <td class="no-border">
+                <label for="password">
+                  Mot de passe
+                </label>
+              </td>
+              <td class="no-border">
+                <input type="password" name="password" value="" required>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          <button type="submit" name="button" value="Envoyer">
+            Envoyer
+          </button>
+        </p>
+      </form>
+    </div>
+  </div>
+{% endblock %}

@@ -243,6 +243,7 @@ td.text-center {
 }
 
 input[type="text"],
+input[type="password"],
 input[type="number"] {
   background-color: var(--main-bg-color);
   color: var(--main-number-color);
