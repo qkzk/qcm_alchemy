@@ -381,6 +381,12 @@ class Work(db.Model):
                 return True
         return False
 
+    def record(self):
+        """Mark the work as submitted, count the points and commit."""
+        self.is_submitted = True
+        self.count_points()
+        db.session.commit()
+
 
 class Choice(db.Model):
     """
@@ -504,7 +510,7 @@ class Teacher(UserMixin, db.Model):
         print(f"successfully inserted {teacher} in database.")
         return teacher
 
-    def update_password(self, clear_password):
+    def update_password_and_commit(self, clear_password):
         self.password = generate_password_hash(clear_password)
         db.session.commit()
 

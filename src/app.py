@@ -10,6 +10,7 @@ import secrets
 from typing import Union
 
 from flask import (
+    abort,
     Flask,
     make_response,
     redirect,
@@ -243,7 +244,7 @@ def create_app() -> Flask:
             if email is not None:
                 teacher = Teacher.get_from_email(email)
                 if teacher is None:
-                    return render_template("404.html")
+                    abort(404)
                 key = secrets.token_urlsafe(16)
                 ResetKey.remove_key(teacher.id)
                 reset_key = ResetKey(
@@ -274,17 +275,16 @@ def create_app() -> Flask:
                 "reset": True,
             }
             return render_template("reset_password.html", data=data)
-        return render_template("404.html")
+        abort(404)
 
     @app.route("/reset_password", methods=["POST"])
     def reset_password():
-        email = request.form.get("email")
         password = request.form.get("password")
         teacher_id = request.form.get("teacher_id")
         teacher = Teacher.query.get(teacher_id)
         if teacher is None:
-            return render_template("404.html")
-        teacher.update_password(password)
+            abort(404)
+        teacher.update_password_and_commit(password)
         data = {
             "message": "Mot de passe réinitialisé avec succès. Vous pouvez vous identifier.",
             "reset": False,
@@ -346,14 +346,13 @@ def create_app() -> Flask:
     @app.route("/work", methods=["GET", "POST"])
     @login_required
     def work():
-        print("work", request.values)
-        try:
-            id_qcm = int(request.values.get("id_qcm"))
-            index = int(request.values.get("index"))
-        except TypeError:
-            return render_template("confirmation_page.html", data="Travail introuvable")
-
+        id_qcm = int(request.values.get("id_qcm"))
+        index = int(request.values.get("index"))
         qcm = Qcm.query.get(id_qcm)
+
+        if qcm is None:
+            abort(404)
+
         if request.values.get("preview") is not None:
             return render_template(
                 "work.html",
@@ -364,8 +363,9 @@ def create_app() -> Flask:
             )
         try:
             work = qcm.works[index]
-        except IndexError:
-            return render_template("confirmation_page.html", data="Mauvais index")
+        except (IndexError, TypeError):
+            abort(404)
+
         is_complete, error_message = validate_qcm_work(qcm, work)
         if not is_complete:
             return render_template("confirmation_page.html", data=error_message)
@@ -390,7 +390,7 @@ def create_app() -> Flask:
 
         qcm = Qcm.query.get(id_qcm)
         if qcm is None:
-            return render_template("confirmation_page.html", data="Qcm introuvable")
+            abort(404)
 
         # get the student id
         students = Student.query.filter_by(name=name).all()
@@ -404,10 +404,9 @@ def create_app() -> Flask:
     @app.route("/answers", methods=["POST"])
     def answers():
         id_work = read_id_work_from_cookie(request.cookies)
-        if id_work == -1:
-            render_template("confirmation_page.html", data="Utilisateur inconnu")
-
         work = Work.query.get(id_work)
+        if work is None:
+            abort(404)
         if work.is_submitted:
             return render_template(
                 "confirmation_page.html", data="Vous avez déjà répondu à ce QCM."
@@ -416,9 +415,7 @@ def create_app() -> Flask:
         if not insert_answers_from_request(request.form, id_work):
             return render_template("confirmation_page.html", data="Réponses illisibles")
 
-        work.is_submitted = True
-        work.count_points()
-        db.session.commit()
+        work.record()
         return render_template("confirmation_page.html", data="Réponses enregistrées")
 
     # db.drop_all()

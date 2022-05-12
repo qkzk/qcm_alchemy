@@ -120,7 +120,7 @@
 - [x] login pour enseignant ???
     - [x] proposer un numero pour consulter les QCM notes
     - [x] demander le numéro lorsqu'on cherche à consulter les résultats
-    - [ ] trouver un moyen de consulter les notes pas élève... compliqué
+    - [x] trouver un moyen de consulter les notes pas élève... compliqué
     - [x] migrer la database de heroku
 - [x] refactor app
 - [x] refactor model
