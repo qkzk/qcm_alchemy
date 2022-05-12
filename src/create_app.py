@@ -17,11 +17,11 @@ DOWNLOAD_FOLDER = "created_files/"
 ALLOWED_EXTENSIONS = {"md"}
 MAXPASSWORD = 2147483647
 
-LOCAL_DATABASE_PATH = "postgresql://quentin:bla@localhost/qcm"
+DEVELOPMENT_DATABASE_PATH = "postgresql://quentin:bla@localhost/qcm"
 uri = os.getenv("DATABASE_URL")  # or other relevant config var
 if uri and uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
-DATABASE_URL = uri if uri else LOCAL_DATABASE_PATH
+DATABASE_URL = uri if uri else DEVELOPMENT_DATABASE_PATH
 
 app = Flask(__name__)
 

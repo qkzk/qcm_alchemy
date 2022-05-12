@@ -33,6 +33,19 @@ from .model import app, db, Choice, Qcm, QcmFile, ResetKey, Student, Teacher, Te
 from .parser import ParseQCM
 from .sendmail import EmailSender
 
+RESET_PASSWORD_MAIL_ADDRESS = "qcm.serveur@lyceedesflandres.fr"
+RESET_PASSWORD_MAIL_TOPIC = "qcmqkzk: réinitialisez votre mot de passe"
+RESET_PASSWORD_MAIL_CONTENT = """Cher utilisateur de qcmqkzk,
+
+Réinitialisez votre mot de passe en suivant ce lient : 
+
+https://qcmqkzk.herokuapp.com/reset_password/{teacher_id}/{key} 
+
+Ce lien est valable une heure.
+
+                                                The QCM serveur.
+                    """
+
 
 def clear_records_and_files():
     """Scheduled task : clean the database and the old files."""
@@ -191,7 +204,7 @@ def create_app() -> Flask:
         if request.method == "POST":
             email = request.form.get("email")
             clear_password = request.form.get("password")
-            teacher = Teacher.from_email(email)
+            teacher = Teacher.get_from_email(email)
             if teacher is None:
                 print("teacher unknown")
                 return redirect(url_for("login"))
@@ -228,7 +241,7 @@ def create_app() -> Flask:
         if request.method == "POST":
             email = request.form.get("email")
             if email is not None:
-                teacher = Teacher.from_email(email)
+                teacher = Teacher.get_from_email(email)
                 if teacher is None:
                     return render_template("404.html")
                 key = secrets.token_urlsafe(16)
@@ -239,22 +252,13 @@ def create_app() -> Flask:
                 db.session.add(reset_key)
                 db.session.commit()
                 EmailSender(
-                    "qcm.serveur@lyceedesflandres.fr",
+                    RESET_PASSWORD_MAIL_ADDRESS,
                     email,
-                    "QCM: reset password",
-                    f"""Cher utilisateur,
-
-Réinitialisez votre mot de passe en suivant ce lient : 
-
-https://qcmqkzk.herokuapp.com/reset_password/{teacher.id}/{key} 
-
-Ce lien est valable une heure.
-
-                                                The QCM serveur.
-                    """,
+                    RESET_PASSWORD_MAIL_TOPIC,
+                    RESET_PASSWORD_MAIL_CONTENT.format(teacher_id=teacher.id, key=key),
                 ).send_message()
             data = {
-                "message": "Suivez les instructions dans le mail pour réinitialiser votre mot de passe."
+                "message": "Suivez les instructions dans l'email pour réinitialiser votre mot de passe."
             }
 
         return render_template("forgotten_password.html", data=data)
@@ -282,7 +286,7 @@ Ce lien est valable une heure.
             return render_template("404.html")
         teacher.update_password(password)
         data = {
-            "message": "password set successfully. You can login now",
+            "message": "Mot de passe réinitialisé avec succès. Vous pouvez vous identifier.",
             "reset": False,
         }
         return render_template("reset_password.html", data=data)

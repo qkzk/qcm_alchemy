@@ -270,7 +270,7 @@ class Student(db.Model):
 
 class Work(db.Model):
     """
-    Holds the choices made in the QCM form for a Student.
+    Holds the choices and text answers made in the QCM form by a Student.
     """
 
     __tablename__ = "work"
@@ -362,14 +362,20 @@ class Work(db.Model):
         return ""
 
     def get_text(self, id_question: int) -> str:
+        """Returns the textarea answer for a given `id_question`"""
         return (
             Text.query.filter_by(id_work=self.id, id_question=id_question).first().text
         )
 
     def is_correct(self, answser_id: int) -> bool:
+        """True iff the choice made is correct"""
         return QcmPartQuestionAnswer.query.get(answser_id).is_valid
 
     def is_selected(self, id_question, id_answer):
+        """
+        True iff the answer `id_answer` is selected by a student
+        for a question `id_question`.
+        """
         for choice in self.choices:
             if choice.id_question == id_question and choice.id_answer == id_answer:
                 return True
@@ -412,7 +418,7 @@ class Choice(db.Model):
 
 class Text(db.Model):
     """
-    A text typed by a student.
+    A text typed by a student in a `<textarea>` form field.
     """
 
     __tablename__ = "text"
@@ -438,7 +444,14 @@ class Text(db.Model):
 
 class Teacher(UserMixin, db.Model):
     """
-    A teacher
+    A teacher.
+    They must have :
+    * (unique) email,
+    * password,
+
+    They have :
+    * students,
+    * qcms
     """
 
     __tablename__ = "teacher"
@@ -459,7 +472,10 @@ class Teacher(UserMixin, db.Model):
     )
 
     @classmethod
-    def from_email(cls, email: str) -> Union["Teacher", None]:
+    def get_from_email(cls, email: str) -> Union["Teacher", None]:
+        """
+        Get a teacher with that email. Returns `None` if they're not found.
+        """
         teachers = cls.query.filter_by(email=email).all()
         if not teachers:
             print("No teacher with email", email)
@@ -474,7 +490,11 @@ class Teacher(UserMixin, db.Model):
 
     @classmethod
     def insert(cls, email: str, clear_password: str) -> Union["Teacher", None]:
-        if cls.from_email(email) is not None:
+        """
+        Insert a new teacher in DB and commit.
+        Returns `None` if a teacher with same email already exists.
+        """
+        if cls.get_from_email(email) is not None:
             print(f"teacher {email} already exists.")
             return None
         password = generate_password_hash(clear_password)
