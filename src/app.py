@@ -236,6 +236,11 @@ def create_app() -> Flask:
             if teacher is None:
                 print("teacher unknown")
                 return redirect(url_for("login"))
+            if not teacher.is_confirmed:
+                return render_template(
+                    "index.html",
+                    base_data="- Ce compte n'est pas activé. Un mail vous a été adressé.",
+                )
             if teacher.check_password_hash(clear_password):
                 print("login successful")
                 login_user(teacher)
@@ -327,7 +332,7 @@ def create_app() -> Flask:
         if EmailConfirmationKey.key_match(teacher_id, key):
             EmailConfirmationKey.remove_key(teacher.id)
             return render_template(
-                "teacher.html",
+                "index.html",
                 base_data="Votre compte est crée. Vous pouvez vous connecter",
             )
         abort(404)
