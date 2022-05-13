@@ -492,6 +492,9 @@ class Teacher(UserMixin, db.Model):
         return teachers[0]
 
     def check_password_hash(self, clear_password):
+        """
+        Used to check password from clear password and hashed password.
+        """
         return check_password_hash(self.password, clear_password)
 
     @classmethod
@@ -511,7 +514,17 @@ class Teacher(UserMixin, db.Model):
         return teacher
 
     def update_password_and_commit(self, clear_password):
+        """Update password"""
         self.password = generate_password_hash(clear_password)
+        db.session.commit()
+
+    def remove_and_commit(self):
+        """
+        Remove the `self` account and commit.
+        Since all tables implement `ON DELETE CASCADE` it will also
+        delete all QCM and related works submitted by the teacher.
+        """
+        db.session.delete(self)
         db.session.commit()
 
     def __repr__(self):

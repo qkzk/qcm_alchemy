@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block head %}
+  {{ super() }}
+{% endblock %}
+
+{% block content %}
+        <style>
+            .bold {
+                font-weight: bold;
+            }
+        </style>
+
+      <div class=part>
+        <div class="question-answers">
+            <p>
+                Cliquer ci-dessous pour vous désinscrire.
+            </p>
+            <p class="bold">
+                Attention : il n'y a pas de confirmation. 
+            </p>
+            <p class="bold">
+                Si vous cliquez, votre compte est supprimé.<br />
+                Tous vos QCM seront effacés ainsi que les travaux d'élèves associés.
+            </p>
+            <h3>
+                <a href="{{ url_for('remove_account') }}">
+                    Se désinscrire
+                </a>
+            </h3>
+        </div>
+      </div>
+{% endblock %}

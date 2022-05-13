@@ -291,6 +291,17 @@ def create_app() -> Flask:
         }
         return render_template("reset_password.html", data=data)
 
+    @app.route("/delete_account")
+    @login_required
+    def delete_account():
+        return render_template("delete_account.html")
+
+    @app.route("/remove_account")
+    @login_required
+    def remove_account():
+        current_user.remove_and_commit()
+        return redirect(url_for("index"))
+
     @app.route("/rgpd")
     def rgpd():
         return render_template("rgpd.html")
