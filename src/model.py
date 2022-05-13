@@ -464,11 +464,18 @@ class Teacher(UserMixin, db.Model):
     id = db.Column("id", db.Integer, primary_key=True)
     email = db.Column("email", db.String(120), unique=True, nullable=False)
     password = db.Column("password", db.String(120))
+    is_confirmed = db.Column("is_confirmed", db.Boolean)
     qcms = db.relationship(
         "Qcm", back_populates="teacher", cascade="all,delete", passive_deletes=True
     )
     keys = db.relationship(
         "ResetKey", back_populates="teacher", cascade="all,delete", passive_deletes=True
+    )
+    confirmation_keys = db.relationship(
+        "EmailConfirmationKey",
+        back_populates="teacher",
+        cascade="all,delete",
+        passive_deletes=True,
     )
     students = db.relationship(
         "Student",
@@ -548,6 +555,49 @@ class ResetKey(db.Model):
     )
     datetime = db.Column("datetime", db.DateTime)
     teacher = db.relationship("Teacher", back_populates="keys", passive_deletes=True)
+
+    @classmethod
+    def remove_key(cls, id_teacher: int):
+        keys = cls.query.filter_by(id_teacher=id_teacher).delete()
+        db.session.commit()
+
+    @classmethod
+    def from_id_teacher(cls, id_teacher):
+        keys = cls.query.filter_by(id_teacher=id_teacher).all()
+        if not keys:
+            return None
+        if len(keys) > 1:
+            raise ValueError("too much")
+        return keys[0]
+
+    @classmethod
+    def key_match(cls, teacher_id, key):
+        keys = cls.query.filter_by(key=key, id_teacher=teacher_id).all()
+        if not len(keys) == 1:
+            return False
+        key = keys[0]
+        return (datetime.now() - key.datetime).total_seconds() < 3600
+
+
+class EmailConfirmationKey(db.Model):
+    """
+    Holds the confirmation key
+    """
+
+    __tablename__ = "confirmation_key"
+    id = db.Column("id", db.Integer, primary_key=True)
+    key = db.Column("key", db.Text, nullable=False)
+    id_teacher = db.Column(
+        "id_teacher",
+        db.Integer,
+        db.ForeignKey("teacher.id", ondelete="CASCADE"),
+        unique=True,
+        nullable=False,
+    )
+    datetime = db.Column("datetime", db.DateTime)
+    teacher = db.relationship(
+        "Teacher", back_populates="confirmation_keys", passive_deletes=True
+    )
 
     @classmethod
     def remove_key(cls, id_teacher: int):
