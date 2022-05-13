@@ -329,6 +329,8 @@ def create_app() -> Flask:
     @app.route("/email_confirmation/<teacher_id>/<key>")
     def email_confirmation_from_id_key(teacher_id, key):
         teacher = EmailConfirmationKey.query.filter_by(key=key).first_or_404().teacher
+        teacher.is_confirmed = True
+        db.session.commit()
         if EmailConfirmationKey.key_match(teacher_id, key):
             EmailConfirmationKey.remove_key(teacher.id)
             return render_template(
