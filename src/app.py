@@ -30,11 +30,23 @@ from flask_login import (
 )
 from werkzeug.datastructures import ImmutableMultiDict
 
-from .model import app, db, Choice, Qcm, QcmFile, ResetKey, Student, Teacher, Text, Work
+from .model import (
+    app,
+    db,
+    EmailConfirmationKey,
+    Choice,
+    Qcm,
+    QcmFile,
+    ResetKey,
+    Student,
+    Teacher,
+    Text,
+    Work,
+)
 from .parser import ParseQCM
 from .sendmail import EmailSender
 
-RESET_PASSWORD_MAIL_ADDRESS = "qcm.serveur@lyceedesflandres.fr"
+SERVER_PASSWORD_MAIL_ADDRESS = "qcm.serveur@lyceedesflandres.fr"
 RESET_PASSWORD_MAIL_TOPIC = "qcmqkzk: réinitialisez votre mot de passe"
 RESET_PASSWORD_MAIL_CONTENT = """Cher utilisateur de qcmqkzk,
 
@@ -45,6 +57,21 @@ https://qcmqkzk.herokuapp.com/reset_password/{teacher_id}/{key}
 Ce lien est valable une heure.
 
                                                 The QCM serveur.
+                    """
+CONFIRM_TEACHER_MAIL_TOPIC = "Confirmez votre compte sur qcmqkzk !"
+CONFIRM_TEACHER_MAIL_CONTENT = """
+Bienvenu sur qcmqkzk !
+
+Votre compte n'est pas encore actif.
+
+Veuillez suivre sur le lien ci-dessous pour le confirmer : 
+
+https://qcmqkzk.herokuapp.com/email_confirmation/{teacher_id}/{key}
+
+À bientôt,
+
+qcmqkzk
+
                     """
 
 
@@ -209,6 +236,11 @@ def create_app() -> Flask:
             if teacher is None:
                 print("teacher unknown")
                 return redirect(url_for("login"))
+            if not teacher.is_confirmed:
+                return render_template(
+                    "index.html",
+                    base_data="- Ce compte n'est pas activé. Un mail vous a été adressé.",
+                )
             if teacher.check_password_hash(clear_password):
                 print("login successful")
                 login_user(teacher)
@@ -232,7 +264,20 @@ def create_app() -> Flask:
             teacher = Teacher.insert(email, clear_password)
             if teacher is not None:
                 print(f"teacher {teacher} inserted... redirecting")
-                return redirect(url_for("login"))
+                key = secrets.token_urlsafe(16)
+                EmailConfirmationKey.remove_key(teacher.id)
+                reset_key = EmailConfirmationKey(
+                    key=key, id_teacher=teacher.id, datetime=datetime.now()
+                )
+                db.session.add(reset_key)
+                db.session.commit()
+                EmailSender(
+                    SERVER_PASSWORD_MAIL_ADDRESS,
+                    email,
+                    CONFIRM_TEACHER_MAIL_TOPIC,
+                    CONFIRM_TEACHER_MAIL_CONTENT.format(teacher_id=teacher.id, key=key),
+                ).send_message()
+                return redirect(url_for("email_confirmation"))
 
         return render_template("new_teacher.html")
 
@@ -253,7 +298,7 @@ def create_app() -> Flask:
                 db.session.add(reset_key)
                 db.session.commit()
                 EmailSender(
-                    RESET_PASSWORD_MAIL_ADDRESS,
+                    SERVER_PASSWORD_MAIL_ADDRESS,
                     email,
                     RESET_PASSWORD_MAIL_TOPIC,
                     RESET_PASSWORD_MAIL_CONTENT.format(teacher_id=teacher.id, key=key),
@@ -275,6 +320,21 @@ def create_app() -> Flask:
                 "reset": True,
             }
             return render_template("reset_password.html", data=data)
+        abort(404)
+
+    @app.route("/email_confirmation")
+    def email_confirmation():
+        return render_template("email_confirmation.html")
+
+    @app.route("/email_confirmation/<teacher_id>/<key>")
+    def email_confirmation_from_id_key(teacher_id, key):
+        teacher = EmailConfirmationKey.query.filter_by(key=key).first_or_404().teacher
+        if EmailConfirmationKey.key_match(teacher_id, key):
+            EmailConfirmationKey.remove_key(teacher.id)
+            return render_template(
+                "index.html",
+                base_data="Votre compte est crée. Vous pouvez vous connecter",
+            )
         abort(404)
 
     @app.route("/reset_password", methods=["POST"])
@@ -318,6 +378,9 @@ def create_app() -> Flask:
     @app.route("/new", methods=["GET", "POST"])
     @login_required
     def new():
+        if not current_user.is_confirmed:
+            return redirect(url_for("index"))
+
         if request.method == "GET":
             return render_template("new.html", data=None)
 
@@ -333,6 +396,8 @@ def create_app() -> Flask:
     @app.route("/qcms/<teacher_id>")
     @login_required
     def qcms(teacher_id):
+        if not current_user.is_confirmed:
+            return redirect(url_for("index"))
         return render_template(
             "qcms.html", qcms=Qcm.query.filter_by(id_teacher=teacher_id).all()
         )
@@ -340,6 +405,8 @@ def create_app() -> Flask:
     @app.route("/export/<int:qcm_id>")
     @login_required
     def export(qcm_id: int):
+        if not current_user.is_confirmed:
+            return redirect(url_for("index"))
         path = Work.write_export(qcm_id)
         directory = os.path.join(os.getcwd(), app.config["DOWNLOAD_FOLDER"])
         return send_from_directory(directory=directory, path=path)
@@ -347,6 +414,8 @@ def create_app() -> Flask:
     @app.route("/marks/<int:id_qcm>")
     @login_required
     def marks(id_qcm):
+        if not current_user.is_confirmed:
+            return redirect(url_for("index"))
         qcm = Qcm.query.get(id_qcm)
         return render_template("marks.html", qcm=qcm)
 

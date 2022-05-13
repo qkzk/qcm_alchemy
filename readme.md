@@ -138,6 +138,7 @@
     - [x] comment stocker des token dans heroku ?
     - [x] refactor tous les nouveaux trucs, les textes etc.
     - [x] migrer la bdd de heroku
+    - [x] supprimer un compte
     - [ ] tout tester 50 fois
     - [ ] créer une adresse expres ?
     - [ ] utiliser une adresse du nom de domaine ???
