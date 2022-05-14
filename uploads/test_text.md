@@ -35,11 +35,11 @@ header-includes:
 
 ## maths
 
-### Calculer $\int_1^2xdx$
+### Calculer $1 +1$
 
-- [x] $\frac{3}{2}$
-- [ ] $\frac{5}{2}$
-- [ ] $\frac{1}{2}$
+- [x] 2
+- [ ] 3
+- [ ] 5
 
 
 ## info
