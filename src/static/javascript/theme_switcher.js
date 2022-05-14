@@ -13,7 +13,6 @@ if (currentTheme == "dark") {
 }
 
 btn.addEventListener("click", function() {
-    console.log("theme switch !");
     // Toggle the .dark-theme class on the body
     document.body.classList.toggle("dark-theme");
 
