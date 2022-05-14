@@ -22,6 +22,7 @@
             <th>titre</th>
             <th>date de création</th>
             <th>réponses enregistrées</th>
+            <th>prévisualiser</th>
         </tr>
     </thead>
 
@@ -46,6 +47,11 @@
             <td>
                 <a href="{{ url_for('marks', id_qcm=qcm.id) }}">
                     {{ qcm.count_works() }}
+                </a>
+            </td>
+            <td>
+                <a href="{{ url_for('work', id_qcm=qcm.id, index=0, preview=1) }}">
+                    clic
                 </a>
             </td>
         </tr>
