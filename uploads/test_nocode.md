@@ -42,13 +42,14 @@ header-includes:
 
 ### Résoudre $2x-4 \leq 0$
 
-- [x] $S = ]2;+\infty[$
-- [ ] $S = ]-\infty; 2]$
+- [x] $S = ]-\infty; 2]$
+- [ ] $S = ]2;+\infty[$
 - [ ] $S = ]0;2]$
 
 ### Résoudre $x+3 \leq 2x - 8$
 
-- [x] $S = ]-\infty; 11]$
+- [x] $S = [11; \infty[$
+- [ ] $S = ]-\infty; 11]$
 - [ ] $S = ]3;+\infty[$
 - [ ] $S = ]3;8]$
 

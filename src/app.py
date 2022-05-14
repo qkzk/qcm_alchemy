@@ -177,7 +177,9 @@ def construct_qcm_resonse(qcm: Qcm, name: str, work: Work):
 
     format_name = f" - Nom: {name}"
     resp = make_response(
-        render_template("qcm.html", qcm=qcm, name=name, base_data=format_name)
+        render_template(
+            "qcm.html", qcm=qcm, name=name, base_data=format_name, preview=False
+        )
     )
     resp.set_cookie("id_work", str(work.id))
     return resp
@@ -210,6 +212,13 @@ def create_app() -> Flask:
         """Limit sessions duration to 60 minutes."""
         session.permanent = True
         app.permanent_session_lifetime = timedelta(minutes=60)
+
+    @app.after_request
+    def add_security_headers(resp):
+        resp.headers[
+            "Content-Security-Policy"
+        ] = "img-src *; default-src 'self';style-src 'self' 'unsafe-inline'"
+        return resp
 
     @app.context_processor
     def inject_enumerate():
@@ -454,6 +463,7 @@ def create_app() -> Flask:
                 "work.html",
                 qcm=qcm,
                 index=index,
+                preview=True,
                 base_data=f"- Prévisualiser",
                 work=None,
             )

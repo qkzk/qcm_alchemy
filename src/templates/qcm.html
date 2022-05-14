@@ -4,6 +4,13 @@
 {% endblock %}
 
 {% block content %}
+<style>
+table {
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%
+}
+</style>
 <div class="qcm">
     <div>
         <h1>
@@ -63,6 +70,8 @@
 </div>
 <script id="chosen_label_switcher" src={{ url_for('static', filename='javascript/chosen_label_theme_switcher.js') }}>
 </script>
-<script id="anticheat" src={{ url_for('static', filename='javascript/anticheat.js') }}>
+{% if not preview %}
+    <script id="anticheat" src={{ url_for('static', filename='javascript/anticheat.js') }}>
+{% endif %}
 </script>
 {% endblock %}
