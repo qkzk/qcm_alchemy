@@ -181,7 +181,7 @@ def construct_qcm_resonse(qcm: Qcm, name: str, work: Work):
             "qcm.html", qcm=qcm, name=name, base_data=format_name, preview=False
         )
     )
-    resp.set_cookie("id_work", str(work.id))
+    resp.set_cookie("id_work", str(work.id), samesite="Strict")
     return resp
 
 
