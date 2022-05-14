@@ -3,6 +3,7 @@ from .fix_collections_import import collections
 import base64
 import mimetypes
 import os.path
+import re
 from email.mime.base import MIMEBase
 from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
@@ -14,10 +15,20 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
 TOKEN_PATH = "./tokens/token.json"
-CREDENTIALS_PATH = "./tokens/credentials.json"
+CREDS_PATH = "./tokens/credentials.json"
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
+
+EMAIL_REGEX = re.compile(r"[^@]+@[^@]+\.[^@]+")
+
+
+def check_email(email: str) -> bool:
+    """Check if an email has
+    * exactly one @
+    * at least one . after the @
+    """
+    return bool(EMAIL_REGEX.fullmatch(email))
 
 
 class EmailSender:
@@ -53,9 +64,7 @@ class EmailSender:
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
             else:
-                flow = InstalledAppFlow.from_client_secrets_file(
-                    CREDENTIALS_PATH, SCOPES
-                )
+                flow = InstalledAppFlow.from_client_secrets_file(CREDS_PATH, SCOPES)
                 creds = flow.run_local_server(port=0)
             # Save the credentials for the next run
             with open(TOKEN_PATH, "w") as token:
@@ -123,8 +132,9 @@ class EmailSender:
         mime_message.attach(msg)
         return {"raw": base64.urlsafe_b64encode(mime_message.as_bytes()).decode()}
 
-    def send_message(self):
-        """Send an email message.
+    def send_message(self) -> bool:
+        """
+        Try to send an email message. `True` iff the mail was sent successfully.
 
         Args:
           service: Authorized Gmail API service instance.
@@ -136,17 +146,18 @@ class EmailSender:
           Sent Message.
         """
         try:
-            return (
+            (
                 self.service.users()
                 .messages()
                 .send(userId=self.sender, body=self.message)
                 .execute()
             )
+            return True
         except Exception as error:
             print("An error occurred: %s" % error)
             print(repr(error))
             print(error.__cause__)
-            raise
+            return False
 
 
 def main():
@@ -158,5 +169,18 @@ def main():
     ).send_message()
 
 
+def test():
+    emails = [
+        "qu3nt1n@gmail.com",
+        "bla@localhost.com",
+        "m.maze@yahoo.fr",
+        "aze+tag@bbc.uk.com",
+        "aze@@qskdjf.fr",
+        "azeaze@aze.fr",
+    ]
+    for email in emails:
+        print(email, check_email(email))
+
+
 if __name__ == "__main__":
-    main()
+    test()

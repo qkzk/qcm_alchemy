@@ -44,7 +44,7 @@ from .model import (
     Work,
 )
 from .parser import ParseQCM
-from .sendmail import EmailSender
+from .sendmail import check_email, EmailSender
 
 SERVER_PASSWORD_MAIL_ADDRESS = "qcm.serveur@lyceedesflandres.fr"
 RESET_PASSWORD_MAIL_TOPIC = "qcmqkzk: réinitialisez votre mot de passe"
@@ -257,6 +257,10 @@ def create_app() -> Flask:
     def new_teacher():
         if request.method == "POST":
             email = request.form.get("email")
+            if email is None or not check_email(email):
+                return render_template(
+                    url_for("email_confirmation"), base_data="email invalide."
+                )
             clear_password = request.form.get("password")
             if email is None or clear_password is None:
                 print(f"new_teacher: can't read form. {email} - {clear_password}")
@@ -269,15 +273,18 @@ def create_app() -> Flask:
                 reset_key = EmailConfirmationKey(
                     key=key, id_teacher=teacher.id, datetime=datetime.now()
                 )
-                db.session.add(reset_key)
-                db.session.commit()
-                EmailSender(
+                if EmailSender(
                     SERVER_PASSWORD_MAIL_ADDRESS,
                     email,
                     CONFIRM_TEACHER_MAIL_TOPIC,
                     CONFIRM_TEACHER_MAIL_CONTENT.format(teacher_id=teacher.id, key=key),
-                ).send_message()
-                return redirect(url_for("email_confirmation"))
+                ).send_message():
+                    db.session.add(reset_key)
+                    db.session.commit()
+                    return redirect(url_for("email_confirmation"))
+                return render_template(
+                    "new_teacher.html", base_data="Problème lors de l'envoi du mail."
+                )
 
         return render_template("new_teacher.html")
 
@@ -286,26 +293,31 @@ def create_app() -> Flask:
         data = {}
         if request.method == "POST":
             email = request.form.get("email")
-            if email is not None:
-                teacher = Teacher.get_from_email(email)
-                if teacher is None:
-                    abort(404)
-                key = secrets.token_urlsafe(16)
-                ResetKey.remove_key(teacher.id)
-                reset_key = ResetKey(
-                    key=key, id_teacher=teacher.id, datetime=datetime.now()
+            if email is None or not check_email(email):
+                return render_template(
+                    "forgotten_password.html", base_data="email invalide"
                 )
+            teacher = Teacher.get_from_email(email)
+            if teacher is None:
+                abort(404)
+            key = secrets.token_urlsafe(16)
+            ResetKey.remove_key(teacher.id)
+            reset_key = ResetKey(
+                key=key, id_teacher=teacher.id, datetime=datetime.now()
+            )
+            if EmailSender(
+                SERVER_PASSWORD_MAIL_ADDRESS,
+                email,
+                RESET_PASSWORD_MAIL_TOPIC,
+                RESET_PASSWORD_MAIL_CONTENT.format(teacher_id=teacher.id, key=key),
+            ).send_message():
                 db.session.add(reset_key)
                 db.session.commit()
-                EmailSender(
-                    SERVER_PASSWORD_MAIL_ADDRESS,
-                    email,
-                    RESET_PASSWORD_MAIL_TOPIC,
-                    RESET_PASSWORD_MAIL_CONTENT.format(teacher_id=teacher.id, key=key),
-                ).send_message()
-            data = {
-                "message": "Suivez les instructions dans l'email pour réinitialiser votre mot de passe."
-            }
+                data = {
+                    "message": "Suivez les instructions dans l'email pour réinitialiser votre mot de passe."
+                }
+            else:
+                data = {"message": "Une erreur est survenue lors de l'envoi du mail."}
 
         return render_template("forgotten_password.html", data=data)
 
@@ -326,9 +338,11 @@ def create_app() -> Flask:
     def email_confirmation():
         return render_template("email_confirmation.html")
 
-    @app.route("/email_confirmation/<teacher_id>/<key>")
-    def email_confirmation_from_id_key(teacher_id, key):
-        teacher = EmailConfirmationKey.query.filter_by(key=key).first_or_404().teacher
+    @app.route("/email_confirmation/<int:teacher_id>/<key>")
+    def email_confirmation_from_id_key(teacher_id: int, key):
+        teacher = Teacher.query.get(teacher_id)
+        if teacher is None:
+            abort(404)
         teacher.is_confirmed = True
         db.session.commit()
         if EmailConfirmationKey.key_match(teacher_id, key):
