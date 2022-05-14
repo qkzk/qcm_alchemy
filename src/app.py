@@ -481,6 +481,7 @@ def create_app() -> Flask:
             index=index,
             work=work,
             base_data=f"- Nom: {work.student.name} - Score: {work.points}",
+            preview=True,
         )
 
     @app.route("/qcm", methods=["POST"])

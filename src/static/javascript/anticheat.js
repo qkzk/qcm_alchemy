@@ -1,4 +1,7 @@
 
 window.onblur = function() {
-     document.getElementById("qcm_form").submit();
+    let elt = document.getElementById("qcm_form")
+    if (elt !== null) {
+        elt.submit();
+    }
    }
