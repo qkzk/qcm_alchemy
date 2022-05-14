@@ -9,7 +9,12 @@
         <h2>
             Inscrivez-vous
         </h2> 
-      <form id="form_login" action="/new_teacher" method="POST">
+      <form 
+          id="form" 
+          name="form_login" 
+          method="POST"
+          action="/new_teacher"
+        >
         <table class="question-answers center no-border">
           <tbody>
             <tr>
@@ -19,7 +24,7 @@
                 </label>
               </td>
               <td class="no-border">
-                <input type="text" name="email" value="" required>
+                <input type="text" name="email" id="email" value="" required>
               </td>
             </tr>
             <tr>
@@ -35,11 +40,18 @@
           </tbody>
         </table>
         <p>
-          <button type="submit" name="button" value="Envoyer">
+          <button 
+            type="submit" 
+            name="button" 
+            value="Envoyer"
+            id="submit_button"
+          >
             Envoyer
           </button>
         </p>
       </form>
     </div>
   </div>
+  <script src="{{ url_for('static', filename='javascript/email_validation.js') }}">
+  </script>
 {% endblock %}

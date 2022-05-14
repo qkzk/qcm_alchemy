@@ -4,10 +4,11 @@ author: qkzk
 date: 2021/06/28
 """
 import re
+from html import escape
 
 import markdown
 
-EXTENSIONS = ["fenced_code", "codehilite"]
+EXTENSIONS = ["fenced_code", "codehilite", "tables"]
 
 
 def no_p_markdown(non_p_string) -> str:
@@ -42,8 +43,11 @@ class ParseQCM:
         """Locate the end of the header ('---') in the markdown content"""
         title = ""
         for index, line in enumerate(self.lines):
-            if "title: " in line:
-                title = line[11:-1].strip().replace('"', "").replace("''", "")
+            if "title: " in line and not "subtitle" in line:
+                start = line.index(":") + 2
+                title = escape(
+                    line[start:-1].strip().replace('"', "").replace("''", "")
+                )
             if index > 0 and line.startswith("---"):
                 return index, no_p_markdown(title)
         raise IndexError("No end of header found")
@@ -107,11 +111,11 @@ class QCM_Part:
         """Read the title of the part and returns its position and content"""
         for index, line in enumerate(self.lines):
             if line.startswith("## "):
-                return index + 1, no_p_markdown(line[3:])
+                return index + 1, escape(no_p_markdown(line[3:]))
         raise ValueError(f"No title found for this part : {self}")
 
     def read_questions(self) -> list:
-        """Returns a list of question as `QCM_Question` objects"""
+        """Returns a list of line indexes questions"""
         questions = []
         for index, line in enumerate(
             self.lines[self.start_questions :], start=self.start_questions

@@ -534,6 +534,11 @@ class Teacher(UserMixin, db.Model):
         db.session.delete(self)
         db.session.commit()
 
+    def confirm_email(self):
+        """Confirm the email of a teacher."""
+        self.is_confirmed = True
+        db.session.commit()
+
     def __repr__(self):
         return f"Teacher({self.email})"
 
