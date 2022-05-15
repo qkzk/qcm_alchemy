@@ -258,6 +258,26 @@ def create_app() -> Flask:
 
         return render_template("login.html")
 
+    @app.route("/new_password", methods=["GET", "POST"])
+    @login_required
+    def new_password():
+        base_data = {}
+        if request.method == "POST":
+            current_password = request.form.get("current_password")
+            new_password = request.form.get("new_password")
+            if current_password is None or new_password is None:
+                return render_template("new_password.html")
+            if current_user.check_password_hash(current_password):
+                current_user.update_password_and_commit(new_password)
+                base_data = " - Mot de passe mis à jour"
+                print("new password ok")
+                return render_template("teacher.html", base_data=base_data)
+            else:
+                print("new password not ok")
+                base_data = " - Mot de passe invalide"
+
+        return render_template("new_password.html", base_data=base_data)
+
     @app.route("/logout")
     def logout():
         logout_user()
