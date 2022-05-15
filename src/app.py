@@ -119,9 +119,9 @@ def insert_from_file(file: "werkzeug.datastructures.FileStorage", current_user) 
     """
     Insert a QCM in database from a downloaded file which has .md extension.
     """
-    qcm_file = QcmFile.from_file(file)
-    parsed_qcm = ParseQCM.from_file(qcm_file.filename)
     try:
+        qcm_file = QcmFile.from_file(file)
+        parsed_qcm = ParseQCM.from_file(qcm_file.filename)
         qcm = Qcm.from_parser(parsed_qcm, current_user.id)
         print(qcm)
         db.session.add(qcm)
