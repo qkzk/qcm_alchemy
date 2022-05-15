@@ -72,6 +72,20 @@
 - [x] postgres
 - [x] heroku (i don't understand why I can't use GCP...)
 
+### Migrations
+
+With Flask-Migrate.
+
+1. Ensure `flask app` is in environment
+2. `flask db init`
+3. Everytime you modify a `db.Model` class, run :
+
+    ```bash
+    flask db migrate -m "comment"
+    flask db upgrade
+    ```
+
+I think that's all.
 
 ## Steps
 
