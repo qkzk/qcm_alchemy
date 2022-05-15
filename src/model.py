@@ -464,7 +464,7 @@ class Teacher(UserMixin, db.Model):
     __tablename__ = "teacher"
     id = db.Column("id", db.Integer, primary_key=True)
     email = db.Column("email", db.String(120), unique=True, nullable=False)
-    password = db.Column("password", db.String(120))
+    password = db.Column("password", db.String(120), nullable=False)
     is_confirmed = db.Column("is_confirmed", db.Boolean)
     qcms = db.relationship(
         "Qcm", back_populates="teacher", cascade="all,delete", passive_deletes=True

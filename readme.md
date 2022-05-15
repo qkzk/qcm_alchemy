@@ -127,8 +127,8 @@
 - [x] Text answers
 - [x] light/dark mode
 - [ ] refactor views
-- [ ] remove `setup.sh` from git history. The longer I wait, the worse it gets.
-- [ ] login
+- [x] remove `setup.sh` from git history. Password changed
+- [x] login
     - [x] flask login
     - [x] forcer les enseignants à se logguer
     - [x] empecher les enseignants de consulter des autres QCM que les leurs
@@ -139,6 +139,10 @@
     - [x] refactor tous les nouveaux trucs, les textes etc.
     - [x] migrer la bdd de heroku
     - [x] supprimer un compte
-    - [ ] tout tester 50 fois
+    - [x] confirm real addresses
+    - [x] change password
+- [x] parser : now detects code blocs properly, allowing lines starting with `#` in code blocks.
+- [ ] hosting
     - [ ] créer une adresse expres ?
     - [ ] utiliser une adresse du nom de domaine ???
+
