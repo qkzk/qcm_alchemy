@@ -6,6 +6,8 @@
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/code_dark.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/code_light.css') }}" rel="stylesheet">
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}" />
     {% endblock %}
     {% block mathjax %}
@@ -40,7 +42,7 @@
         </div>
     {% endblock %}
 
-    <script id="theme-switcher" src="{{ url_for('static', filename='javascript/theme_switcher.js') }}">
+    <script id="theme-switcher" src="{{ url_for('static', filename='javascript/theme_setter.js') }}">
     </script>
   </body>
 </html>

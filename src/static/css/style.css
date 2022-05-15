@@ -135,7 +135,7 @@ td {
 
 .codehilite {
   margin: 0 auto;
-  color: var(--main-text-color);
+  /* color: var(--main-text-color); */
   text-align: left;
 }
 

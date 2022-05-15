@@ -30,33 +30,47 @@ class ParseQCM:
     def __init__(self, lines: list, mode="web", code_present: bool = False):
         self.lines = lines
         self.mode = mode
+        self.title = self.read_title()
         self.parts = self.separate_parts()
         self.code_present = code_present
 
-    def separate_parts(self) -> list:
-        """Returns  the parts of the QCM"""
-        end_header, self.title = self.find_end_header_and_title()
-        start_end_parts = self.find_start_end_parts(end_header)
-        return [self.read_part(start, end) for start, end in start_end_parts]
-
-    def find_end_header_and_title(self) -> tuple:
-        """Locate the end of the header ('---') in the markdown content"""
+    def read_title(self):
         title = ""
-        for index, line in enumerate(self.lines):
-            if "title: " in line and not "subtitle" in line:
+        is_code_block = False
+        for line in self.lines:
+            if line.startswith("```"):
+                is_code_block = not is_code_block
+            if not is_code_block and "title: " in line and not "subtitle" in line:
                 start = line.index(":") + 2
                 title = escape(
                     line[start:-1].strip().replace('"', "").replace("''", "")
                 )
+            if not is_code_block and line.startswith("# "):
+                title = no_p_markdown(line[2:])
+        return title
+
+    def separate_parts(self) -> list:
+        """Returns  the parts of the QCM"""
+        end_header = self.find_end_header()
+        start_end_parts = self.find_start_end_parts(end_header)
+        return [self.read_part(start, end) for start, end in start_end_parts]
+
+    def find_end_header(self) -> int:
+        """Locate the end of the header ('---') in the markdown content"""
+        end_header = 0
+        for index, line in enumerate(self.lines):
             if index > 0 and line.startswith("---"):
-                return index, no_p_markdown(title)
-        raise IndexError("No end of header found")
+                end_header = index
+        return end_header
 
     def find_start_end_parts(self, end_header):
         """Locate the start and the end of the header in the file"""
         start_end_parts = []
+        is_code_block = False
         for index, line in enumerate(self.lines[end_header:], start=end_header):
-            if line.startswith("## "):
+            if line.startswith("```"):
+                is_code_block = not is_code_block
+            if line.startswith("## ") and not is_code_block:
                 start = index
                 if start_end_parts != []:
                     start_end_parts[-1].append(start)
@@ -117,10 +131,13 @@ class QCM_Part:
     def read_questions(self) -> list:
         """Returns a list of line indexes questions"""
         questions = []
+        is_code_block = False
         for index, line in enumerate(
             self.lines[self.start_questions :], start=self.start_questions
         ):
-            if line.startswith("### "):
+            if line.startswith("```"):
+                is_code_block = not is_code_block
+            if line.startswith("### ") and not is_code_block:
                 start = index
                 if questions != []:
                     questions[-1].append(start)
@@ -201,6 +218,7 @@ class QCM_Answer:
 
     @classmethod
     def from_line(cls, line: str) -> "QCM_Answer":
+        """Creates an answer from a line starting with - [ ] or - [x]"""
         text = no_p_markdown(line[5:])
         is_valid = "[x]" in line[:5]
         return cls(text, is_valid)
