@@ -7,6 +7,7 @@ Models used in database and views.
 """
 import csv
 import os
+import secrets
 from datetime import datetime, timedelta
 from random import shuffle
 from typing import Union
@@ -472,7 +473,7 @@ class Teacher(UserMixin, db.Model):
         "ResetKey", back_populates="teacher", cascade="all,delete", passive_deletes=True
     )
     confirmation_keys = db.relationship(
-        "EmailConfirmationKey",
+        "EmailConfirmation",
         back_populates="teacher",
         cascade="all,delete",
         passive_deletes=True,
@@ -563,28 +564,51 @@ class ResetKey(db.Model):
 
     @classmethod
     def remove_key(cls, id_teacher: int):
-        keys = cls.query.filter_by(id_teacher=id_teacher).delete()
+        """Remove keys for this id_teacher. Commit"""
+        cls.query.filter_by(id_teacher=id_teacher).delete()
         db.session.commit()
 
     @classmethod
-    def from_id_teacher(cls, id_teacher):
+    def from_id_teacher(cls, id_teacher: int) -> Union[None, "ResetKey"]:
+        """Returns a teacher if there's one with a key."""
         keys = cls.query.filter_by(id_teacher=id_teacher).all()
         if not keys:
             return None
         if len(keys) > 1:
-            raise ValueError("too much")
+            return None
         return keys[0]
 
     @classmethod
-    def key_match(cls, teacher_id, key):
+    def key_match(cls, teacher_id, key) -> bool:
+        """True iff the key match"""
         keys = cls.query.filter_by(key=key, id_teacher=teacher_id).all()
         if not len(keys) == 1:
             return False
         key = keys[0]
         return (datetime.now() - key.datetime).total_seconds() < 3600
 
+    @classmethod
+    def clear_old_records(cls) -> None:
+        """Self cleaning purpose. Delete every old keys. Commit."""
+        now = datetime.now()
+        three_hours_ago = now - timedelta(hours=3)
+        cls.query.filter(cls.datetime < three_hours_ago).delete()
+        db.session.commit()
 
-class EmailConfirmationKey(db.Model):
+    @classmethod
+    def clear(cls, id_teacher) -> type:
+        """Remove all keys for `id_teacher` and return its class"""
+        cls.remove_key(id_teacher)
+        return cls
+
+    @classmethod
+    def new(cls, id_teacher) -> "ResetKey":
+        """Creates a new element. Doesn't commit."""
+        key = secrets.token_urlsafe(16)
+        return cls(key=key, id_teacher=id_teacher, datetime=datetime.now())
+
+
+class EmailConfirmation(db.Model):
     """
     Holds the confirmation key
     """
@@ -606,25 +630,48 @@ class EmailConfirmationKey(db.Model):
 
     @classmethod
     def remove_key(cls, id_teacher: int):
+        """Remove all keys for this id_teacher and commit."""
         keys = cls.query.filter_by(id_teacher=id_teacher).delete()
         db.session.commit()
 
     @classmethod
-    def from_id_teacher(cls, id_teacher):
+    def from_id_teacher(cls, id_teacher) -> Union[None, "EmailConfirmation"]:
+        """Find a teacher if there's one with this key"""
         keys = cls.query.filter_by(id_teacher=id_teacher).all()
         if not keys:
             return None
         if len(keys) > 1:
-            raise ValueError("too much")
+            return None
         return keys[0]
 
     @classmethod
-    def key_match(cls, teacher_id, key):
+    def key_match(cls, teacher_id, key) -> bool:
+        """True iff the key match"""
         keys = cls.query.filter_by(key=key, id_teacher=teacher_id).all()
         if not len(keys) == 1:
             return False
         key = keys[0]
         return (datetime.now() - key.datetime).total_seconds() < 3600
+
+    @classmethod
+    def clear_old_records(cls) -> None:
+        """Self cleaning purpose. Delete every old keys."""
+        now = datetime.now()
+        three_hours_ago = now - timedelta(hours=3)
+        cls.query.filter(cls.datetime < three_hours_ago).delete()
+        db.session.commit()
+
+    @classmethod
+    def clear(cls, id_teacher) -> type:
+        """Remove all keys for `id_teacher` and return its class"""
+        cls.remove_key(id_teacher)
+        return cls
+
+    @classmethod
+    def new(cls, id_teacher: int) -> "EmailConfirmation":
+        """Creates a new element. Doesn't commit."""
+        key = secrets.token_urlsafe(16)
+        return cls(key=key, id_teacher=id_teacher, datetime=datetime.now())
 
 
 class QcmFileError(Exception):

@@ -6,7 +6,6 @@ date: 2022/05/08
 import os
 from datetime import datetime, timedelta
 from random import randint
-import secrets
 from typing import Union
 
 from flask import (
@@ -33,7 +32,7 @@ from werkzeug.datastructures import ImmutableMultiDict
 from .model import (
     app,
     db,
-    EmailConfirmationKey,
+    EmailConfirmation,
     Choice,
     Qcm,
     QcmFile,
@@ -80,6 +79,8 @@ def clear_records_and_files():
     print("cleaner is running...")
     Qcm.clear_old_records()
     Student.clear_old_records()
+    ResetKey.clear_old_records()
+    EmailConfirmation.clear_old_records()
     delete_old_files("UPLOAD_FOLDER")
     delete_old_files("DOWNLOAD_FOLDER")
     print("cleaner completed")
@@ -217,7 +218,7 @@ def create_app() -> Flask:
     def add_security_headers(resp):
         resp.headers[
             "Content-Security-Policy"
-        ] = "img-src *; default-src 'self';style-src 'self' 'unsafe-inline'"
+        ] = "img-src *; default-src 'self'; style-src 'self' 'unsafe-inline'"
         return resp
 
     @app.context_processor
@@ -266,29 +267,31 @@ def create_app() -> Flask:
     def new_teacher():
         if request.method == "POST":
             email = request.form.get("email")
-            if email is None or not check_email(email):
-                return render_template(
-                    url_for("email_confirmation"), base_data="email invalide."
-                )
             clear_password = request.form.get("password")
             if email is None or clear_password is None:
-                print(f"new_teacher: can't read form. {email} - {clear_password}")
-                return render_template("new_teacher.html")
+                return render_template(
+                    "new_teacher.html", base_data="- formulaire incomplet."
+                )
+
+            if not check_email(email):
+                print(f"new_teacher: can't read form. {email}")
+                return render_template(
+                    "new_teacher.html", base_data="- email invalide."
+                )
+
             teacher = Teacher.insert(email, clear_password)
             if teacher is not None:
                 print(f"teacher {teacher} inserted... redirecting")
-                key = secrets.token_urlsafe(16)
-                EmailConfirmationKey.remove_key(teacher.id)
-                reset_key = EmailConfirmationKey(
-                    key=key, id_teacher=teacher.id, datetime=datetime.now()
-                )
+                confirmation_key = EmailConfirmation.clear(teacher.id).new(teacher.id)
                 if EmailSender(
                     SERVER_PASSWORD_MAIL_ADDRESS,
                     email,
                     CONFIRM_TEACHER_MAIL_TOPIC,
-                    CONFIRM_TEACHER_MAIL_CONTENT.format(teacher_id=teacher.id, key=key),
+                    CONFIRM_TEACHER_MAIL_CONTENT.format(
+                        teacher_id=teacher.id, key=confirmation_key.key
+                    ),
                 ).send_message():
-                    db.session.add(reset_key)
+                    db.session.add(confirmation_key)
                     db.session.commit()
                     return redirect(url_for("email_confirmation"))
                 return render_template(
@@ -306,19 +309,19 @@ def create_app() -> Flask:
                 return render_template(
                     "forgotten_password.html", base_data="email invalide"
                 )
+
             teacher = Teacher.get_from_email(email)
             if teacher is None:
                 abort(404)
-            key = secrets.token_urlsafe(16)
-            ResetKey.remove_key(teacher.id)
-            reset_key = ResetKey(
-                key=key, id_teacher=teacher.id, datetime=datetime.now()
-            )
+            reset_key = ResetKey.clear(teacher.id).new(teacher.id)
+
             if EmailSender(
                 SERVER_PASSWORD_MAIL_ADDRESS,
                 email,
                 RESET_PASSWORD_MAIL_TOPIC,
-                RESET_PASSWORD_MAIL_CONTENT.format(teacher_id=teacher.id, key=key),
+                RESET_PASSWORD_MAIL_CONTENT.format(
+                    teacher_id=teacher.id, key=reset_key.key
+                ),
             ).send_message():
                 db.session.add(reset_key)
                 db.session.commit()
@@ -354,8 +357,8 @@ def create_app() -> Flask:
             abort(404)
         teacher.is_confirmed = True
         db.session.commit()
-        if EmailConfirmationKey.key_match(teacher_id, key):
-            EmailConfirmationKey.remove_key(teacher.id)
+        if EmailConfirmation.key_match(teacher_id, key):
+            EmailConfirmation.remove_key(teacher.id)
             return render_template(
                 "index.html",
                 base_data="Votre compte est crée. Vous pouvez vous connecter",
