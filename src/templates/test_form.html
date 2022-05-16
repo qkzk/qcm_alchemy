@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+    {% block head %}
+    <title>QCM</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/code_dark.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/code_light.css') }}" rel="stylesheet">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}" />
+    {% endblock %}
+    {% block mathjax %}
+    <script id="mathjax_settings" src="{{ url_for('static', filename='javascript/mathjax_settings.js') }}">
+    </script>
+    <script id="MathJax-script" async src="{{url_for('static', filename='mathjax/tex-chtml.js')}}">
+    </script>
+    {% endblock %}
+</head>
+
+<body>
+    <form method="POST" action="/test_form">
+        {{ form.csrf_token }}
+        {{ form.name.label }} {{ form.name(size=20) }}
+        <input type="submit" value="Go">
+    </form>
+    {% if form.name.errors %}
+    <ul class="errors">
+        {% for error in form.name.errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</body>
+
+</html>

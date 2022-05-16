@@ -16,6 +16,7 @@
     <form method="POST" action="{{ url_for('qcm') }}" class="form-question">
         <div class="form-container">
             <section>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <input type="text" name="student.name" required placeholder="Nom">
                 <br />
                 <input type="text" name="student.firstname" required placeholder="Prénom">

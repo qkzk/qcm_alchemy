@@ -10,7 +10,7 @@ import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-
+from flask_wtf.csrf import CSRFProtect
 
 UPLOAD_FOLDER = "uploads/"
 DOWNLOAD_FOLDER = "created_files/"
@@ -24,6 +24,7 @@ if uri and uri.startswith("postgres://"):
 DATABASE_URL = uri if uri else DEVELOPMENT_DATABASE_PATH
 
 app = Flask(__name__)
+csrf = CSRFProtect(app)
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["DOWNLOAD_FOLDER"] = DOWNLOAD_FOLDER

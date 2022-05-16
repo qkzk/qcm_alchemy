@@ -24,22 +24,19 @@
               <tbody class="no-border">
                 <tr>
                   <td class="no-border">
-                    <label for="email">
-                      Email
-                    </label>
+                    {{ form.csrf_token }}
+                    {{ form.email.label }} 
                   </td>
                   <td class="no-border">
-                    <input type="text" name="email" value="" id="email" required>
+                      {{ form.email(size=20) }}
                   </td>
                 </tr>
                 <tr>
                   <td class="no-border">
-                    <label for="password">
-                      Mot de passe
-                    </label>
+                    {{ form.clear_password.label }} 
                   </td>
                   <td class="no-border">
-                    <input type="password" name="password" value="" required>
+                      {{ form.clear_password(size=20) }}
                   </td>
                 </tr>
               </tbody>

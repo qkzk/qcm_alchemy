@@ -15,6 +15,7 @@
                 Cliquez pour choisir un fichier
             </label>
 
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <input type="file" name="source" id="source" accept=".md" style="visibility:hidden">
 
             <br />

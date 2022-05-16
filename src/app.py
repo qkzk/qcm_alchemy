@@ -6,7 +6,6 @@ date: 2022/05/08
 import os
 from datetime import datetime, timedelta
 from random import randint
-from typing import Union
 
 from flask import (
     abort,
@@ -28,7 +27,16 @@ from flask_login import (
     logout_user,
 )
 from werkzeug.datastructures import ImmutableMultiDict
+from werkzeug.utils import secure_filename
 
+from .forms import (
+    ForgottenPasswordForm,
+    LoginForm,
+    NewPasswordForm,
+    NewTeacherForm,
+    ResetPasswordForm,
+    MyForm,
+)
 from .model import (
     app,
     db,
@@ -44,6 +52,7 @@ from .model import (
 )
 from .parser import ParseQCM
 from .sendmail import check_email, EmailSender
+
 
 SERVER_PASSWORD_MAIL_ADDRESS = "qcm.serveur@lyceedesflandres.fr"
 RESET_PASSWORD_MAIL_TOPIC = "qcmqkzk: réinitialisez votre mot de passe"
@@ -239,9 +248,11 @@ def create_app() -> Flask:
 
     @app.route("/login", methods=["GET", "POST"])
     def login():
-        if request.method == "POST":
-            email = request.form.get("email")
-            clear_password = request.form.get("password")
+        form = LoginForm()
+        if form.validate_on_submit():
+            email = form.email.data
+            clear_password = form.clear_password.data
+
             teacher = Teacher.get_from_email(email)
             if teacher is None:
                 print("teacher unknown")
@@ -256,15 +267,16 @@ def create_app() -> Flask:
                 login_user(teacher)
                 return redirect(url_for("teacher"))
 
-        return render_template("login.html")
+        return render_template("login.html", form=form)
 
     @app.route("/new_password", methods=["GET", "POST"])
     @login_required
     def new_password():
+        form = NewPasswordForm()
         base_data = {}
-        if request.method == "POST":
-            current_password = request.form.get("current_password")
-            new_password = request.form.get("new_password")
+        if form.validate_on_submit():
+            current_password = form.current_password.data
+            new_password = form.new_password.data
             if current_password is None or new_password is None:
                 return render_template("new_password.html")
             if current_user.check_password_hash(current_password):
@@ -276,7 +288,7 @@ def create_app() -> Flask:
                 print("new password not ok")
                 base_data = " - Mot de passe invalide"
 
-        return render_template("new_password.html", base_data=base_data)
+        return render_template("new_password.html", base_data=base_data, form=form)
 
     @app.route("/logout")
     def logout():
@@ -285,9 +297,10 @@ def create_app() -> Flask:
 
     @app.route("/new_teacher", methods=["GET", "POST"])
     def new_teacher():
-        if request.method == "POST":
-            email = request.form.get("email")
-            clear_password = request.form.get("password")
+        form = NewTeacherForm()
+        if form.validate_on_submit():
+            email = form.email.data
+            clear_password = form.clear_password.data
             if email is None or clear_password is None:
                 return render_template(
                     "new_teacher.html", base_data="- formulaire incomplet."
@@ -296,7 +309,7 @@ def create_app() -> Flask:
             if not check_email(email):
                 print(f"new_teacher: can't read form. {email}")
                 return render_template(
-                    "new_teacher.html", base_data="- email invalide."
+                    "new_teacher.html", base_data="- email invalide.", form=form
                 )
 
             teacher = Teacher.insert(email, clear_password)
@@ -315,19 +328,22 @@ def create_app() -> Flask:
                     db.session.commit()
                     return redirect(url_for("email_confirmation"))
                 return render_template(
-                    "new_teacher.html", base_data="Problème lors de l'envoi du mail."
+                    "new_teacher.html",
+                    base_data="Problème lors de l'envoi du mail.",
+                    form=form,
                 )
 
-        return render_template("new_teacher.html")
+        return render_template("new_teacher.html", form=form)
 
     @app.route("/forgotten_password", methods=["GET", "POST"])
     def forgotten_password():
+        form = ForgottenPasswordForm()
         data = {}
-        if request.method == "POST":
-            email = request.form.get("email")
+        if form.validate_on_submit():
+            email = form.email.data
             if email is None or not check_email(email):
                 return render_template(
-                    "forgotten_password.html", base_data="email invalide"
+                    "forgotten_password.html", base_data="email invalide", form=form
                 )
 
             teacher = Teacher.get_from_email(email)
@@ -351,11 +367,13 @@ def create_app() -> Flask:
             else:
                 data = {"message": "Une erreur est survenue lors de l'envoi du mail."}
 
-        return render_template("forgotten_password.html", data=data)
+        return render_template("forgotten_password.html", data=data, form=form)
 
-    @app.route("/reset_password/<teacher_id>/<key>")
+    @app.route("/reset_password/<int:teacher_id>/<key>")
     def reset_password_from_key(teacher_id, key):
+        print(f"reset_password ! with {teacher_id} and {key}")
         teacher = ResetKey.query.filter_by(key=key).first_or_404().teacher
+        print("teacher", teacher)
         if ResetKey.key_match(teacher_id, key):
             ResetKey.remove_key(teacher.id)
             data = {
@@ -363,7 +381,8 @@ def create_app() -> Flask:
                 "email": teacher.email,
                 "reset": True,
             }
-            return render_template("reset_password.html", data=data)
+            form = ResetPasswordForm()
+            return render_template("reset_password.html", data=data, form=form)
         abort(404)
 
     @app.route("/email_confirmation")
@@ -387,17 +406,21 @@ def create_app() -> Flask:
 
     @app.route("/reset_password", methods=["POST"])
     def reset_password():
-        password = request.form.get("password")
-        teacher_id = request.form.get("teacher_id")
-        teacher = Teacher.query.get(teacher_id)
-        if teacher is None:
-            abort(404)
-        teacher.update_password_and_commit(password)
-        data = {
-            "message": "Mot de passe réinitialisé avec succès. Vous pouvez vous identifier.",
-            "reset": False,
-        }
-        return render_template("reset_password.html", data=data)
+        form = ResetPasswordForm()
+        if form.validate_on_submit():
+            print(request.form)
+            clear_password = form.clear_password.data
+            teacher_id = request.form.get("teacher_id")
+            print("teacher_id", teacher_id)
+            teacher = Teacher.query.get(teacher_id)
+            if teacher is None:
+                abort(404)
+            teacher.update_password_and_commit(clear_password)
+            data = {
+                "message": "Mot de passe réinitialisé avec succès. Vous pouvez vous identifier.",
+                "reset": False,
+            }
+        return render_template("reset_password.html", data=data, form=form)
 
     @app.route("/delete_account")
     @login_required
@@ -547,6 +570,14 @@ def create_app() -> Flask:
 
         work.record()
         return render_template("confirmation_page.html", data="Réponses enregistrées")
+
+    @app.route("/test_form", methods=["GET", "POST"])
+    def test_form():
+        form = MyForm()
+        print("name", form.name.data)
+        if form.validate_on_submit():
+            return redirect("/")
+        return render_template("test_form.html", form=form)
 
     # db.drop_all()
     db.create_all()

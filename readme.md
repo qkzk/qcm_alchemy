@@ -87,6 +87,15 @@ With Flask-Migrate.
 
 I think that's all.
 
+
+### Forms with WTF Forms
+
+[Flask-WTF](https://flask-wtf.readthedocs.io/en/1.0.x/)
+
+### Tests with Pytest
+
+[Doc](https://flask.palletsprojects.com/en/2.1.x/testing/)
+
 ## Steps
 
 - [x] présenter un qcm
