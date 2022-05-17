@@ -34,6 +34,7 @@ class NewPasswordForm(FlaskForm):
         "Nouveau",
         validators=[
             DataRequired(message="Ce champ est requis."),
+            Length(min=8, message="Mot de passe trop court - au moins 8 caractères."),
         ],
         render_kw={"placeholder": "Nouveau"},
     )

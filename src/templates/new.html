@@ -36,26 +36,36 @@
 
     {% if data %}
         {% if 'qcm_id' in data %}
-            <h3>
-                Donnez le numéro à vos élèves pour qu'ils puissent démarrer le QCM :
-                <div class="spacediv"></div>
-                {{ data["qcm_id"] }}
-                <div class="spacediv"></div>
-                <div class="spacediv"></div>
-            </h3>
-            <h2>
-                <a href={{ url_for('work', id_qcm=data['qcm_id'], index=0, preview=1) }}>
-                    Visualiser votre QCM
-                </a>
-            </h2>
-
-        {% else %}
-            <div>
-                {% for k, v in data.items() %}
+            <div class="text-center question-answers">
                 <h3>
-                    {{ k }} - {{ v }}
+                    Transmettez ce numéro à vos élèves :
+                    <div class="spacediv"></div>
+                        <h1>
+                            {{ data["qcm_id"] }}
+                        </h1>
+                    <div class="spacediv"></div>
+                    <div class="spacediv"></div>
                 </h3>
-                {% endfor %}
+                <h2>
+                    <a href={{ url_for('work', id_qcm=data['qcm_id'], index=0, preview=1) }}>
+                        Visualiser votre QCM
+                    </a>
+                </h2>
+            </div>
+        {% else %}
+            <div class="part">
+                <div class="question-answers">
+                    {% for k, v in data.items() %}
+                    <p>
+                        {{ k }} 
+                    </p>
+                    <div style="margin: 0;">
+                        <pre class="pre-error">
+                            {{ v }}
+                        </pre>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
         {% endif %}
     {% endif %}

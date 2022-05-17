@@ -41,6 +41,19 @@
             {% endblock %}
         </div>
     {% endblock %}
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="part">
+            <div class="question-answers">
+                {% for message in messages %}
+                    <p>
+                       {{ message }}
+                    </p>
+                {% endfor %}
+            </div>
+        </div>
+      {% endif %}
+    {% endwith %}
 
     <script id="theme-switcher" src="{{ url_for('static', filename='javascript/theme_setter.js') }}">
     </script>
