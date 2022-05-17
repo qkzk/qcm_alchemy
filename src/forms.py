@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import IntegerField, PasswordField, StringField
 from wtforms.validators import DataRequired, Email, Length, NumberRange
-from flask_wtf.file import FileField, FileRequired
+from flask_wtf.file import FileAllowed, FileField, FileRequired
 
 
 class LoginForm(FlaskForm):
@@ -110,4 +110,14 @@ class StudentForm(FlaskForm):
             NumberRange(min=0, message="Le numéro est plus grand que 0."),
         ],
         render_kw={"placeholder": "Numéro"},
+    )
+
+
+class QcmFileForm(FlaskForm):
+    source = FileField(
+        "Envoyez un fichier source",
+        validators=[
+            FileRequired(),
+            FileAllowed(["md"], message="Seulement des fichiers .md"),
+        ],
     )

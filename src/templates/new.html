@@ -11,14 +11,14 @@
             Nouveau QCM
         </h2>
         <form action="{{ request.path }}" method="post" enctype=multipart/form-data>
-            <label for="source" id="label">
-                Cliquez pour choisir un fichier
-            </label>
-
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-            <input type="file" name="source" id="source" accept=".md" style="visibility:hidden">
-
+            {{ form.csrf_token }}
+            {{ form.source.label }}
             <br />
+            <p id="chosen-file">
+            </p>
+            <p style="visibility:hidden">
+                {{ form.source(size=20) }}
+            </p>
             
             <button type=submit style="visibility:hidden" id="submit" class="btn">
                 Envoyer

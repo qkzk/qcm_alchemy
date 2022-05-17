@@ -34,6 +34,7 @@ from .forms import (
     LoginForm,
     NewPasswordForm,
     NewTeacherForm,
+    QcmFileForm,
     ResetPasswordForm,
     StudentForm,
 )
@@ -452,17 +453,21 @@ def create_app() -> Flask:
         if not current_user.is_confirmed:
             return redirect(url_for("index"))
 
+        form = QcmFileForm()
         if request.method == "GET":
-            return render_template("new.html", data=None)
+            return render_template("new.html", data=None, form=form)
 
-        file = request.files.get("source")
-        is_valid_file, error_message = QcmFile.validate_file(file)
-        if is_valid_file:
-            data = insert_from_file(file, current_user)
-        else:
-            data = {"Fichier invalide": error_message}
+        if form.validate_on_submit():
+            file = form.source.data
+            filename = secure_filename(file.filename)
 
-        return render_template("new.html", data=data)
+            is_valid_file, error_message = QcmFile.validate_file(file)
+            if is_valid_file:
+                data = insert_from_file(file, current_user)
+            else:
+                data = {"Fichier invalide": error_message}
+
+        return render_template("new.html", data=data, form=form)
 
     @app.route("/qcms/<teacher_id>")
     @login_required

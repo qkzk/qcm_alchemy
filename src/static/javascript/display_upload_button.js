@@ -1,9 +1,10 @@
 /// Make the upload button visible when a file is selected
-source = document.getElementById('source');
-label = document.getElementById('label');
-submit = document.getElementById('submit');
+const source = document.getElementById('source');
+const submit = document.getElementById('submit');
+const chosen_file = document.getElementById('chosen-file');
+
 source.onchange = function () {
-  label.textContent = 'Fichier choisi: ' + this.value;
+  chosen_file.textContent = 'Fichier choisi: ' + this.value;
   submit.style.visibility = "visible";
 };
 
