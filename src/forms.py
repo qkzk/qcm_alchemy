@@ -4,16 +4,6 @@ from wtforms.validators import DataRequired, Email, Length, NumberRange
 from flask_wtf.file import FileField, FileRequired
 
 
-class MyForm(FlaskForm):
-    name = StringField(
-        "name",
-        validators=[
-            DataRequired(message="Ce champ est requis."),
-            Length(min=8, message="Veuillez saisir un nom de 8 caractères blablal"),
-        ],
-    )
-
-
 class LoginForm(FlaskForm):
     email = StringField(
         "Email",

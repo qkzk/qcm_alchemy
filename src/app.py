@@ -36,7 +36,6 @@ from .forms import (
     NewTeacherForm,
     ResetPasswordForm,
     StudentForm,
-    MyForm,
 )
 from .model import (
     app,
@@ -573,14 +572,6 @@ def create_app() -> Flask:
 
         work.record()
         return render_template("confirmation_page.html", data="Réponses enregistrées")
-
-    @app.route("/test_form", methods=["GET", "POST"])
-    def test_form():
-        form = MyForm()
-        print("name", form.name.data)
-        if form.validate_on_submit():
-            return redirect("/")
-        return render_template("test_form.html", form=form)
 
     # db.drop_all()
     db.create_all()
