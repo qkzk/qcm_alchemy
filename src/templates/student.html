@@ -16,11 +16,33 @@
     <form method="POST" action="{{ url_for('qcm') }}" class="form-question">
         <div class="form-container">
             <section>
-                <input type="text" name="student.name" required placeholder="Nom">
+                {{ form.csrf_token }}
+                {{ form.lastname(size=20) }}
+                {% if form.lastname.errors %}
+                    <ul class="errors">
+                        {% for error in form.lastname.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
                 <br />
-                <input type="text" name="student.firstname" required placeholder="Prénom">
+                {{ form.firstname(size=20) }}
+                {% if form.firstname.errors %}
+                    <ul class="errors">
+                        {% for error in form.firstname.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
                 <br />
-                <input type="number" name="qcm.id" required placeholder="Numéro du QCM">
+                {{ form.qcm_id(size=20) }}
+                {% if form.qcm_id.errors %}
+                    <ul class="errors">
+                        {% for error in form.qcm_id.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
                 <br />
                 <button type="submit" class="btn">
                     Demarrer

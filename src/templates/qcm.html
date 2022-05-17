@@ -18,6 +18,7 @@ table {
         </h1>
     </div>
     <form method="POST" action="{{ url_for('answers') }}" id="qcm_form" accept-charset="UTF-8" enctype="application/x-www-form-urlencoded;charset=UTF-8">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         {% for part in qcm.shuffled_parts() %}
         <div class="part">
             <h2 class="part-title">

@@ -364,9 +364,12 @@ class Work(db.Model):
 
     def get_text(self, id_question: int) -> str:
         """Returns the textarea answer for a given `id_question`"""
-        return (
-            Text.query.filter_by(id_work=self.id, id_question=id_question).first().text
-        )
+        text_answer = Text.query.filter_by(
+            id_work=self.id, id_question=id_question
+        ).first()
+        if text_answer is None:
+            return ""
+        return text_answer.text
 
     def is_correct(self, answser_id: int) -> bool:
         """True iff the choice made is correct"""

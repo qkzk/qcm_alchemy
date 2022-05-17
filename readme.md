@@ -87,6 +87,19 @@ With Flask-Migrate.
 
 I think that's all.
 
+
+### Forms with WTF Forms
+
+[Flask-WTF](https://flask-wtf.readthedocs.io/en/1.0.x/)
+
+Almost everything is done.
+
+Last problem is QCM view for student. Check steps below
+
+### Tests with Pytest
+
+[Doc](https://flask.palletsprojects.com/en/2.1.x/testing/)
+
 ## Steps
 
 - [x] présenter un qcm
@@ -156,6 +169,14 @@ I think that's all.
     - [x] confirm real addresses
     - [x] change password
 - [x] parser : now detects code blocs properly, allowing lines starting with `#` in code blocks.
+- [ ] Flask-WTF
+    - [x] simple views (login, reset password, change password, student)
+    - [x] new qcms
+    - [x] csrf everywhere
+    - [ ] qcm views for student. [SO question](https://stackoverflow.com/questions/11622592/wtforms-create-variable-number-of-fields) [doc](https://wtforms.readthedocs.io/en/3.0.x/specific_problems/#dynamic-form-composition)
+        must be dynamicly composed
+        check for radio element insertion
+        find a way to retrieve correct ids for question -> ansers and text-question -> text-answer
 - [ ] hosting
     - [ ] créer une adresse expres ?
     - [ ] utiliser une adresse du nom de domaine ???

@@ -11,17 +11,26 @@
             Nouveau QCM
         </h2>
         <form action="{{ request.path }}" method="post" enctype=multipart/form-data>
-            <label for="source" id="label">
-                Cliquez pour choisir un fichier
-            </label>
-
-            <input type="file" name="source" id="source" accept=".md" style="visibility:hidden">
-
+            {{ form.csrf_token }}
+            {{ form.source.label }}
             <br />
-            
+            <p id="chosen-file">
+            </p>
+            <p>
+                {{ form.source(accept='.md', style='visibility:hidden') }}
+            </p>
             <button type=submit style="visibility:hidden" id="submit" class="btn">
                 Envoyer
             </button>
+            {% if form.source.errors %}
+                <ul class="errors">
+                    {% for error in form.source.errors %}
+                        <li>
+                            {{ error }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
         </form>
     </div>
 

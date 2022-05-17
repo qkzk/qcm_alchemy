@@ -33,6 +33,7 @@
                 <form method="POST", action="{{ url_for('work', id_qcm=qcm.id, index=index) }}">
                 <tr>
                     <th scope="row">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         <button type=submit class="no-border transparent-background">
                         {{ work.student.name|safe }}
                         </button>
