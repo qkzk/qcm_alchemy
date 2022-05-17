@@ -5,6 +5,7 @@ flask-sqlalchemy
 Flask-APScheduler
 Flask-Migrate
 Flask-Script
+Flask-WTF
 google-api-python-client
 google-auth-httplib2
 google-auth-oauthlib
