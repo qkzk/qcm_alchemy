@@ -6,6 +6,7 @@ date: 2022/05/08
 Create a Flask app and an sqlalchemy database.
 """
 import os
+import secrets
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -31,7 +32,7 @@ app.config["DOWNLOAD_FOLDER"] = DOWNLOAD_FOLDER
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1000 * 1000
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 # app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///../db/qcm.db"
-app.config["SECRET_KEY"] = "random string"
+app.config["SECRET_KEY"] = secrets.token_urlsafe(16)
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
