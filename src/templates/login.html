@@ -24,17 +24,11 @@
               <tbody class="no-border">
                 <tr>
                   <td class="no-border">
-                    {{ form.csrf_token }}
-                    {{ form.email.label }} 
-                  </td>
-                  <td class="no-border">
+                      {{ form.csrf_token }}
                       {{ form.email(size=20) }}
                   </td>
                 </tr>
                 <tr>
-                  <td class="no-border">
-                    {{ form.clear_password.label }} 
-                  </td>
                   <td class="no-border">
                       {{ form.clear_password(size=20) }}
                   </td>

@@ -35,6 +35,7 @@ from .forms import (
     NewPasswordForm,
     NewTeacherForm,
     ResetPasswordForm,
+    StudentForm,
     MyForm,
 )
 from .model import (
@@ -492,7 +493,8 @@ def create_app() -> Flask:
 
     @app.route("/student")
     def student():
-        return render_template("student.html")
+        form = StudentForm()
+        return render_template("student.html", form=form)
 
     @app.route("/work", methods=["GET", "POST"])
     @login_required
@@ -515,6 +517,7 @@ def create_app() -> Flask:
             )
         try:
             work = qcm.works[index]
+            print(work)
         except (IndexError, TypeError):
             abort(404)
 
@@ -532,15 +535,15 @@ def create_app() -> Flask:
 
     @app.route("/qcm", methods=["POST"])
     def qcm():
-        try:
-            name = f"{request.form.get('student.name')} {request.form.get('student.firstname')}"
-            name = trunctate_string(name, 100)
-            id_qcm = int(request.form.get("qcm.id"))
-        except TypeError:
+        form = StudentForm()
+        if not form.validate_on_submit():
             return render_template(
                 "confirmation_page.html", data="Formulaire illisible"
             )
 
+        name = f"{form.lastname.data} {form.firstname.data}"
+        name = trunctate_string(name, 100)
+        id_qcm = form.qcm_id.data
         qcm = Qcm.query.get(id_qcm)
         if qcm is None:
             abort(404)

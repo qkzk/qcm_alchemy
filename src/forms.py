@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import PasswordField, StringField
-from wtforms.validators import DataRequired, Email, Length
+from wtforms import IntegerField, PasswordField, StringField
+from wtforms.validators import DataRequired, Email, Length, NumberRange
 from flask_wtf.file import FileField, FileRequired
 
 
@@ -21,12 +21,14 @@ class LoginForm(FlaskForm):
             DataRequired(message="Ce champ est requis."),
             Email(message="email invalide"),
         ],
+        render_kw={"placeholder": "Email"},
     )
     clear_password = PasswordField(
         "Mot de passe",
         validators=[
             DataRequired(message="Ce champ est requis."),
         ],
+        render_kw={"placeholder": "Mot de passe"},
     )
 
 
@@ -36,12 +38,14 @@ class NewPasswordForm(FlaskForm):
         validators=[
             DataRequired(message="Ce champ est requis."),
         ],
+        render_kw={"placeholder": "Actuel"},
     )
     new_password = PasswordField(
         "Nouveau",
         validators=[
             DataRequired(message="Ce champ est requis."),
         ],
+        render_kw={"placeholder": "Nouveau"},
     )
 
 
@@ -52,6 +56,7 @@ class NewTeacherForm(FlaskForm):
             DataRequired(message="Ce champ est requis."),
             Email(message="email invalide"),
         ],
+        render_kw={"placeholder": "Email"},
     )
     clear_password = PasswordField(
         "Mot de passe",
@@ -63,6 +68,7 @@ class NewTeacherForm(FlaskForm):
                 message="Veuillez saisir un mot de passe entre 8 et 250 (lol) caractères",
             ),
         ],
+        render_kw={"placeholder": "Mot de passe"},
     )
 
 
@@ -73,6 +79,7 @@ class ForgottenPasswordForm(FlaskForm):
             DataRequired(message="Ce champ est requis."),
             Email(message="email invalide"),
         ],
+        render_kw={"placeholder": "Email"},
     )
 
 
@@ -87,4 +94,30 @@ class ResetPasswordForm(FlaskForm):
                 message="Veuillez saisir un mot de passe entre 8 et 250 (lol) caractères",
             ),
         ],
+        render_kw={"placeholder": "Nouveau mot de passe"},
+    )
+
+
+class StudentForm(FlaskForm):
+    lastname = StringField(
+        "Nom",
+        validators=[
+            DataRequired(message="Ce champ est requis."),
+        ],
+        render_kw={"placeholder": "Nom"},
+    )
+    firstname = StringField(
+        "Prénom",
+        validators=[
+            DataRequired(message="Ce champ est requis."),
+        ],
+        render_kw={"placeholder": "Prénom"},
+    )
+    qcm_id = IntegerField(
+        "Numéro",
+        validators=[
+            DataRequired(message="Ce champ est requis."),
+            NumberRange(min=0, message="Le numéro est plus grand que 0."),
+        ],
+        render_kw={"placeholder": "Numéro"},
     )
