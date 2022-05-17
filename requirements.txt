@@ -6,6 +6,7 @@ Flask-APScheduler
 Flask-Migrate
 Flask-Script
 Flask-WTF
+email_validator
 google-api-python-client
 google-auth-httplib2
 google-auth-oauthlib
