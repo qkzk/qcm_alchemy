@@ -9,6 +9,7 @@ from random import randint
 
 from flask import (
     abort,
+    flash,
     Flask,
     make_response,
     redirect,
@@ -125,9 +126,11 @@ def find_or_add_student(students: list[Student], name: str) -> int:
     return student.id
 
 
-def insert_from_file(file: "werkzeug.datastructures.FileStorage", current_user) -> dict:
+def insert_from_file(file: "werkzeug.datastructures.FileStorage", current_user) -> int:
     """
     Insert a QCM in database from a downloaded file which has .md extension.
+    Returns its qcm.id
+    Returns -1 if the insertion went wrong.
     """
     try:
         qcm_file = QcmFile.from_file(file)
@@ -136,11 +139,9 @@ def insert_from_file(file: "werkzeug.datastructures.FileStorage", current_user) 
         print(qcm)
         db.session.add(qcm)
         db.session.commit()
-        data = {"qcm_id": qcm.id}
-        print(data)
-        return data
+        return qcm.id
     except Exception as e:
-        return {"Fichier illisible": repr(e)}
+        return -1
 
 
 def insert_textarea(key: str, value: str, id_work: int):
@@ -257,16 +258,18 @@ def create_app() -> Flask:
             teacher = Teacher.get_from_email(email)
             if teacher is None:
                 print("teacher unknown")
-                return redirect(url_for("login"))
-            if not teacher.is_confirmed:
-                return render_template(
-                    "index.html",
-                    base_data="- Ce compte n'est pas activé. Un mail vous a été adressé.",
-                )
-            if teacher.check_password_hash(clear_password):
+                flash("Identifants incorrects.")
+            elif not teacher.is_confirmed:
+                print("teacher account not activated")
+                flash("Ce compte n'est pas activé. Un mail vous a été adressé.")
+                return render_template("index.html")
+            elif teacher.check_password_hash(clear_password):
                 print("login successful")
                 login_user(teacher)
+                flash("Vous êtes maintenant connecté.")
                 return redirect(url_for("teacher"))
+            else:
+                flash("Identifants incorrects.")
 
         return render_template("login.html", form=form)
 
@@ -282,18 +285,19 @@ def create_app() -> Flask:
                 return render_template("new_password.html")
             if current_user.check_password_hash(current_password):
                 current_user.update_password_and_commit(new_password)
-                base_data = " - Mot de passe mis à jour"
+                flash("Mot de passe mis à jour")
                 print("new password ok")
                 return render_template("teacher.html", base_data=base_data)
             else:
                 print("new password not ok")
-                base_data = " - Mot de passe invalide"
+                flash("Mot de passe invalide")
 
         return render_template("new_password.html", base_data=base_data, form=form)
 
     @app.route("/logout")
     def logout():
         logout_user()
+        flash("Vous êtes deconnecté")
         return redirect(url_for("login"))
 
     @app.route("/new_teacher", methods=["GET", "POST"])
@@ -303,15 +307,13 @@ def create_app() -> Flask:
             email = form.email.data
             clear_password = form.clear_password.data
             if email is None or clear_password is None:
-                return render_template(
-                    "new_teacher.html", base_data="- formulaire incomplet."
-                )
+                flash("Formulaire incomplet")
+                return render_template("new_teacher.html")
 
             if not check_email(email):
                 print(f"new_teacher: can't read form. {email}")
-                return render_template(
-                    "new_teacher.html", base_data="- email invalide.", form=form
-                )
+                flash("email invalide")
+                return render_template("new_teacher.html", form=form)
 
             teacher = Teacher.insert(email, clear_password)
             if teacher is not None:
@@ -328,9 +330,9 @@ def create_app() -> Flask:
                     db.session.add(confirmation_key)
                     db.session.commit()
                     return redirect(url_for("email_confirmation"))
+                flash("Problème lors de l'envoi du mail de confirmation")
                 return render_template(
                     "new_teacher.html",
-                    base_data="Problème lors de l'envoi du mail.",
                     form=form,
                 )
 
@@ -339,7 +341,6 @@ def create_app() -> Flask:
     @app.route("/forgotten_password", methods=["GET", "POST"])
     def forgotten_password():
         form = ForgottenPasswordForm()
-        data = {}
         if form.validate_on_submit():
             email = form.email.data
             if email is None or not check_email(email):
@@ -362,13 +363,13 @@ def create_app() -> Flask:
             ).send_message():
                 db.session.add(reset_key)
                 db.session.commit()
-                data = {
-                    "message": "Suivez les instructions dans l'email pour réinitialiser votre mot de passe."
-                }
+                flash(
+                    "Suivez les instructions dans l'email pour réinitialiser votre mot de passe."
+                )
             else:
-                data = {"message": "Une erreur est survenue lors de l'envoi du mail."}
+                flash("Une erreur est survenue lors de l'envoi du mail.")
 
-        return render_template("forgotten_password.html", data=data, form=form)
+        return render_template("forgotten_password.html", form=form)
 
     @app.route("/reset_password/<int:teacher_id>/<key>")
     def reset_password_from_key(teacher_id, key):
@@ -399,14 +400,13 @@ def create_app() -> Flask:
         db.session.commit()
         if EmailConfirmation.key_match(teacher_id, key):
             EmailConfirmation.remove_key(teacher.id)
-            return render_template(
-                "index.html",
-                base_data="Votre compte est crée. Vous pouvez vous connecter",
-            )
+            flash("Votre compte est crée. Vous pouvez vous connecter")
+            return render_template("index.html")
         abort(404)
 
     @app.route("/reset_password", methods=["POST"])
     def reset_password():
+        data = None
         form = ResetPasswordForm()
         if form.validate_on_submit():
             print(request.form)
@@ -417,10 +417,8 @@ def create_app() -> Flask:
             if teacher is None:
                 abort(404)
             teacher.update_password_and_commit(clear_password)
-            data = {
-                "message": "Mot de passe réinitialisé avec succès. Vous pouvez vous identifier.",
-                "reset": False,
-            }
+            flash("Mot de passe réinitialisé avec succès. Vous pouvez vous identifier.")
+            data = {"reset": False}
         return render_template("reset_password.html", data=data, form=form)
 
     @app.route("/delete_account")
@@ -432,6 +430,7 @@ def create_app() -> Flask:
     @login_required
     def remove_account():
         current_user.remove_and_commit()
+        flash("Votre compte, vos qcms et les travaux de vos élèves sont supprimés.")
         return redirect(url_for("index"))
 
     @app.route("/rgpd")
@@ -450,10 +449,10 @@ def create_app() -> Flask:
     @app.route("/new", methods=["GET", "POST"])
     @login_required
     def new():
-        data = None
         if not current_user.is_confirmed:
             return abort(404)
 
+        data = None
         form = QcmFileForm()
         if request.method == "GET":
             return render_template("new.html", data=data, form=form)
@@ -465,11 +464,16 @@ def create_app() -> Flask:
 
             is_valid_file, error_message = QcmFile.validate_file(file)
             if is_valid_file:
-                data = insert_from_file(file, current_user)
-                print(f"qcm inserted correctly {data}")
+                qcm_id = insert_from_file(file, current_user)
+                if qcm_id == -1:
+                    flash("Le fichier source n'est pas formaté correctement")
+                else:
+                    flash("QCM inséré dans la base !")
+                    data = {"qcm_id": qcm_id}
+                print(f"qcm inserted correctly {qcm_id}")
             else:
-                data = {"Fichier invalide": error_message}
-                print(f"qcm couldn't be inserted {data}")
+                flash("Fichier invalide")
+                print(f"qcm couldn't be inserted")
 
         return render_template("new.html", data=data, form=form)
 
@@ -545,9 +549,8 @@ def create_app() -> Flask:
     def qcm():
         form = StudentForm()
         if not form.validate_on_submit():
-            return render_template(
-                "confirmation_page.html", data="Formulaire illisible"
-            )
+            flash("Formulaire illisible")
+            return render_template("confirmation_page.html")
 
         name = f"{form.lastname.data} {form.firstname.data}"
         name = trunctate_string(name, 100)
@@ -572,15 +575,16 @@ def create_app() -> Flask:
         if work is None:
             abort(404)
         if work.is_submitted:
-            return render_template(
-                "confirmation_page.html", data="Vous avez déjà répondu à ce QCM."
-            )
+            flash("Vous avez déjà répondu à ce QCM")
+            return render_template("confirmation_page.html")
 
         if not insert_answers_from_request(request.form, id_work):
-            return render_template("confirmation_page.html", data="Réponses illisibles")
+            flash("Formulaire illisible")
+            return render_template("confirmation_page.html")
 
         work.record()
-        return render_template("confirmation_page.html", data="Réponses enregistrées")
+        flash("Réponses enregistrées")
+        return render_template("confirmation_page.html")
 
     # db.drop_all()
     db.create_all()
