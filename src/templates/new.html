@@ -16,13 +16,21 @@
             <br />
             <p id="chosen-file">
             </p>
-            <p style="visibility:hidden">
-                {{ form.source(size=20) }}
+            <p>
+                {{ form.source(accept='.md', style='visibility:hidden') }}
             </p>
-            
             <button type=submit style="visibility:hidden" id="submit" class="btn">
                 Envoyer
             </button>
+            {% if form.source.errors %}
+                <ul class="errors">
+                    {% for error in form.source.errors %}
+                        <li>
+                            {{ error }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
         </form>
     </div>
 

@@ -97,8 +97,9 @@ h3,
 p,
 .redirect,
 a,
-.logout,
-.admin-link {
+.admin-link,
+.errors,
+.logout {
   text-align: center;
   color: var(--main-text-color);
 }

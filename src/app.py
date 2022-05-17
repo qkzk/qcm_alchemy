@@ -450,22 +450,26 @@ def create_app() -> Flask:
     @app.route("/new", methods=["GET", "POST"])
     @login_required
     def new():
+        data = None
         if not current_user.is_confirmed:
-            return redirect(url_for("index"))
+            return abort(404)
 
         form = QcmFileForm()
         if request.method == "GET":
-            return render_template("new.html", data=None, form=form)
+            return render_template("new.html", data=data, form=form)
 
         if form.validate_on_submit():
             file = form.source.data
             filename = secure_filename(file.filename)
+            print(f"qcm with sent filename {filename}")
 
             is_valid_file, error_message = QcmFile.validate_file(file)
             if is_valid_file:
                 data = insert_from_file(file, current_user)
+                print(f"qcm inserted correctly {data}")
             else:
                 data = {"Fichier invalide": error_message}
+                print(f"qcm couldn't be inserted {data}")
 
         return render_template("new.html", data=data, form=form)
 
