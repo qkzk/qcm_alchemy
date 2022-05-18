@@ -106,6 +106,15 @@ class Qcm(db.Model):
         """Returns a flat list of every of this QCM question, formatted."""
         return [question.format() for part in self.part for question in part.questions]
 
+    def remove_and_commit(self):
+        """
+        Remove the `self` QCM and commit.
+        Since all tables implement `ON DELETE CASCADE` it will also
+        delete all parts, questions, answers and related works submitted by students.
+        """
+        db.session.delete(self)
+        db.session.commit()
+
 
 class QcmPart(db.Model):
     """
@@ -542,6 +551,10 @@ class Teacher(UserMixin, db.Model):
         """Confirm the email of a teacher."""
         self.is_confirmed = True
         db.session.commit()
+
+    def is_owner(self, qcm: Qcm) -> bool:
+        """True iff the QCM is owned by the teacher"""
+        return qcm.id_teacher == self.id
 
     def __repr__(self):
         return f"Teacher({self.email})"

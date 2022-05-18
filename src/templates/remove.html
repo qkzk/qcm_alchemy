@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block head %}
+  {{ super() }}
+  <title>Delete QCM</title>
+{% endblock %}
+
+{% block content %}
+
+      <div class=part>
+        <div class="login question-answers">
+                <h2>
+                  Supprimer un QCM
+                </h2> 
+                <p class="question-answers center no-border">
+                    Voulez-vous supprimer le QCM "
+                    <span class="bold">
+                        {{ qcm.title }}
+                    </span>
+                        " numéro
+                    <span class="bold">
+                        {{ qcm.id }} 
+                    </span>
+                    <span>
+                        ?
+                    </span>
+                    <span>
+                        <form 
+                            id="form" 
+                            action="/remove/{{qcm.id}}" 
+                            method="POST" 
+                            style="display: inline;"
+                        >
+                          {{ form.csrf_token }}
+                          {{ form.button() }}
+                          {% if form.button.errors %}
+                              <ul class="errors">
+                                  {% for error in form.button.errors %}
+                                      <li>
+                                          {{ error }}
+                                      </li>
+                                  {% endfor %}
+                              </ul>
+                          {% endif %}
+                        </form>
+                    </span>
+                    <span>
+                        <form 
+                            id="cancel" 
+                            action="{{ url_for('qcms', teacher_id=qcm.id_teacher)}}" 
+                            method="GET"
+                            style="display: inline; margin-left: 1rem;"
+                        >
+                          <input id="cancel_button" name="cancel" type="submit" value="Annuler">
+                        </form>
+                    </span>
+                </p>
+        </div>
+      </div>
+{% endblock %}

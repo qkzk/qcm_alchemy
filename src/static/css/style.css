@@ -177,6 +177,10 @@ textarea {
   background-color: var(--main-not-selected-but-right);
 }
 
+.bold {
+  font-weight: bold;
+}
+
 label,
 select,
 option {
@@ -190,11 +194,16 @@ option {
   margin: 30px;
 }
 
+input[type="submit"],
 button {
   color: var(--main-button-color);
   background-color: var(--main-bg-color);
   font-size: 18px;
   padding: 5px;
+}
+
+button.a {
+  color: var(--main-button-color);
 }
 
 img {
