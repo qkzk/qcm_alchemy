@@ -10,17 +10,13 @@ date: "2022/05/18"
 ## L'algorithme $k$ nearest neighbors
 
 
-### kNN est un algorithme...
+### $kNN$ est un algorithme...
 
 - [x] de classification
 - [ ] d'optimisation
 - [ ] de tri
 - [ ] _Aucune des réponses ne convient_
 
-
-### Quel est l'objectif de l'algorithme des k plus proches voisins ?
-
-- [t]
 
 ### On considère l'exemple suivant
 
@@ -60,7 +56,7 @@ En utilisant la distance usuelle et $k=1$, quelle catégorie attribuer à ce poi
 
 ### Lorsqu'on utilise kNN on privilégie des valeurs _impaires_ de $k$. Pourquoi ?
 
-- [x] Cela évite les ex-aequo
+- [x] Cela évite les ex aequo
 - [ ] C'est la meilleure approche. Démontré par Von Neumann
 - [ ] C'est la meilleure approche. Démontré par Linus Torvald
 - [ ] C'est faux, on choisit toujours $k=2$
@@ -69,7 +65,7 @@ En utilisant la distance usuelle et $k=1$, quelle catégorie attribuer à ce poi
 
 1. Calculer la distance entre chaque donnée d'apprentissage et la nouvelle donnée
 2. _à compléter_
-3. garder les $k$ premiers
+3. Garder les $k$ premiers
 4. La catégorie est la catégorie majoritaire de l'étape précédente
 
 - [x] ordonner selon la distance croissante
@@ -79,7 +75,7 @@ En utilisant la distance usuelle et $k=1$, quelle catégorie attribuer à ce poi
 
 ### L'inconvénient majeur de $kNN$ est :
 
-- [x] de devoir utiliser toutes les données d'entrainement pour chaque nouvelle donnée
+- [x] de devoir utiliser toutes les données d'apprentissage pour chaque nouvelle donnée
 - [ ] de devoir faire un tri
 - [ ] d'être parmi les algorithmes d'apprentissage les plus complexes
 - [ ] d'être difficile à implémenter

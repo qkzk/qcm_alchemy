@@ -110,4 +110,3 @@ for i in range(5):
 - [x] c'est cool markdown
 - [ ] je préfère cliquer partout
 
-
