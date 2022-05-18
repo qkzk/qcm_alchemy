@@ -25,7 +25,6 @@ if uri and uri.startswith("postgres://"):
 DATABASE_URL = uri if uri else DEVELOPMENT_DATABASE_PATH
 
 app = Flask(__name__)
-csrf = CSRFProtect(app)
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["DOWNLOAD_FOLDER"] = DOWNLOAD_FOLDER
@@ -34,6 +33,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 # app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///../db/qcm.db"
 app.config["SECRET_KEY"] = secrets.token_urlsafe(16)
 
+csrf = CSRFProtect(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
