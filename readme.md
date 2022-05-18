@@ -150,7 +150,7 @@ Last problem is QCM view for student. Check steps below
 
         Then read the key in application.
         See [commit](https://github.com/qkzk/qcm_alchemy/commit/cd0bbc4a49a9b3186e335dc6af6691db7c5c9331)
-        issue: #35
+        issue: [#35](https://github.com/qkzk/qcm_alchemy/issues/35)
 
 - [x] styling : banner, radio, infos dans base, uniformité
 - [x] test hosting
