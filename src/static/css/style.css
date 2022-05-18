@@ -202,6 +202,13 @@ button {
   padding: 5px;
 }
 
+input[type="submit"]:hover,
+button:hover {
+  color: var(--main-text-color);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
 button.a {
   color: var(--main-button-color);
 }
