@@ -28,7 +28,7 @@ app = Flask(__name__)
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["DOWNLOAD_FOLDER"] = DOWNLOAD_FOLDER
-app.config["MAX_CONTENT_LENGTH"] = 16 * 1000 * 1000
+app.config["MAX_CONTENT_LENGTH"] = 1024 * 1024  # 1MB
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 # app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///../db/qcm.db"
 env_secret = os.getenv("FLASK_SECRET_KEY")
