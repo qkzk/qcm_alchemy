@@ -177,6 +177,7 @@ Last problem is QCM view for student. Check steps below
         must be dynamicly composed
         check for radio element insertion
         find a way to retrieve correct ids for question -> ansers and text-question -> text-answer
+- [x] Flash instead of message passing to views
 - [ ] hosting
     - [ ] créer une adresse expres ?
     - [ ] utiliser une adresse du nom de domaine ???

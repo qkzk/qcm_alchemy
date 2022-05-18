@@ -104,6 +104,12 @@ a,
   color: var(--main-text-color);
 }
 
+ol,
+ul {
+  text-align: left;
+  color: var(--main-text-color);
+}
+
 .error,
 .white,
 label {
