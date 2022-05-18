@@ -75,7 +75,7 @@ class ParseQCM:
                 if start_end_parts != []:
                     start_end_parts[-1].append(start)
                 start_end_parts.append([start])
-        start_end_parts[-1].append(len(self.lines) - 1)
+        start_end_parts[-1].append(len(self.lines))
         return start_end_parts
 
     def read_header(self, end_header) -> str:
