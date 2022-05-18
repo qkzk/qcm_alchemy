@@ -115,6 +115,9 @@ class Qcm(db.Model):
         db.session.delete(self)
         db.session.commit()
 
+    def datetime_formated(self) -> str:
+        return self.datetime.strftime("%a %d %b %Y - %H:%M")
+
 
 class QcmPart(db.Model):
     """
@@ -341,6 +344,9 @@ class Work(db.Model):
             row[text.question.format()] = [text.text]
 
         return row
+
+    def datetime_formated(self) -> str:
+        return self.datetime.strftime("%a %d %b %Y - %H:%M")
 
     @property
     def fieldnames(self) -> list:

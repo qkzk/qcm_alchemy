@@ -526,7 +526,7 @@ def create_app() -> Flask:
         if not current_user.is_confirmed:
             return redirect(url_for("index"))
         qcm = Qcm.query.get(id_qcm)
-        return render_template("marks.html", qcm=qcm)
+        return render_template("marks.html", qcm=qcm, base_data="- Résultats")
 
     @app.route("/student")
     def student():
