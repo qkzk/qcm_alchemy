@@ -21,9 +21,10 @@
         <tr>
             <th>id</th>
             <th>titre</th>
-            <th>date de création</th>
-            <th>réponses enregistrées</th>
-            <th>prévisualiser</th>
+            <th>date</th>
+            <th>réponses</th>
+            <th>voir</th>
+            <th>effacer</th>
         </tr>
     </thead>
 
@@ -52,9 +53,13 @@
             </td>
             <td>
                 <a href="{{ url_for('work', id_qcm=qcm.id, index=0, preview=1) }}">
-                    clic
+                👁️    
                 </a>
             </td>
+            <td>
+                <a href="{{ url_for('remove', id_qcm=qcm.id) }}">
+                    ❌
+                </a>
         </tr>
         {% endfor %}
     </tbody>

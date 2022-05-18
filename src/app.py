@@ -36,8 +36,9 @@ from .forms import (
     LoginForm,
     NewPasswordForm,
     NewTeacherForm,
-    QcmFileForm,
+    RemoveQCMForm,
     ResetPasswordForm,
+    QcmFileForm,
     StudentForm,
 )
 from .model import (
@@ -484,7 +485,7 @@ def create_app() -> Flask:
 
         return render_template("new.html", data=data, form=form)
 
-    @app.route("/qcms/<teacher_id>")
+    @app.route("/qcms/<int:teacher_id>")
     @login_required
     def qcms(teacher_id):
         if not current_user.is_confirmed:
@@ -492,6 +493,23 @@ def create_app() -> Flask:
         return render_template(
             "qcms.html", qcms=Qcm.query.filter_by(id_teacher=teacher_id).all()
         )
+
+    @app.route("/remove/<int:id_qcm>", methods=["GET", "POST"])
+    @login_required
+    def remove(id_qcm: int):
+        qcm = Qcm.query.get(id_qcm)
+        if qcm is None or not current_user.is_owner(qcm):
+            abort(404)
+        form = RemoveQCMForm()
+        if form.validate_on_submit():
+            title = qcm.title
+            qcm_id = qcm.id
+            qcm.remove_and_commit()
+            print(f"{current_user} removed {qcm}")
+            flash(f"QCM {title} numero {qcm_id} supprimé !")
+            return redirect(url_for("qcms", teacher_id=current_user.id))
+
+        return render_template("remove.html", qcm=qcm, form=form)
 
     @app.route("/export/<int:qcm_id>")
     @login_required

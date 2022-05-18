@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import IntegerField, PasswordField, StringField
+from wtforms import IntegerField, PasswordField, StringField, SubmitField
 from wtforms.validators import DataRequired, Email, Length, NumberRange
 from flask_wtf.file import FileAllowed, FileField, FileRequired
 
@@ -122,3 +122,7 @@ class QcmFileForm(FlaskForm):
             FileAllowed(["md"], message="Seulement des fichiers .md"),
         ],
     )
+
+
+class RemoveQCMForm(FlaskForm):
+    button = SubmitField("Supprimer")
