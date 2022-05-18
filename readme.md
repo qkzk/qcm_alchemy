@@ -139,6 +139,19 @@ Last problem is QCM view for student. Check steps below
                 2. the uri-database can't start with `postgres` but with `postgresql` so we have to ensure the setup is rectified IN THE CODE. Since changing it in `setup.sh` does nothing.
                 3. Once everything is working you can log into the DB with `heroku pg:psql postgresql-clear-05212 --app casting-agency-xw` where postgresql-clear-05212 is the name of the DB (found [here](https://dashboard.heroku.com/apps/qcmqkzk/resources))
                 4. You can log into the dyno with `heroku run bash`, see the logs with `heroku log --tail`
+    - [x] Fix "bad CSRF token" or "CSRF token is missing", raising 400 errors
+        When using a random secret_key in flask with gunicorn, AFAIK the page may be generated
+        by a worker and the next request received by another. When they start, the key is changed.
+        The solution is to setup a key in `env`, with : 
+
+        ```heroku
+        FLASK_SECRET_KEY: "a random secret key from secrets.urlsafe(16)"
+        ```
+
+        Then read the key in application.
+        See [commit](https://github.com/qkzk/qcm_alchemy/commit/cd0bbc4a49a9b3186e335dc6af6691db7c5c9331)
+        issue: #35
+
 - [x] styling : banner, radio, infos dans base, uniformité
 - [x] test hosting
     - [x] hammering and intense testing. Sort of. Résultat : 13ms pour le contenu. QQ ms pour le rendu. trop jde JS.
