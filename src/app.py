@@ -142,7 +142,7 @@ def insert_from_file(file: "werkzeug.datastructures.FileStorage", current_user) 
         db.session.add(qcm)
         db.session.commit()
         return qcm.id
-    except Exception as e:
+    except Exception:
         return -1
 
 
@@ -192,7 +192,11 @@ def construct_qcm_resonse(qcm: Qcm, name: str, work: Work):
     format_name = f" - Nom: {name}"
     resp = make_response(
         render_template(
-            "qcm.html", qcm=qcm, name=name, base_data=format_name, preview=False
+            "qcm.html",
+            qcm=qcm,
+            name=name,
+            base_data=format_name,
+            preview=False,
         )
     )
     resp.set_cookie("id_work", str(work.id), samesite="Strict")
@@ -262,17 +266,17 @@ def create_app() -> Flask:
         if form.validate_on_submit():
             email = form.email.data
             clear_password = form.clear_password.data
-
             teacher = Teacher.get_from_email(email)
+
             if teacher is None:
                 print("teacher unknown")
                 flash("Identifants incorrects.")
             elif not teacher.is_confirmed:
-                print("teacher account not activated")
+                print(f"{teacher}: account not activated")
                 flash("Ce compte n'est pas activé. Un mail vous a été adressé.")
                 return render_template("index.html")
             elif teacher.check_password_hash(clear_password):
-                print("login successful")
+                print(f"{teacher}: login successful")
                 login_user(teacher)
                 flash("Vous êtes maintenant connecté.")
                 return redirect(url_for("teacher"))
@@ -294,10 +298,10 @@ def create_app() -> Flask:
             if current_user.check_password_hash(current_password):
                 current_user.update_password_and_commit(new_password)
                 flash("Mot de passe mis à jour")
-                print("new password ok")
+                print(f"{current_user}: new password set")
                 return render_template("teacher.html", base_data=base_data)
             else:
-                print("new password not ok")
+                print(f"{current_user}: bad new password")
                 flash("Mot de passe invalide")
 
         return render_template("new_password.html", base_data=base_data, form=form)
@@ -320,12 +324,12 @@ def create_app() -> Flask:
 
             if not check_email(email):
                 print(f"new_teacher: can't read form. {email}")
-                flash("email invalide")
+                flash("Email invalide")
                 return render_template("new_teacher.html", form=form)
 
             teacher = Teacher.insert(email, clear_password)
             if teacher is not None:
-                print(f"teacher {teacher} inserted... redirecting")
+                print(f"teacher {teacher} inserted... sending mail")
                 confirmation_key = EmailConfirmation.clear(teacher.id).new(teacher.id)
                 if EmailSender(
                     SERVER_PASSWORD_MAIL_ADDRESS,
@@ -338,6 +342,7 @@ def create_app() -> Flask:
                     db.session.add(confirmation_key)
                     db.session.commit()
                     return redirect(url_for("email_confirmation"))
+                print(f"{teacher}: sent confirmation mail")
                 flash("Problème lors de l'envoi du mail de confirmation")
                 return render_template(
                     "new_teacher.html",
@@ -371,6 +376,7 @@ def create_app() -> Flask:
             ).send_message():
                 db.session.add(reset_key)
                 db.session.commit()
+                print(f"{teacher}: sent reset password mail")
                 flash(
                     "Suivez les instructions dans l'email pour réinitialiser votre mot de passe."
                 )
@@ -381,9 +387,7 @@ def create_app() -> Flask:
 
     @app.route("/reset_password/<int:teacher_id>/<key>")
     def reset_password_from_key(teacher_id, key):
-        print(f"reset_password ! with {teacher_id} and {key}")
         teacher = ResetKey.query.filter_by(key=key).first_or_404().teacher
-        print("teacher", teacher)
         if ResetKey.key_match(teacher_id, key):
             ResetKey.remove_key(teacher.id)
             data = {
@@ -392,6 +396,7 @@ def create_app() -> Flask:
                 "reset": True,
             }
             form = ResetPasswordForm()
+            print(f"{teacher} consumed resetkey {key}")
             return render_template("reset_password.html", data=data, form=form)
         abort(404)
 
@@ -408,6 +413,7 @@ def create_app() -> Flask:
         db.session.commit()
         if EmailConfirmation.key_match(teacher_id, key):
             EmailConfirmation.remove_key(teacher.id)
+            print(f"{teacher}: email confirmed")
             flash("Votre compte est crée. Vous pouvez vous connecter")
             return render_template("index.html")
         abort(404)
@@ -417,7 +423,6 @@ def create_app() -> Flask:
         data = None
         form = ResetPasswordForm()
         if form.validate_on_submit():
-            print(request.form)
             clear_password = form.clear_password.data
             teacher_id = request.form.get("teacher_id")
             print("teacher_id", teacher_id)
@@ -425,6 +430,7 @@ def create_app() -> Flask:
             if teacher is None:
                 abort(404)
             teacher.update_password_and_commit(clear_password)
+            print(f"{teacher} password resetted")
             flash("Mot de passe réinitialisé avec succès. Vous pouvez vous identifier.")
             data = {"reset": False}
         return render_template("reset_password.html", data=data, form=form)
@@ -437,7 +443,10 @@ def create_app() -> Flask:
     @app.route("/remove_account")
     @login_required
     def remove_account():
+        teacher_email = current_user.email
+        teacher_id = current_user.id
         current_user.remove_and_commit()
+        print(f"{teacher_email}, {teacher_id} removed from db")
         flash("Votre compte, vos qcms et les travaux de vos élèves sont supprimés.")
         return redirect(url_for("index"))
 
@@ -497,6 +506,8 @@ def create_app() -> Flask:
     @app.route("/remove/<int:id_qcm>", methods=["GET", "POST"])
     @login_required
     def remove(id_qcm: int):
+        if not current_user.is_confirmed:
+            return redirect(url_for("index"))
         qcm = Qcm.query.get(id_qcm)
         if qcm is None or not current_user.is_owner(qcm):
             abort(404)
@@ -536,9 +547,13 @@ def create_app() -> Flask:
     @app.route("/work", methods=["GET", "POST"])
     @login_required
     def work():
+        if not current_user.is_confirmed:
+            abort(404)
         id_qcm = int(request.values.get("id_qcm"))
         index = int(request.values.get("index"))
         qcm = Qcm.query.get(id_qcm)
+        if not current_user.is_owner(qcm):
+            abort(404)
 
         if qcm is None:
             abort(404)
