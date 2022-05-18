@@ -11,13 +11,29 @@
 <div>
     {% if qcm %}
         <div class="part">
-            <h2 class="part-title">
-                Résultats du QCM : 
-            </h2>
-            <br />
-            <h3 class="part-title">
-                {{ qcm.id}} - {{ qcm.title|safe }} - {{ qcm.datetime }}
-            </h3>
+            <div class="question-answers" style="margin-bottom: 1rem;">
+                <ul>
+                    <li>
+                        Numero {{ qcm.id}} 
+                    </li>
+                    <li>
+                        {{ qcm.title|safe }}
+                    </li>
+                    <li>
+                        {{ qcm.datetime_formated() }}
+                    </li>
+                </ul>
+            </div>
+            <form 
+               id="export" 
+               action="{{ url_for('export', qcm_id=qcm.id) }}"
+               method="GET"
+               style="text-align: center;"
+               >
+               <input id="export_button" name="cancel" type="submit" value="Exporter en CSV">
+            </form>
+            <div class="spacediv"></div>
+            <div class="spacediv"></div>
             <table class="center colored-background">
                 <tr>
                     <th scole="col">
@@ -46,18 +62,13 @@
                     </td>
                     <td>
                         <button type=submit class="no-border transparent-background">
-                        {{ work.datetime }}
+                        {{ work.datetime_formated() }}
                         </button>
                     </dt>
                 </tr>
                 </form>
                 {% endfor %}
             </table>
-            <h2 class="part-title">
-                <a href="{{ url_for('export', qcm_id=qcm.id) }}" class="form-question">
-                    Exporter en CSV
-                </a>
-            </h2>
         {% endif %}
     </div>
 </div>
