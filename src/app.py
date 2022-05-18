@@ -11,6 +11,7 @@ from flask import (
     abort,
     flash,
     Flask,
+    g,
     make_response,
     redirect,
     render_template,
@@ -224,6 +225,12 @@ def create_app() -> Flask:
         """Limit sessions duration to 60 minutes."""
         session.permanent = True
         app.permanent_session_lifetime = timedelta(minutes=60)
+
+    @app.before_request
+    def fix_missing_csrf_token():
+        if app.config["WTF_CSRF_FIELD_NAME"] not in session:
+            if app.config["WTF_CSRF_FIELD_NAME"] in g:
+                g.pop(app.config["WTF_CSRF_FIELD_NAME"])
 
     @app.after_request
     def add_security_headers(resp):
