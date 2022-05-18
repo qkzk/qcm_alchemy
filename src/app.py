@@ -549,13 +549,11 @@ def create_app() -> Flask:
     def work():
         if not current_user.is_confirmed:
             abort(404)
-        id_qcm = int(request.values.get("id_qcm"))
-        index = int(request.values.get("index"))
+        id_qcm = request.values.get("id_qcm")
+        index = request.values.get("index")
         qcm = Qcm.query.get(id_qcm)
-        if not current_user.is_owner(qcm):
-            abort(404)
 
-        if qcm is None:
+        if qcm is None or not current_user.is_owner(qcm):
             abort(404)
 
         if request.values.get("preview") is not None:
@@ -568,8 +566,8 @@ def create_app() -> Flask:
                 work=None,
             )
         try:
+            index = int(index)
             work = qcm.works[index]
-            print(work)
         except (IndexError, TypeError):
             abort(404)
 

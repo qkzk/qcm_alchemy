@@ -23,15 +23,24 @@
                         {{ qcm.datetime_formated() }}
                     </li>
                 </ul>
+                <div style="text-align: center;">
+                    <button>
+                        <a href="{{ url_for('work', id_qcm=qcm.id, index=0, preview=1) }}">
+                            Voir le QCM
+                        </a>
+                    </button>
+                    <button>
+                        <a href="{{ url_for('remove', id_qcm=qcm.id) }}">
+                            Supprimer le QCM
+                        </a>
+                    </button>
+                    <button> 
+                        <a href="{{ url_for('export', qcm_id=qcm.id) }}">
+                            Exporter en CSV
+                        </a>
+                    </form>
+                </div>
             </div>
-            <form 
-               id="export" 
-               action="{{ url_for('export', qcm_id=qcm.id) }}"
-               method="GET"
-               style="text-align: center;"
-               >
-               <input id="export_button" name="cancel" type="submit" value="Exporter en CSV">
-            </form>
             <div class="spacediv"></div>
             <div class="spacediv"></div>
             <table class="center colored-background">
