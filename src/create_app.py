@@ -31,7 +31,8 @@ app.config["DOWNLOAD_FOLDER"] = DOWNLOAD_FOLDER
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1000 * 1000
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 # app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///../db/qcm.db"
-app.config["SECRET_KEY"] = "my random secret key"
+env_secret = os.getenv("FLASK_SECRET_KEY")
+app.config["SECRET_KEY"] = env_secret if env_secret else "my_secret_key"
 
 csrf = CSRFProtect(app)
 db = SQLAlchemy(app)
