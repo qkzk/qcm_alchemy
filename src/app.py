@@ -485,13 +485,24 @@ def create_app() -> Flask:
                 if qcm_id == -1:
                     flash("Le fichier source n'est pas formaté correctement")
                 else:
-                    flash("QCM inséré dans la base !")
-                    data = {"qcm_id": qcm_id}
-                print(f"qcm inserted correctly {qcm_id}")
+                    print(f"qcm inserted correctly {qcm_id}")
+                    return redirect(url_for("view", qcm_id=qcm_id, inserted=True))
             else:
                 flash("Fichier invalide")
                 print(f"qcm couldn't be inserted")
 
+        return render_template("new.html", data=data, form=form)
+
+    @app.route("/view/<int:qcm_id>/<int:inserted>")
+    @login_required
+    def view(qcm_id: int, inserted: int):
+        data = {"qcm_id": qcm_id}
+        qcm = Qcm.query.get(qcm_id)
+        if not current_user.is_owner(qcm):
+            abort(404)
+        form = QcmFileForm()
+        if inserted:
+            flash("QCM inséré dans la base !")
         return render_template("new.html", data=data, form=form)
 
     @app.route("/qcms/<int:teacher_id>")
@@ -544,7 +555,27 @@ def create_app() -> Flask:
         form = StudentForm()
         return render_template("student.html", form=form)
 
-    @app.route("/work", methods=["GET", "POST"])
+    @app.route("/preview")
+    @login_required
+    def preview():
+        if not current_user.is_confirmed:
+            abort(404)
+        id_qcm = request.values.get("id_qcm")
+        qcm = Qcm.query.get(id_qcm)
+
+        if qcm is None or not current_user.is_owner(qcm):
+            abort(404)
+
+        return render_template(
+            "work.html",
+            base_data=f"- Prévisualiser",
+            index=0,
+            preview=True,
+            qcm=qcm,
+            work=None,
+        )
+
+    @app.route("/work")
     @login_required
     def work():
         if not current_user.is_confirmed:
@@ -556,15 +587,6 @@ def create_app() -> Flask:
         if qcm is None or not current_user.is_owner(qcm):
             abort(404)
 
-        if request.values.get("preview") is not None:
-            return render_template(
-                "work.html",
-                qcm=qcm,
-                index=index,
-                preview=True,
-                base_data=f"- Prévisualiser",
-                work=None,
-            )
         try:
             index = int(index)
             work = qcm.works[index]
@@ -576,11 +598,11 @@ def create_app() -> Flask:
             return render_template("confirmation_page.html", data=error_message)
         return render_template(
             "work.html",
-            qcm=qcm,
-            index=index,
-            work=work,
             base_data=f"- Nom: {work.student.name} - Score: {work.points}",
-            preview=True,
+            index=index,
+            preview=False,
+            qcm=qcm,
+            work=work,
         )
 
     @app.route("/qcm", methods=["POST"])
@@ -622,6 +644,10 @@ def create_app() -> Flask:
 
         work.record()
         flash("Réponses enregistrées")
+        return redirect(url_for("confirmation"))
+
+    @app.route("/confirmation")
+    def confirmation():
         return render_template("confirmation_page.html")
 
     # db.drop_all()
