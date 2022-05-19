@@ -25,7 +25,7 @@
                 </ul>
                 <div style="text-align: center;">
                     <button>
-                        <a href="{{ url_for('work', id_qcm=qcm.id, index=0, preview=1) }}">
+                        <a href="{{ url_for('view', qcm_id=qcm.id, inserted=0) }}">
                             Voir le QCM
                         </a>
                     </button>
@@ -34,11 +34,13 @@
                             Supprimer le QCM
                         </a>
                     </button>
-                    <button> 
-                        <a href="{{ url_for('export', qcm_id=qcm.id) }}">
-                            Exporter en CSV
-                        </a>
-                    </form>
+                    {% if qcm.has_works() %}
+                        <button> 
+                            <a href="{{ url_for('export', qcm_id=qcm.id) }}">
+                                Exporter en CSV
+                            </a>
+                        </form>
+                    {% endif %}
                 </div>
             </div>
             <div class="spacediv"></div>
@@ -56,26 +58,23 @@
                     </th>
                 </tr>
                 {% for index, work in enumerate(qcm.works) %}
-                <form method="POST", action="{{ url_for('work', id_qcm=qcm.id, index=index) }}">
                 <tr>
                     <th scope="row">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                        <button type=submit class="no-border transparent-background">
-                        {{ work.student.name|safe }}
-                        </button>
+                        <a href="{{ url_for('work', id_qcm=qcm.id, index=index) }}">
+                            {{ work.student.name|safe }}
+                        </a>
                     </th>
                     <td class="text-center">
-                        <button type=submit class="no-border transparent-background">
-                        {{ work.points }}
-                        </button>
+                        <a href="{{ url_for('work', id_qcm=qcm.id, index=index) }}">
+                            {{ work.points }}
+                        </a>
                     </td>
                     <td>
-                        <button type=submit class="no-border transparent-background">
-                        {{ work.datetime_formated() }}
-                        </button>
+                        <a href="{{ url_for('work', id_qcm=qcm.id, index=index) }}">
+                            {{ work.datetime_formated() }}
+                        </a>
                     </dt>
                 </tr>
-                </form>
                 {% endfor %}
             </table>
         {% endif %}

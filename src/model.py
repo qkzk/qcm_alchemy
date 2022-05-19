@@ -85,6 +85,10 @@ class Qcm(db.Model):
         """Returns the number of recorded works for this QCM"""
         return len(self.works)
 
+    def has_works(self) -> bool:
+        """True iff there's submitted works for this QCM"""
+        return self.count_works() > 0
+
     @classmethod
     def clear_old_records(cls):
         """Self cleaning of the database. Uses the ForeignKey to clean children as well."""
