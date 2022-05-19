@@ -644,6 +644,10 @@ def create_app() -> Flask:
 
         work.record()
         flash("Réponses enregistrées")
+        return redirect(url_for("confirmation"))
+
+    @app.route("/confirmation")
+    def confirmation():
         return render_template("confirmation_page.html")
 
     # db.drop_all()
