@@ -46,7 +46,7 @@
                     <span>
                         <form 
                             id="cancel" 
-                            action="{{ url_for('qcms', teacher_id=qcm.id_teacher)}}" 
+                            action="{{ url_for('view', qcm_id=qcm.id, inserted=0)}}" 
                             method="GET"
                             style="display: inline; margin-left: 1rem;"
                         >

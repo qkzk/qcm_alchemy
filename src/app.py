@@ -496,23 +496,19 @@ def create_app() -> Flask:
     @app.route("/view/<int:qcm_id>/<int:inserted>")
     @login_required
     def view(qcm_id: int, inserted: int):
-        data = {"qcm_id": qcm_id}
         qcm = Qcm.query.get(qcm_id)
-        if not current_user.is_owner(qcm):
+        if not qcm or not current_user.is_owner(qcm):
             abort(404)
-        form = QcmFileForm()
         if inserted:
             flash("QCM inséré dans la base !")
-        return render_template("new.html", data=data, form=form)
+        return render_template("view.html", qcm=qcm)
 
-    @app.route("/qcms/<int:teacher_id>")
+    @app.route("/qcms")
     @login_required
-    def qcms(teacher_id):
+    def qcms():
         if not current_user.is_confirmed:
             return redirect(url_for("index"))
-        return render_template(
-            "qcms.html", qcms=Qcm.query.filter_by(id_teacher=teacher_id).all()
-        )
+        return render_template("qcms.html")
 
     @app.route("/remove/<int:id_qcm>", methods=["GET", "POST"])
     @login_required
@@ -560,8 +556,8 @@ def create_app() -> Flask:
     def preview():
         if not current_user.is_confirmed:
             abort(404)
-        id_qcm = request.values.get("id_qcm")
-        qcm = Qcm.query.get(id_qcm)
+        qcm_id = request.values.get("qcm_id")
+        qcm = Qcm.query.get(qcm_id)
 
         if qcm is None or not current_user.is_owner(qcm):
             abort(404)

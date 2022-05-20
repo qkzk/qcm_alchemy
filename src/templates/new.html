@@ -35,41 +35,6 @@
         </form>
     </div>
 
-    {% if data %}
-        {% if 'qcm_id' in data %}
-            <div class="text-center question-answers">
-                <h3>
-                    Transmettez ce numéro à vos élèves :
-                    <div class="spacediv"></div>
-                        <h1>
-                            {{ data["qcm_id"] }}
-                        </h1>
-                    <div class="spacediv"></div>
-                    <div class="spacediv"></div>
-                </h3>
-                <h2>
-                    <a href={{ url_for('preview', id_qcm=data['qcm_id']) }}>
-                        Visualiser votre QCM
-                    </a>
-                </h2>
-            </div>
-        {% else %}
-            <div class="part">
-                <div class="question-answers">
-                    {% for k, v in data.items() %}
-                    <p>
-                        {{ k }} 
-                    </p>
-                    <div style="margin: 0;">
-                        <pre class="pre-error">
-                            {{ v }}
-                        </pre>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        {% endif %}
-    {% endif %}
 </div>
 
 

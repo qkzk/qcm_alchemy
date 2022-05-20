@@ -40,11 +40,7 @@
         </a>
     </div>
     <div class="question-answers">
-        <a href="{{ url_for('qcms', teacher_id=current_user.id) }}" width="100%" height="100%">
-        <h2>
-            Liste de vos QCMs
-        </h2>
-        </a>
+        {% include 'qcms.html' %}
     </div>
 </div>
 {% endblock %}

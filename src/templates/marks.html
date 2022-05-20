@@ -1,50 +1,72 @@
-{% extends 'base.html' %}
-{% block head %}
-{{ super() }}
-<title>Marks</title>
-{% endblock %}
-
-{% block content %}
-
-<div class="part">
-</div>
-<div>
-    {% if qcm %}
-        <div class="part">
-            <div class="question-answers" style="margin-bottom: 1rem;">
-                <ul>
-                    <li>
-                        Numero {{ qcm.id}} 
-                    </li>
-                    <li>
-                        {{ qcm.title|safe }}
-                    </li>
-                    <li>
-                        {{ qcm.datetime_formated() }}
-                    </li>
-                </ul>
-                <div style="text-align: center;">
-                    <button>
-                        <a href="{{ url_for('view', qcm_id=qcm.id, inserted=0) }}">
-                            Voir le QCM
-                        </a>
-                    </button>
-                    <button>
-                        <a href="{{ url_for('remove', id_qcm=qcm.id) }}">
-                            Supprimer le QCM
-                        </a>
-                    </button>
-                    {% if qcm.has_works() %}
-                        <button> 
-                            <a href="{{ url_for('export', qcm_id=qcm.id) }}">
-                                Exporter en CSV
-                            </a>
-                        </form>
-                    {% endif %}
-                </div>
-            </div>
-            <div class="spacediv"></div>
-            <div class="spacediv"></div>
+{% if qcm %}
+    <div class="question-answers">
+        <table class="center colored-background" style="border: none; outline: none">
+            <tr>
+                <td class="no-border">
+                    Numero
+                </td>
+                <td class="no-border bold">
+                    {{ qcm.id}}
+                </td>
+            </tr>
+            <tr>
+                <td class="no-border">
+                    Titre
+                </td>
+                <td class="no-border bold">
+                    {{ qcm.title|safe }}
+                </td>
+            </tr>
+            <tr>
+                <td class="no-border">
+                    Création
+                </td>
+                <td class="no-border bold">
+                    {{ qcm.datetime_formated() }}
+                </td>
+            </tr>
+            <tr>
+                <td class="no-border">
+                    Réponses
+                </td>
+                <td class="no-border bold">
+                    {{ qcm.count_works() }}
+                </td>
+            </tr>
+        </table>
+        <div class="spacediv">
+        </div>
+        <div class="spacediv">
+        </div>
+        <div class="spacediv">
+        </div>
+        <div class="spacediv">
+        </div>
+        <div style="text-align: center;">
+            <button>
+                <a href="{{ url_for('preview', qcm_id=qcm.id) }}">
+                    Voir le QCM
+                </a>
+            </button>
+            <button>
+                <a href="{{ url_for('remove', id_qcm=qcm.id) }}">
+                    Supprimer le QCM
+                </a>
+            </button>
+            {% if qcm.has_works() %}
+                <button> 
+                    <a href="{{ url_for('export', qcm_id=qcm.id) }}">
+                        Exporter en CSV
+                    </a>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+    {% if qcm.has_works() %}
+        <div class="question-answers">
+            <h3>
+                Résultats enregistrés
+            </h3>
             <table class="center colored-background">
                 <tr>
                     <th scole="col">
@@ -77,7 +99,6 @@
                 </tr>
                 {% endfor %}
             </table>
-        {% endif %}
-    </div>
-</div>
-{% endblock %}
+        </div>
+    {% endif %}
+{% endif %}

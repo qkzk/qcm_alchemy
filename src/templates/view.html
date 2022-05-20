@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block head %}
+{{ super() }}
+<title>New</title>
+{% endblock %}
+
+{% block content %}
+<div class="part">
+    <div style="text-align: center;">
+        <button>
+            <a href="{{ url_for('teacher') }}">
+                Revenir à vos QCMs
+            </a>
+        </button>
+    </div>
+    <div class="text-center question-answers">
+        <h3>
+            Transmettez ce numéro à vos élèves :
+        </h3>
+        <h1 style="font-size:5rem;">
+            {{ qcm.id }}
+        </h1>
+    </div>
+    {% include('marks.html', qcm) %}
+</div>
+{% endblock %}
