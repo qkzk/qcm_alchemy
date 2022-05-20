@@ -13,14 +13,32 @@
             </a>
         </button>
     </div>
+</div>
+<div class="part" id="qcm-id">
     <div class="text-center question-answers">
-        <h3>
-            Transmettez ce numéro à vos élèves :
+        <h1 class="not-visible" id="qcm-url">
+            https://qcmqkzk.herokuapp.com
+            <div class="spacediv"></div>
+            <div class="spacediv"></div>
+            choisir 
+            <em>
+                élève
+            </em>
+            <div class="spacediv"></div>
+            <div class="spacediv"></div>
+            QCM Numéro :
+        </h1>
+        <h3 id="teacher-consign">
+            Cliquez pour projeter le numéro aux élèves
         </h3>
-        <h1 style="font-size:5rem;">
+        <h1 class="big-text" id="qcm-id-title">
             {{ qcm.id }}
         </h1>
     </div>
+</div>
+<div class="part" id="qcm-id">
     {% include('marks.html', qcm) %}
 </div>
+<script src="{{ url_for('static', filename='javascript/qcm_id_popup.js') }}">
+</script>
 {% endblock %}

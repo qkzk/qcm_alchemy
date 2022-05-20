@@ -353,3 +353,25 @@ footer {
   white-space: -o-pre-wrap; /* Opera 7 */
   word-wrap: break-word; /* Internet Explorer 5.5+ */
 }
+
+.big-text {
+  font-size: 3rem;
+}
+
+.enormous-text {
+  font-size: 15rem;
+  margin: 0;
+}
+
+.blur {
+  filter: blur(10px);
+}
+
+.not-blured {
+  filter: blur(0);
+}
+
+.not-visible {
+  visibility: hidden;
+  height: 0;
+}
