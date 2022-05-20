@@ -16,18 +16,30 @@
             <p>
                 Cliquer ci-dessous pour vous désinscrire.
             </p>
+            <div class="spacediv"></div>
             <p class="bold">
                 Attention : il n'y a pas de confirmation. 
             </p>
+            <div class="spacediv"></div>
             <p class="bold">
-                Si vous cliquez, votre compte est supprimé.<br />
+                Votre compte sera supprimé.
+            </p>
+            <div class="spacediv"></div>
+            <p>
                 Tous vos QCM seront effacés ainsi que les travaux d'élèves associés.
             </p>
-            <h3>
+            <div class="spacediv"></div>
+            <div class="spacediv"></div>
+            <button>
+                <a href="{{ url_for('teacher') }}">
+                    Annuler
+                </a>
+            </button>
+            <button>
                 <a href="{{ url_for('remove_account') }}">
                     Se désinscrire
                 </a>
-            </h3>
+            </button>
         </div>
       </div>
 {% endblock %}
