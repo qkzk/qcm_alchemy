@@ -524,8 +524,8 @@ def create_app() -> Flask:
             qcm_id = qcm.id
             qcm.remove_and_commit()
             print(f"{current_user} removed {qcm}")
-            flash(f"QCM {title} numero {qcm_id} supprimé !")
-            return redirect(url_for("qcms", teacher_id=current_user.id))
+            flash(f"QCM : {title}, numero : {qcm_id} supprimé !")
+            return redirect(url_for("teacher"))
 
         return render_template("remove.html", qcm=qcm, form=form)
 
