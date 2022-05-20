@@ -503,13 +503,6 @@ def create_app() -> Flask:
             flash("QCM inséré dans la base !")
         return render_template("view.html", qcm=qcm)
 
-    @app.route("/qcms")
-    @login_required
-    def qcms():
-        if not current_user.is_confirmed:
-            return redirect(url_for("index"))
-        return render_template("qcms.html")
-
     @app.route("/remove/<int:id_qcm>", methods=["GET", "POST"])
     @login_required
     def remove(id_qcm: int):
@@ -537,14 +530,6 @@ def create_app() -> Flask:
         path = Work.write_export(qcm_id)
         directory = os.path.join(os.getcwd(), app.config["DOWNLOAD_FOLDER"])
         return send_from_directory(directory=directory, path=path)
-
-    @app.route("/marks/<int:id_qcm>")
-    @login_required
-    def marks(id_qcm):
-        if not current_user.is_confirmed:
-            return redirect(url_for("index"))
-        qcm = Qcm.query.get(id_qcm)
-        return render_template("marks.html", qcm=qcm, base_data="- Résultats")
 
     @app.route("/student")
     def student():
