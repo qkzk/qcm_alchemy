@@ -375,3 +375,14 @@ footer {
   visibility: hidden;
   height: 0;
 }
+
+.big-table {
+  overflow: hidden;
+  overflow-x: auto;
+  clear: both;
+  width: 100%;
+}
+
+.wsh-table {
+  min-width: rem-calc(640);
+}

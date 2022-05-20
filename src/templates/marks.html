@@ -1,104 +1,104 @@
 {% if qcm %}
-    <div class="question-answers">
-        <table class="center colored-background" style="border: none; outline: none">
-            <tr>
-                <td class="no-border">
-                    Numero
-                </td>
-                <td class="no-border bold">
-                    {{ qcm.id}}
-                </td>
-            </tr>
-            <tr>
-                <td class="no-border">
-                    Titre
-                </td>
-                <td class="no-border bold">
-                    {{ qcm.title|safe }}
-                </td>
-            </tr>
-            <tr>
-                <td class="no-border">
-                    Création
-                </td>
-                <td class="no-border bold">
-                    {{ qcm.datetime_formated() }}
-                </td>
-            </tr>
-            <tr>
-                <td class="no-border">
-                    Réponses
-                </td>
-                <td class="no-border bold">
-                    {{ qcm.count_works() }}
-                </td>
-            </tr>
-        </table>
-        <div class="spacediv">
-        </div>
-        <div class="spacediv">
-        </div>
-        <div class="spacediv">
-        </div>
-        <div class="spacediv">
-        </div>
-        <div style="text-align: center;">
-            <button>
-                <a href="{{ url_for('preview', qcm_id=qcm.id) }}">
-                    Voir le QCM
-                </a>
-            </button>
-            <button>
-                <a href="{{ url_for('remove', id_qcm=qcm.id) }}">
-                    Supprimer le QCM
-                </a>
-            </button>
-            {% if qcm.has_works() %}
-                <button> 
-                    <a href="{{ url_for('export', qcm_id=qcm.id) }}">
-                        Exporter en CSV
-                    </a>
-                </form>
-            {% endif %}
-        </div>
+<div class="question-answers">
+    <table class="center colored-background" style="border: none; outline: none">
+        <tr>
+            <td class="no-border">
+                Numero
+            </td>
+            <td class="no-border bold">
+                {{ qcm.id}}
+            </td>
+        </tr>
+        <tr>
+            <td class="no-border">
+                Titre
+            </td>
+            <td class="no-border bold">
+                {{ qcm.title|safe }}
+            </td>
+        </tr>
+        <tr>
+            <td class="no-border">
+                Création
+            </td>
+            <td class="no-border bold">
+                {{ qcm.datetime_formated() }}
+            </td>
+        </tr>
+        <tr>
+            <td class="no-border">
+                Réponses
+            </td>
+            <td class="no-border bold">
+                {{ qcm.count_works() }}
+            </td>
+        </tr>
+    </table>
+    <div class="spacediv">
     </div>
-    {% if qcm.has_works() %}
-        <div class="question-answers">
-            <h3>
-                Résultats enregistrés
-            </h3>
-            <table class="center colored-background">
-                <tr>
-                    <th scole="col">
-                        Nom
-                    </th>
-                    <th scole="col" class="text-center">
-                        Points
-                    </th>
-                    <th scope="col">
-                        Horaire
-                    </th>
-                </tr>
-                {% for index, work in enumerate(qcm.works) %}
-                <tr>
-                    <th scope="row">
-                        <a href="{{ url_for('work', id_qcm=qcm.id, index=index) }}">
-                            {{ work.student.name|safe }}
-                        </a>
-                    </th>
-                    <td class="text-center">
-                        <a href="{{ url_for('work', id_qcm=qcm.id, index=index) }}">
-                            {{ work.points }}
-                        </a>
-                    </td>
-                    <td>
-                        <a href="{{ url_for('work', id_qcm=qcm.id, index=index) }}">
-                            {{ work.datetime_formated() }}
-                        </a>
-                    </dt>
-                </tr>
-                {% endfor %}
-            </table>
-        </div>
-    {% endif %}
+    <div class="spacediv">
+    </div>
+    <div class="spacediv">
+    </div>
+    <div class="spacediv">
+    </div>
+    <div style="text-align: center;">
+        <button>
+            <a href="{{ url_for('preview', qcm_id=qcm.id) }}">
+                Voir le QCM
+            </a>
+        </button>
+        <button>
+            <a href="{{ url_for('remove', id_qcm=qcm.id) }}">
+                Supprimer le QCM
+            </a>
+        </button>
+        {% if qcm.has_works() %}
+        <button>
+            <a href="{{ url_for('export', qcm_id=qcm.id) }}">
+                Exporter en CSV
+            </a>
+            </form>
+            {% endif %}
+    </div>
+</div>
+{% if qcm.has_works() %}
+<div class="question-answers">
+    <h3>
+        Résultats enregistrés
+    </h3>
+    <table class="center colored-background">
+        <tr>
+            <th scole="col">
+                Nom
+            </th>
+            <th scole="col" class="text-center">
+                Points
+            </th>
+            <th scope="col">
+                Horaire
+            </th>
+        </tr>
+        {% for index, work in enumerate(qcm.works) %}
+        <tr>
+            <th scope="row">
+                <a href="{{ url_for('work', id_qcm=qcm.id, index=index) }}">
+                    {{ work.student.name|safe }}
+                </a>
+            </th>
+            <td class="text-center">
+                <a href="{{ url_for('work', id_qcm=qcm.id, index=index) }}">
+                    {{ work.points }}
+                </a>
+            </td>
+            <td>
+                <a href="{{ url_for('work', id_qcm=qcm.id, index=index) }}">
+                    {{ work.datetime_formated() }}
+                </a>
+                </dt>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endif %}
 {% endif %}
