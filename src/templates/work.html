@@ -19,7 +19,7 @@
                     </a>
                     &nbsp;
                 {% endif %}
-                <a href="{{ url_for('marks', id_qcm=qcm.id) }}" id="previous">
+                <a href="{{ url_for('view', qcm_id=qcm.id, inserted=0) }}" id="view">
                     Liste
                 </a>
             

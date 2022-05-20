@@ -1,13 +1,8 @@
-{% extends 'base.html' %}
-{% block head %}
-{{ super() }}
-<title>QCMS</title>
-{% endblock %}
 
 {% block content %}
 <div class="part">
     <h2 class="part-title">
-        Consultez vos QCM
+        Vos QCMs
     </h2>
 </div>
 <table class="center colored-background">
@@ -18,45 +13,41 @@
             <th>titre</th>
             <th>date</th>
             <th>réponses</th>
-            <th>voir</th>
             <th>effacer</th>
         </tr>
     </thead>
 
     <tbody>
-        {% for qcm in qcms %}
-        <tr>
-            <td>
-                <a href="{{ url_for('marks', id_qcm=qcm.id) }}">
-                    {{ qcm.id }}
-                </a>
-            </td>
-            <td>
-                <a href="{{ url_for('marks', id_qcm=qcm.id) }}">
-                    {{ qcm.title }}
-                </a>
-            </td>
-            <td>
-                <a href="{{ url_for('marks', id_qcm=qcm.id) }}">
-                    {{ qcm.datetime_formated() }}
-                </a>
-            </td>
-            <td>
-                <a href="{{ url_for('marks', id_qcm=qcm.id) }}">
-                    {{ qcm.count_works() }}
-                </a>
-            </td>
-            <td>
-                <a href="{{ url_for('view', qcm_id=qcm.id, inserted=0) }}">
-                👁️    
-                </a>
-            </td>
-            <td>
-                <a href="{{ url_for('remove', id_qcm=qcm.id) }}">
-                    ❌
-                </a>
-        </tr>
-        {% endfor %}
+        {% with qcms=current_user.qcms %}
+            {% for qcm in qcms %}
+            <tr>
+                <td>
+                    <a href="{{ url_for('view', qcm_id=qcm.id, inserted=0) }}">
+                        {{ qcm.id }}
+                    </a>
+                </td>
+                <td>
+                    <a href="{{ url_for('view', qcm_id=qcm.id, inserted=0) }}">
+                        {{ qcm.title }}
+                    </a>
+                </td>
+                <td>
+                    <a href="{{ url_for('view', qcm_id=qcm.id, inserted=0) }}">
+                        {{ qcm.datetime_formated() }}
+                    </a>
+                </td>
+                <td>
+                    <a href="{{ url_for('view', qcm_id=qcm.id, inserted=0) }}">
+                        {{ qcm.count_works() }}
+                    </a>
+                </td>
+                <td>
+                    <a href="{{ url_for('remove', id_qcm=qcm.id) }}">
+                        ❌
+                    </a>
+            </tr>
+            {% endfor %}
+        {% endwith %}
     </tbody>
 </table>
 {% endblock %}

@@ -496,23 +496,12 @@ def create_app() -> Flask:
     @app.route("/view/<int:qcm_id>/<int:inserted>")
     @login_required
     def view(qcm_id: int, inserted: int):
-        data = {"qcm_id": qcm_id}
         qcm = Qcm.query.get(qcm_id)
-        if not current_user.is_owner(qcm):
+        if not qcm or not current_user.is_owner(qcm):
             abort(404)
-        form = QcmFileForm()
         if inserted:
             flash("QCM inséré dans la base !")
-        return render_template("new.html", data=data, form=form)
-
-    @app.route("/qcms/<int:teacher_id>")
-    @login_required
-    def qcms(teacher_id):
-        if not current_user.is_confirmed:
-            return redirect(url_for("index"))
-        return render_template(
-            "qcms.html", qcms=Qcm.query.filter_by(id_teacher=teacher_id).all()
-        )
+        return render_template("view.html", qcm=qcm)
 
     @app.route("/remove/<int:id_qcm>", methods=["GET", "POST"])
     @login_required
@@ -528,8 +517,8 @@ def create_app() -> Flask:
             qcm_id = qcm.id
             qcm.remove_and_commit()
             print(f"{current_user} removed {qcm}")
-            flash(f"QCM {title} numero {qcm_id} supprimé !")
-            return redirect(url_for("qcms", teacher_id=current_user.id))
+            flash(f"QCM : {title}, numero : {qcm_id} supprimé !")
+            return redirect(url_for("teacher"))
 
         return render_template("remove.html", qcm=qcm, form=form)
 
@@ -542,14 +531,6 @@ def create_app() -> Flask:
         directory = os.path.join(os.getcwd(), app.config["DOWNLOAD_FOLDER"])
         return send_from_directory(directory=directory, path=path)
 
-    @app.route("/marks/<int:id_qcm>")
-    @login_required
-    def marks(id_qcm):
-        if not current_user.is_confirmed:
-            return redirect(url_for("index"))
-        qcm = Qcm.query.get(id_qcm)
-        return render_template("marks.html", qcm=qcm, base_data="- Résultats")
-
     @app.route("/student")
     def student():
         form = StudentForm()
@@ -560,8 +541,8 @@ def create_app() -> Flask:
     def preview():
         if not current_user.is_confirmed:
             abort(404)
-        id_qcm = request.values.get("id_qcm")
-        qcm = Qcm.query.get(id_qcm)
+        qcm_id = request.values.get("qcm_id")
+        qcm = Qcm.query.get(qcm_id)
 
         if qcm is None or not current_user.is_owner(qcm):
             abort(404)
