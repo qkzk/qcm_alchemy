@@ -46,7 +46,7 @@ def f(x):
 ```
 ~~~
 
-## latex, tableaux, images
+## LaTex
 
 LaTex en ligne avec `$\int_1^2 x^2 dx$` va produire $\int_1^2 x^2 dx$
 
@@ -63,6 +63,21 @@ va produire
 $$
 \int_1^2 x^2 dx
 $$
+
+## Images
+
+Vous pouvez présenter une image _à condition qu'elle soit hébergée en ligne_.
+
+Impossible de charger des images directement dans le fichier, je n'ai pas la place
+pour les héberger ni aucune envie de l'ajouter.
+
+```markdown
+![sad panda](https://t4.ftcdn.net/jpg/04/77/53/75/360_F_477537591_3WXDC8zpsKBALlg8RBKejezg6SE7YbWh.jpg)
+```
+
+va produire :
+
+![sad panda](https://t4.ftcdn.net/jpg/04/77/53/75/360_F_477537591_3WXDC8zpsKBALlg8RBKejezg6SE7YbWh.jpg)
 
 
 ## Roadmap
