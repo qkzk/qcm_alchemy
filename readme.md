@@ -1,5 +1,182 @@
-# QCM with SQLAlchemy
+# [qcmqkzk.herokuapp.com](https://qcmqkzk.herokuapp.com)
 
+Publish a multiple choice questions to your student from a simple markdown file.
+
+Since this project is aimed to French teachers, the rest of the description is in French.
+
+# Présentation
+
+Ce projet permet de créer des QCMs depuis un fichier source markdown et de les diffuser facilement aux élèves.
+
+## TL:DR;
+
+1. Vous créez un fichier QCM
+2. Vous créez un compte, le validez via l'email envoyé et vous connectez
+3. Vous envoyez votre QCM
+4. Vous vérifiez qu'il est présenté comme vous l'imaginiez
+5. Vous présentez le numéro du QCM aux élèves
+6. Ils rejoignent, saisissent leur nom, prénom et le numéro en question...
+7. Ils répondent aux questions et valident
+8. Vous récoltez leurs scores et leurs réponses
+
+![qcmqkzk](./qcmqkzk.png)
+
+## Format de fichier
+
+Le plus simple est de regarder cette [vidéo](https://youtu.be/Jogm2cbgnEE) ou de partir de [l'exemple](./src/static/markdown/exemple.md).
+
+En gros :
+
+```markdown
+
+# titre du QCM
+
+## une partie
+
+### question à choix multiple ?
+
+sous texte de la question
+
+- [x] bonne réponse
+- [ ] mauvaise réponse a
+- [ ] mauvaise réponse b
+
+### question avec une zone de texte ?
+
+- [t]
+```
+
+## Deux types de questions :
+
+* avec **une seule bonne réponse**. L'élève ne peut en choisir plusieurs. Corrigées automatiquement.
+* avec **une zone de texte**. L'élève écrit un texte pour répondre. Vous devez lire les réponses.
+
+## Intégration de code
+
+Vous pouvez intégrer du code en ligne en l'entourant d'accents graves `` `f(x)=3` `` 
+
+Pour du code dans le sous-texte :
+
+~~~markdown
+
+```python
+a = 1
+def f(x):
+    return x ** 2
+```
+~~~
+
+Attention, seuls les ```` ``` ```` sont supportés, pas les `~~~`.
+
+Si vous indiquez le langage du code en question, il sera colorié automatiquement.
+
+## LaTex
+
+LaTex en ligne avec `$\int_1^2 x^2 dx$` va produire $\int_1^2 x^2 dx$
+
+LaTex en bloc avec `$$`
+
+```latex
+$$
+\int_1^2 x^2 dx
+$$
+```
+
+va produire
+
+$$
+\int_1^2 x^2 dx
+$$
+
+## Images
+
+Vous pouvez présenter une image _à condition qu'elle soit hébergée en ligne_.
+
+Impossible de charger des images directement dans le fichier, je n'ai pas la place
+pour les héberger ni aucune envie de l'ajouter.
+
+```markdown
+![sad panda](https://t4.ftcdn.net/jpg/04/77/53/75/360_F_477537591_3WXDC8zpsKBALlg8RBKejezg6SE7YbWh.jpg)
+```
+
+va produire :
+
+![sad panda](https://t4.ftcdn.net/jpg/04/77/53/75/360_F_477537591_3WXDC8zpsKBALlg8RBKejezg6SE7YbWh.jpg)
+
+
+## Tableaux
+
+Les tableaux markdown sont supportés nativement :
+
+```markdown
+| nom   | prénom | note |
+|-------|--------|------|
+| Jean  | Dupont | 14   |
+| Marie | Frank  | 20   |
+```
+
+va produire :
+
+| nom   | prénom | note |
+|-------|--------|------|
+| Jean  | Dupont | 14   |
+| Marie | Frank  | 20   |
+
+# Mode anti-triche
+
+* Les parties, questions et choix sont mélangés. C'est automatique et différent pour chaque élève.
+* On ne peut pas cliquer sur les images (pour faire une recherche en ligne).
+* Si l'élève quitte la page, ses réponses sont enregistrées et il ne peut plus avancer.
+* Il peut toujours retenter... mais vous verrez à quelle heure il a répondu
+
+# Correction
+
+Les points des questions à choix multiple sont calculés automatiquement
+
+Un mode correction est proposé, permettant de consulter chaque devoir pour les réponses textuelles.
+
+On peut exporter l'ensemble des travaux dans un fichier csv (notes et réponses).
+
+# Hébergement des données
+
+Elles sont en Europe et je _crois_ respecter le RGPD.
+
+Les élèves n'ont pas de compte, ils indiquent leurs noms, prénom et numéro du devoir.
+Les réponses des élèves sont effacées après trois jours. Ne tardez pas :smile:
+
+Les enseignants doivent créer un compte, je n'en garde que l'email.
+Chaque QCM et travail d'élève est attribué à un enseignant, via le numéro du QCM.
+
+Les QCM sont eux aussi effacés après trois jours, n'ayant pas la place pour en conserver beaucoup.
+
+# Technologies utilisées
+
+* Python 3
+* Flask (création des pages)
+* Extensions Flask : Flask-WTF, FlaskSQLAlchemy, FlaskLogin etc.
+* Google API & Google Gmail API pour l'envoi d'emails
+* Gunicorn (serveur web WSGI)
+* PostgreSQL (bdd)
+* Mathjax (latex)
+* Heroku (service en ligne dans le cloud)
+* AWS (hébergement interne de heroku)
+
+# Problèmes, bugs ?
+
+N'hésitez pas à déposer une issue ! Je ferai de mon mieux :smile:
+
+# Comment ça marche en interne ?
+
+Le code est là pour vous répondre...
+
+# Pourquoi ?
+
+* Je n'aime pas corriger.
+* Les solutions existantes ne répondent à mon besoin. La plus approchante est [doctools](https://doctools.dgpad.net/), consultez `DocEval`.
+
+---
+
+# Development
 
 ## Roadmap
 
