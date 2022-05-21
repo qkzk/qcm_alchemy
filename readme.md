@@ -1,5 +1,43 @@
 # QCM with SQLAlchemy
 
+# [qcmqkzk.herokuapp.com](https://qcmqkzk.herokuapp.com)
+
+Publish a multiple choice questions to your student from a simple markdown file.
+
+Since this project is aimed to French teachers, the rest of the description is in French.
+
+# Présentation
+
+Ce projet permet de créer des QCMs depuis un fichier source markdown et de les diffuser facilement aux élèves.
+
+## Format de fichier
+
+Le plus simple est de regarder cette [vidéo](https://youtu.be/Jogm2cbgnEE) ou de partir de [l'exemple](./src/static/markdown/exemple.md).
+
+En gros :
+
+```markdown
+
+# titre du QCM
+
+## une partie
+
+### question ?
+
+sous texte de la question
+
+- [x] bonne réponse
+- [ ] mauvaise réponse
+- [ ] autre mauvaise réponse
+```
+
+## Code
+
+Vous pouvez intégrer du code en ligne avec `\`code\`` 
+
+## latex, tableaux, images
+
+
 
 ## Roadmap
 
