@@ -164,7 +164,7 @@ Les QCM sont eux aussi effacés après trois jours, n'ayant pas la place pour en
 
 # Problèmes, bugs ?
 
-N'hésitez pas à déposer une issue ! Je tenterai d'y répondre :smile:
+N'hésitez pas à déposer une issue ! Je ferai de mon mieux :smile:
 
 # Comment ça marche en interne ?
 
