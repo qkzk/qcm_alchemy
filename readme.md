@@ -153,7 +153,8 @@ Les QCM sont eux aussi effacés après trois jours, n'ayant pas la place pour en
 
 * Python 3
 * Flask (création des pages)
-* Extensions Flask : Flask-WTF, FlaskAlchemy, FlaskLogin etc.
+* Extensions Flask : Flask-WTF, FlaskSQLAlchemy, FlaskLogin etc.
+* Google API & Google Gmail API pour l'envoi d'emails
 * Gunicorn (serveur web WSGI)
 * PostgreSQL (bdd)
 * Mathjax (latex)
