@@ -46,9 +46,14 @@ sous texte de la question
 - [t]
 ```
 
-## Code
+## Deux types de questions :
 
-Vous pouvez intégrer du code en ligne avec `` `code` `` 
+* avec **une seule bonne réponse**. L'élève ne peut en choisir plusieurs. Corrigées automatiquement.
+* avec **une zone de texte**. L'élève écrit un texte pour répondre. Vous devez lire les réponses.
+
+## Intégration de code
+
+Vous pouvez intégrer du code en ligne en l'entourant d'accents graves `` `f(x)=3` `` 
 
 Pour du code dans le sous-texte :
 
@@ -60,6 +65,8 @@ def f(x):
     return x ** 2
 ```
 ~~~
+
+Attention, seuls les ```` ``` ```` sont supportés, 
 
 ## LaTex
 
