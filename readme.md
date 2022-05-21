@@ -58,6 +58,11 @@ $$
 $$
 ```
 
+va produire
+
+$$
+\int_1^2 x^2 dx
+$$
 
 
 ## Roadmap
