@@ -22,13 +22,17 @@ En gros :
 
 ## une partie
 
-### question ?
+### question à choix multiple ?
 
 sous texte de la question
 
 - [x] bonne réponse
 - [ ] mauvaise réponse
 - [ ] autre mauvaise réponse
+
+### question avec une zone de texte ?
+
+- [t]
 ```
 
 ## Code
@@ -97,6 +101,28 @@ va produire :
 |-------|--------|------|
 | Jean  | Dupont | 14   |
 | Marie | Frank  | 20   |
+
+# Mode anti-triche
+
+* Les parties, questions et choix sont mélangés. C'est automatique et différent pour chaque élève.
+* On ne peut pas cliquer sur les images (pour faire une recherche en ligne).
+* Si l'élève quitte la page, ses réponses sont enregistrées et il ne peut plus avancer.
+* Il peut toujours retenter... mais vous verrez à quelle heure il a répondu
+
+# Correction
+
+Les points des questions à choix multiple sont calculés automatiquement
+
+Un mode correction est proposé, permettant de consulter chaque devoir pour les réponses textuelles.
+
+On peut exporter l'ensemble des travaux dans un fichier csv (notes et réponses).
+
+# Hébergement des données
+
+Elles sont en europe et je _crois_ respecter le RGPD.
+
+Les élèves n'ont pas de compte, ils indiquent leurs noms, prénom et numéro du devoir.
+Les réponses des élèves sont effacées après trois jours. Ne tardez pas :smile:
 
 ## Roadmap
 
