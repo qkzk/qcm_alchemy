@@ -169,6 +169,11 @@ N'hésitez pas à déposer une issue ! Je ferai de mon mieux :smile:
 
 Le code est là pour vous répondre...
 
+# Pourquoi ?
+
+* Je n'aime pas corriger.
+* Les solutions existantes ne répondent à mon besoin. La plus approchante est [doctools](https://doctools.dgpad.net/), consultez `DocEval`.
+
 ---
 
 # Development
