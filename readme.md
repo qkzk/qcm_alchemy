@@ -48,6 +48,8 @@ def f(x):
 
 ## latex, tableaux, images
 
+LaTex en ligne avec `$\int_1^2 x^2 dx$` va produire $\int_1^2 x^2 dx$
+
 
 
 ## Roadmap
