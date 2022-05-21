@@ -1,3 +1,11 @@
+"""
+title: sendmail
+author: qkzk & google
+date: 2021/05/20
+
+Creates a gmail service with send credentials.
+Send email with this service.
+"""
 from .fix_collections_import import collections
 
 import base64

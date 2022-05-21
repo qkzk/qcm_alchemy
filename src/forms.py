@@ -1,7 +1,22 @@
+"""
+title: forms
+author: qkzk
+date: 2022/05/12
+
+Forms classes for flask_wtf.
+Every form, except QCM - which is dynamic - is created with a form model.
+"""
 from flask_wtf import FlaskForm
 from wtforms import IntegerField, PasswordField, StringField, SubmitField
 from wtforms.validators import DataRequired, Email, Length, NumberRange
 from flask_wtf.file import FileAllowed, FileField, FileRequired
+
+
+def trunctate_string(string: str, size: int):
+    """Truncate a string after `size` chars."""
+    if len(string) > size:
+        return string[:size]
+    return string
 
 
 class LoginForm(FlaskForm):
@@ -104,7 +119,7 @@ class StudentForm(FlaskForm):
         ],
         render_kw={"placeholder": "Prénom"},
     )
-    qcm_id = IntegerField(
+    id_qcm = IntegerField(
         "Numéro",
         validators=[
             DataRequired(message="Ce champ est requis."),
@@ -112,6 +127,12 @@ class StudentForm(FlaskForm):
         ],
         render_kw={"placeholder": "Numéro"},
     )
+
+    def format_name(self) -> str:
+        """
+        Format student name as a `lastname firstname`, truncating at 100 chars.
+        """
+        return trunctate_string(f"{self.lastname.data} {self.firstname.data}", 100)
 
 
 class QcmFileForm(FlaskForm):

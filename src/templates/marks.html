@@ -44,7 +44,7 @@
     </div>
     <div style="text-align: center;">
         <button>
-            <a href="{{ url_for('preview', qcm_id=qcm.id) }}">
+            <a href="{{ url_for('preview', id_qcm=qcm.id) }}">
                 Voir le QCM
             </a>
         </button>
@@ -55,7 +55,7 @@
         </button>
         {% if qcm.has_works() %}
         <button>
-            <a href="{{ url_for('export', qcm_id=qcm.id) }}">
+            <a href="{{ url_for('export', id_qcm=qcm.id) }}">
                 Exporter en CSV
             </a>
             </form>
