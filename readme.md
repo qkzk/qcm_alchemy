@@ -66,7 +66,9 @@ def f(x):
 ```
 ~~~
 
-Attention, seuls les ```` ``` ```` sont supportés, 
+Attention, seuls les ```` ``` ```` sont supportés, pas les `~~~`.
+
+Si vous indiquez le langage du code en question, il sera colorié automatiquement.
 
 ## LaTex
 
