@@ -10,9 +10,10 @@ import os
 import secrets
 from datetime import datetime, timedelta
 from random import randint, shuffle
-from typing import Union
+from typing import Union, Type
 
 from flask_login import UserMixin
+from werkzeug.datastructures import FileStorage
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
@@ -415,7 +416,7 @@ class Work(db.Model):
         """True iff the choice made is correct"""
         return QcmPartQuestionAnswer.query.get(id_answser).is_valid
 
-    def is_selected(self, id_question, id_answer):
+    def is_selected(self, id_question, id_answer) -> bool:
         """
         True iff the answer `id_answer` is selected by a student
         for a question `id_question`.
@@ -542,7 +543,7 @@ class Teacher(UserMixin, db.Model):
             return None
         return teachers[0]
 
-    def check_password_hash(self, clear_password):
+    def check_password_hash(self, clear_password) -> bool:
         """
         Used to check password from clear password and hashed password.
         """
@@ -564,7 +565,7 @@ class Teacher(UserMixin, db.Model):
         print(f"successfully inserted {teacher} in database.")
         return teacher
 
-    def update_password_and_commit(self, clear_password):
+    def update_password_and_commit(self, clear_password: str):
         """Update password"""
         self.password = generate_password_hash(clear_password)
         db.session.commit()
@@ -626,7 +627,7 @@ class ResetKey(db.Model):
         return keys[0]
 
     @classmethod
-    def key_match(cls, id_teacher, key) -> bool:
+    def key_match(cls, id_teacher: int, key: "ResetKey") -> bool:
         """True iff the key match"""
         keys = cls.query.filter_by(key=key, id_teacher=id_teacher).all()
         if not len(keys) == 1:
@@ -643,13 +644,13 @@ class ResetKey(db.Model):
         db.session.commit()
 
     @classmethod
-    def clear(cls, id_teacher) -> type:
+    def clear(cls, id_teacher: int) -> type:
         """Remove all keys for `id_teacher` and return its class"""
         cls.remove_key(id_teacher)
         return cls
 
     @classmethod
-    def new(cls, id_teacher) -> "ResetKey":
+    def new(cls, id_teacher: int) -> "ResetKey":
         """Creates a new element. Doesn't commit."""
         key = secrets.token_urlsafe(16)
         return cls(key=key, id_teacher=id_teacher, datetime=datetime.now())
@@ -682,7 +683,7 @@ class EmailConfirmation(db.Model):
         db.session.commit()
 
     @classmethod
-    def from_id_teacher(cls, id_teacher) -> Union[None, "EmailConfirmation"]:
+    def from_id_teacher(cls, id_teacher: int) -> Union[None, "EmailConfirmation"]:
         """Find a teacher if there's one with this key"""
         keys = cls.query.filter_by(id_teacher=id_teacher).all()
         if not keys:
@@ -692,7 +693,7 @@ class EmailConfirmation(db.Model):
         return keys[0]
 
     @classmethod
-    def key_match(cls, id_teacher, key) -> bool:
+    def key_match(cls, id_teacher: int, key: "EmailConfirmation") -> bool:
         """True iff the key match"""
         keys = cls.query.filter_by(key=key, id_teacher=id_teacher).all()
         if not len(keys) == 1:
@@ -709,7 +710,7 @@ class EmailConfirmation(db.Model):
         db.session.commit()
 
     @classmethod
-    def clear(cls, id_teacher) -> type:
+    def clear(cls, id_teacher: int) -> Type["EmailConfirmation"]:
         """Remove all keys for `id_teacher` and return its class"""
         cls.remove_key(id_teacher)
         return cls
@@ -732,12 +733,12 @@ class QcmFile:
     If it's parsed correctly we send it to the db.
     """
 
-    def __init__(self, file: "werkzeug.datastructures.FileStorage"):
+    def __init__(self, file: FileStorage):
         self.filename: str
         self.file = file
         self.save_file(file)
 
-    def save_file(self, file: "werkzeug.datastructures.FileStorage"):
+    def save_file(self, file: FileStorage):
         full_path = os.path.join(
             app.config["UPLOAD_FOLDER"], secure_filename(file.filename)
         )
@@ -745,7 +746,7 @@ class QcmFile:
         self.file.save(self.filename)
 
     @classmethod
-    def validate_file(cls, file: "werkzeug.datastructures.FileStorage") -> tuple:
+    def validate_file(cls, file: FileStorage) -> tuple:
         """
         Returns the couple (is_valid, message) where `is_valid` is `True` iff we could
         parse the content. The error message is used by the view to inform the teacher
@@ -764,15 +765,16 @@ class QcmFile:
         return is_valid, message
 
     @staticmethod
-    def validate_filename(file: "werkzeug.datastructures.FileStorage") -> bool:
+    def validate_filename(file: FileStorage) -> bool:
         """True if the file has only one `"."` in its name and its extension is `.md`"""
         return (
-            "." in file.filename
+            file.filename is not None
+            and "." in file.filename
             and file.filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
         )
 
     @classmethod
-    def from_file(cls, file: "werkzeug.datastructures.FileStorage") -> "QcmFile":
+    def from_file(cls, file: FileStorage) -> "QcmFile":
         """
         Creates a QcmFile from a markdown file.
         Raise `QcmFileError` if it's impossible.
@@ -785,10 +787,3 @@ class QcmFile:
 
     def __repr__(self):
         return f"Qcm({self.file})"
-
-
-##################################################################################
-##################################################################################
-#                    WRITE CRAPPY TESTS BELOW THIS LINE
-##################################################################################
-##################################################################################

@@ -166,3 +166,4 @@ cython_debug/
 examples/
 tests/
 tokens/*.json
+uploads/*.md

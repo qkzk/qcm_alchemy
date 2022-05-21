@@ -25,10 +25,20 @@
                     </span>
                     <span>
                         <form 
+                            id="cancel" 
+                            action="{{ url_for('view', id_qcm=qcm.id, inserted=0)}}" 
+                            method="GET"
+                            style="display: inline;"
+                        >
+                          <input id="cancel_button" name="cancel" type="submit" value="Annuler">
+                        </form>
+                    </span>
+                    <span>
+                        <form 
                             id="form" 
                             action="/remove/{{qcm.id}}" 
                             method="POST" 
-                            style="display: inline;"
+                            style="display: inline; margin-left: 1rem;"
                         >
                           {{ form.csrf_token }}
                           {{ form.button() }}
@@ -41,16 +51,6 @@
                                   {% endfor %}
                               </ul>
                           {% endif %}
-                        </form>
-                    </span>
-                    <span>
-                        <form 
-                            id="cancel" 
-                            action="{{ url_for('view', id_qcm=qcm.id, inserted=0)}}" 
-                            method="GET"
-                            style="display: inline; margin-left: 1rem;"
-                        >
-                          <input id="cancel_button" name="cancel" type="submit" value="Annuler">
                         </form>
                     </span>
                 </p>

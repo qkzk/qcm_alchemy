@@ -1,3 +1,11 @@
+"""
+title: forms
+author: qkzk
+date: 2022/05/12
+
+Forms classes for flask_wtf.
+Every form, except QCM - which is dynamic - is created with a form model.
+"""
 from flask_wtf import FlaskForm
 from wtforms import IntegerField, PasswordField, StringField, SubmitField
 from wtforms.validators import DataRequired, Email, Length, NumberRange

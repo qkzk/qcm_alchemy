@@ -165,8 +165,8 @@ def insert_answers_from_request(form: ImmutableMultiDict[str, str], id_work: int
     return True
 
 
-def construct_qcm_resonse(qcm: Qcm, name: str, work: Work):
-
+def construct_qcm_response(qcm: Qcm, name: str, work: Work):
+    """Creates a QCM response with a cookie containing the id of work"""
     format_name = f" - Nom: {name}"
     resp = make_response(
         render_template(
@@ -580,7 +580,7 @@ def create_app() -> Flask:
         student_name = form.format_name()
         student = Student.find_or_add_student(student_name)
         work = Work.create_and_commit(id_qcm=id_qcm, id_student=student.id)
-        return construct_qcm_resonse(qcm, student_name, work)
+        return construct_qcm_response(qcm, student_name, work)
 
     @app.route("/answers", methods=["POST"])
     def answers():
