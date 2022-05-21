@@ -52,7 +52,7 @@ class Qcm(db.Model):
     )
 
     @classmethod
-    def from_parser(cls, parsed_qcm: ParseQCM, teacher_id) -> "Qcm":
+    def from_parser(cls, parsed_qcm: ParseQCM, id_teacher) -> "Qcm":
         """
         Creates a Qcm instance from a parsed QCM.md file.
         Raise `QcmPaserError` if anything went wrong.
@@ -61,7 +61,7 @@ class Qcm(db.Model):
             qcm = Qcm(
                 title=parsed_qcm.title,
                 datetime=datetime.now(),
-                id_teacher=teacher_id,
+                id_teacher=id_teacher,
             )
             for parsed_part in parsed_qcm.parts:
                 qcm.part.append(QcmPart.from_parser(parsed_part))
@@ -626,9 +626,9 @@ class ResetKey(db.Model):
         return keys[0]
 
     @classmethod
-    def key_match(cls, teacher_id, key) -> bool:
+    def key_match(cls, id_teacher, key) -> bool:
         """True iff the key match"""
-        keys = cls.query.filter_by(key=key, id_teacher=teacher_id).all()
+        keys = cls.query.filter_by(key=key, id_teacher=id_teacher).all()
         if not len(keys) == 1:
             return False
         key = keys[0]
@@ -692,9 +692,9 @@ class EmailConfirmation(db.Model):
         return keys[0]
 
     @classmethod
-    def key_match(cls, teacher_id, key) -> bool:
+    def key_match(cls, id_teacher, key) -> bool:
         """True iff the key match"""
-        keys = cls.query.filter_by(key=key, id_teacher=teacher_id).all()
+        keys = cls.query.filter_by(key=key, id_teacher=id_teacher).all()
         if not len(keys) == 1:
             return False
         key = keys[0]

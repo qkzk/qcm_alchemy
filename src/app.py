@@ -63,7 +63,7 @@ RESET_PASSWORD_MAIL_CONTENT = """Cher utilisateur de qcmqkzk,
 
 Réinitialisez votre mot de passe en suivant ce lient : 
 
-https://qcmqkzk.herokuapp.com/reset_password/{teacher_id}/{key} 
+https://qcmqkzk.herokuapp.com/reset_password/{id_teacher}/{key} 
 
 Ce lien est valable une heure.
 
@@ -77,7 +77,7 @@ Votre compte n'est pas encore actif.
 
 Veuillez suivre sur le lien ci-dessous pour le confirmer : 
 
-https://qcmqkzk.herokuapp.com/email_confirmation/{teacher_id}/{key}
+https://qcmqkzk.herokuapp.com/email_confirmation/{id_teacher}/{key}
 
 À bientôt,
 
@@ -190,7 +190,7 @@ def validate_qcm_work(qcm: Qcm, work: Work) -> tuple[bool, str]:
 
 
 def email_confirmation_was_sent(
-    email: str, teacher_id: int, confirmation_key: str
+    email: str, id_teacher: int, confirmation_key: str
 ) -> bool:
     """True iff the confirmation key was sent successfully to this address"""
     return EmailSender(
@@ -198,18 +198,18 @@ def email_confirmation_was_sent(
         email,
         CONFIRM_TEACHER_MAIL_TOPIC,
         CONFIRM_TEACHER_MAIL_CONTENT.format(
-            teacher_id=teacher_id, key=confirmation_key
+            id_teacher=id_teacher, key=confirmation_key
         ),
     ).send_message()
 
 
-def email_reset_password_was_sent(email: str, teacher_id: int, reset_key: str) -> bool:
+def email_reset_password_was_sent(email: str, id_teacher: int, reset_key: str) -> bool:
     """True iff the reset passwork key was sent successfully"""
     return EmailSender(
         SERVER_PASSWORD_MAIL_ADDRESS,
         email,
         RESET_PASSWORD_MAIL_TOPIC,
-        RESET_PASSWORD_MAIL_CONTENT.format(teacher_id=teacher_id, key=reset_key),
+        RESET_PASSWORD_MAIL_CONTENT.format(id_teacher=id_teacher, key=reset_key),
     ).send_message()
 
 
@@ -370,13 +370,13 @@ def create_app() -> Flask:
 
         return render_template("forgotten_password.html", form=form)
 
-    @app.route("/reset_password/<int:teacher_id>/<key>")
-    def reset_password_from_key(teacher_id, key):
+    @app.route("/reset_password/<int:id_teacher>/<key>")
+    def reset_password_from_key(id_teacher, key):
         teacher = ResetKey.query.filter_by(key=key).first_or_404().teacher
-        if ResetKey.key_match(teacher_id, key):
+        if ResetKey.key_match(id_teacher, key):
             ResetKey.remove_key(teacher.id)
             data = {
-                "teacher_id": teacher.id,
+                "id_teacher": teacher.id,
                 "email": teacher.email,
                 "reset": True,
             }
@@ -389,12 +389,12 @@ def create_app() -> Flask:
     def email_confirmation():
         return render_template("email_confirmation.html")
 
-    @app.route("/email_confirmation/<int:teacher_id>/<key>")
-    def email_confirmation_from_id_key(teacher_id: int, key):
-        teacher = Teacher.query.get_or_404(teacher_id)
+    @app.route("/email_confirmation/<int:id_teacher>/<key>")
+    def email_confirmation_from_id_key(id_teacher: int, key):
+        teacher = Teacher.query.get_or_404(id_teacher)
         teacher.is_confirmed = True
         db.session.commit()
-        if EmailConfirmation.key_match(teacher_id, key):
+        if EmailConfirmation.key_match(id_teacher, key):
             EmailConfirmation.remove_key(teacher.id)
             print(f"{teacher}: email confirmed")
             flash("Votre compte est crée. Vous pouvez vous connecter")
@@ -407,9 +407,9 @@ def create_app() -> Flask:
         form = ResetPasswordForm()
         if form.validate_on_submit():
             clear_password = form.clear_password.data
-            teacher_id = request.form.get("teacher_id")
-            print("teacher_id", teacher_id)
-            teacher = Teacher.query.get_or_404(teacher_id)
+            id_teacher = request.form.get("id_teacher")
+            print("id_teacher", id_teacher)
+            teacher = Teacher.query.get_or_404(id_teacher)
             teacher.update_password_and_commit(clear_password)
             print(f"{teacher} password resetted")
             flash("Mot de passe réinitialisé avec succès. Vous pouvez vous identifier.")
@@ -425,9 +425,9 @@ def create_app() -> Flask:
     @login_required
     def remove_account():
         teacher_email = current_user.email
-        teacher_id = current_user.id
+        id_teacher = current_user.id
         current_user.remove_and_commit()
-        print(f"{teacher_email}, {teacher_id} removed from db")
+        print(f"{teacher_email}, {id_teacher} removed from db")
         flash("Votre compte, vos qcms et les travaux de vos élèves sont supprimés.")
         return redirect(url_for("index"))
 
