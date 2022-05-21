@@ -5,7 +5,6 @@ date: 2022/05/08
 """
 import os
 from datetime import datetime, timedelta
-from random import randint
 
 from flask import (
     abort,
@@ -107,27 +106,6 @@ def delete_old_files(env_name: str):
             os.remove(os.path.join(directory, filename))
 
 
-def trunctate_string(string: str, size: int):
-    """Truncate a string after `size` chars."""
-    if len(string) > size:
-        return string[:size]
-    return string
-
-
-def find_or_add_student(students: list[Student], name: str) -> int:
-    if len(students) == 1:
-        student = students[0]
-    else:
-        if len(students) > 1:
-            # make a new student with variation of name
-            name += str(randint(1, 9))
-        # add the new student to database
-        student = Student(name=name, datetime=datetime.now())
-        db.session.add(student)
-        db.session.commit()
-    return student.id
-
-
 def insert_from_file(file: "werkzeug.datastructures.FileStorage", current_user) -> int:
     """
     Insert a QCM in database from a downloaded file which has .md extension.
@@ -211,6 +189,30 @@ def validate_qcm_work(qcm: Qcm, work: Work) -> tuple[bool, str]:
     return True, ""
 
 
+def email_confirmation_was_sent(
+    email: str, teacher_id: int, confirmation_key: str
+) -> bool:
+    """True iff the confirmation key was sent successfully to this address"""
+    return EmailSender(
+        SERVER_PASSWORD_MAIL_ADDRESS,
+        email,
+        CONFIRM_TEACHER_MAIL_TOPIC,
+        CONFIRM_TEACHER_MAIL_CONTENT.format(
+            teacher_id=teacher_id, key=confirmation_key
+        ),
+    ).send_message()
+
+
+def email_reset_password_was_sent(email: str, teacher_id: int, reset_key: str) -> bool:
+    """True iff the reset passwork key was sent successfully"""
+    return EmailSender(
+        SERVER_PASSWORD_MAIL_ADDRESS,
+        email,
+        RESET_PASSWORD_MAIL_TOPIC,
+        RESET_PASSWORD_MAIL_CONTENT.format(teacher_id=teacher_id, key=reset_key),
+    ).send_message()
+
+
 def create_app() -> Flask:
     """Create a Flask Application with database and scheduler."""
     sched = APScheduler()
@@ -274,7 +276,7 @@ def create_app() -> Flask:
             elif not teacher.is_confirmed:
                 print(f"{teacher}: account not activated")
                 flash("Ce compte n'est pas activé. Un mail vous a été adressé.")
-                return render_template("index.html")
+                return redirect(url_for("index"))
             elif teacher.check_password_hash(clear_password):
                 print(f"{teacher}: login successful")
                 login_user(teacher)
@@ -289,7 +291,6 @@ def create_app() -> Flask:
     @login_required
     def new_password():
         form = NewPasswordForm()
-        base_data = {}
         if form.validate_on_submit():
             current_password = form.current_password.data
             new_password = form.new_password.data
@@ -297,14 +298,14 @@ def create_app() -> Flask:
                 return render_template("new_password.html")
             if current_user.check_password_hash(current_password):
                 current_user.update_password_and_commit(new_password)
-                flash("Mot de passe mis à jour")
                 print(f"{current_user}: new password set")
-                return render_template("teacher.html", base_data=base_data)
+                flash("Mot de passe mis à jour")
+                return redirect(url_for("teacher"))
             else:
                 print(f"{current_user}: bad new password")
                 flash("Mot de passe invalide")
 
-        return render_template("new_password.html", base_data=base_data, form=form)
+        return render_template("new_password.html", form=form)
 
     @app.route("/logout")
     def logout():
@@ -320,25 +321,18 @@ def create_app() -> Flask:
             clear_password = form.clear_password.data
             if email is None or clear_password is None:
                 flash("Formulaire incomplet")
-                return render_template("new_teacher.html")
+                return redirect(url_for("new_teacher"))
 
             if not check_email(email):
                 print(f"new_teacher: can't read form. {email}")
                 flash("Email invalide")
-                return render_template("new_teacher.html", form=form)
+                return redirect(url_for("new_teacher"))
 
             teacher = Teacher.insert(email, clear_password)
             if teacher is not None:
                 print(f"teacher {teacher} inserted... sending mail")
                 confirmation_key = EmailConfirmation.clear(teacher.id).new(teacher.id)
-                if EmailSender(
-                    SERVER_PASSWORD_MAIL_ADDRESS,
-                    email,
-                    CONFIRM_TEACHER_MAIL_TOPIC,
-                    CONFIRM_TEACHER_MAIL_CONTENT.format(
-                        teacher_id=teacher.id, key=confirmation_key.key
-                    ),
-                ).send_message():
+                if email_confirmation_was_sent(email, teacher.id, confirmation_key.key):
                     db.session.add(confirmation_key)
                     db.session.commit()
                     return redirect(url_for("email_confirmation"))
@@ -357,31 +351,22 @@ def create_app() -> Flask:
         if form.validate_on_submit():
             email = form.email.data
             if email is None or not check_email(email):
-                return render_template(
-                    "forgotten_password.html", base_data="email invalide", form=form
-                )
+                flash("Email invalide")
+                return redirect(url_for("forgotten_password"))
 
             teacher = Teacher.get_from_email(email)
             if teacher is None:
                 abort(404)
-            reset_key = ResetKey.clear(teacher.id).new(teacher.id)
 
-            if EmailSender(
-                SERVER_PASSWORD_MAIL_ADDRESS,
-                email,
-                RESET_PASSWORD_MAIL_TOPIC,
-                RESET_PASSWORD_MAIL_CONTENT.format(
-                    teacher_id=teacher.id, key=reset_key.key
-                ),
-            ).send_message():
+            reset_key = ResetKey.clear(teacher.id).new(teacher.id)
+            if email_reset_password_was_sent(email, teacher.id, reset_key.key):
                 db.session.add(reset_key)
                 db.session.commit()
                 print(f"{teacher}: sent reset password mail")
-                flash(
-                    "Suivez les instructions dans l'email pour réinitialiser votre mot de passe."
-                )
+                flash("Suivez les instructions dans l'email.")
             else:
                 flash("Une erreur est survenue lors de l'envoi du mail.")
+                return redirect(url_for("forgotten_password"))
 
         return render_template("forgotten_password.html", form=form)
 
@@ -406,9 +391,7 @@ def create_app() -> Flask:
 
     @app.route("/email_confirmation/<int:teacher_id>/<key>")
     def email_confirmation_from_id_key(teacher_id: int, key):
-        teacher = Teacher.query.get(teacher_id)
-        if teacher is None:
-            abort(404)
+        teacher = Teacher.query.get_or_404(teacher_id)
         teacher.is_confirmed = True
         db.session.commit()
         if EmailConfirmation.key_match(teacher_id, key):
@@ -426,9 +409,7 @@ def create_app() -> Flask:
             clear_password = form.clear_password.data
             teacher_id = request.form.get("teacher_id")
             print("teacher_id", teacher_id)
-            teacher = Teacher.query.get(teacher_id)
-            if teacher is None:
-                abort(404)
+            teacher = Teacher.query.get_or_404(teacher_id)
             teacher.update_password_and_commit(clear_password)
             print(f"{teacher} password resetted")
             flash("Mot de passe réinitialisé avec succès. Vous pouvez vous identifier.")
@@ -496,8 +477,8 @@ def create_app() -> Flask:
     @app.route("/view/<int:qcm_id>/<int:inserted>")
     @login_required
     def view(qcm_id: int, inserted: int):
-        qcm = Qcm.query.get(qcm_id)
-        if not qcm or not current_user.is_owner(qcm):
+        qcm = Qcm.query.get_or_404(qcm_id)
+        if not current_user.is_owner(qcm):
             abort(404)
         if inserted:
             flash("QCM inséré dans la base !")
@@ -508,8 +489,8 @@ def create_app() -> Flask:
     def remove(id_qcm: int):
         if not current_user.is_confirmed:
             return redirect(url_for("index"))
-        qcm = Qcm.query.get(id_qcm)
-        if qcm is None or not current_user.is_owner(qcm):
+        qcm = Qcm.query.get_or_404(id_qcm)
+        if not current_user.is_owner(qcm):
             abort(404)
         form = RemoveQCMForm()
         if form.validate_on_submit():
@@ -542,9 +523,9 @@ def create_app() -> Flask:
         if not current_user.is_confirmed:
             abort(404)
         qcm_id = request.values.get("qcm_id")
-        qcm = Qcm.query.get(qcm_id)
+        qcm = Qcm.query.get_or_404(qcm_id)
 
-        if qcm is None or not current_user.is_owner(qcm):
+        if not current_user.is_owner(qcm):
             abort(404)
 
         return render_template(
@@ -562,12 +543,12 @@ def create_app() -> Flask:
         if not current_user.is_confirmed:
             abort(404)
         id_qcm = request.values.get("id_qcm")
-        index = request.values.get("index")
-        qcm = Qcm.query.get(id_qcm)
+        qcm = Qcm.query.get_or_404(id_qcm)
 
-        if qcm is None or not current_user.is_owner(qcm):
+        if not current_user.is_owner(qcm):
             abort(404)
 
+        index = request.values.get("index")
         try:
             index = int(index)
             work = qcm.works[index]
@@ -576,7 +557,8 @@ def create_app() -> Flask:
 
         is_complete, error_message = validate_qcm_work(qcm, work)
         if not is_complete:
-            return render_template("confirmation_page.html", data=error_message)
+            flash(error_message)
+            return redirect(url_for("confirmation"))
         return render_template(
             "work.html",
             base_data=f"- Nom: {work.student.name} - Score: {work.points}",
@@ -591,37 +573,27 @@ def create_app() -> Flask:
         form = StudentForm()
         if not form.validate_on_submit():
             flash("Formulaire illisible")
-            return render_template("confirmation_page.html")
+            return redirect(url_for("confirmation"))
 
-        name = f"{form.lastname.data} {form.firstname.data}"
-        name = trunctate_string(name, 100)
         id_qcm = form.qcm_id.data
-        qcm = Qcm.query.get(id_qcm)
-        if qcm is None:
-            abort(404)
-
-        # get the student id
-        students = Student.query.filter_by(name=name).all()
-        id_student = find_or_add_student(students, name)
-
-        # create a work
-        work = Work.create_and_commit(id_qcm=id_qcm, id_student=id_student)
-
-        return construct_qcm_resonse(qcm, name, work)
+        qcm = Qcm.query.get_or_404(id_qcm)
+        student_name = form.format_name()
+        student = Student.find_or_add_student(student_name)
+        work = Work.create_and_commit(id_qcm=id_qcm, id_student=student.id)
+        return construct_qcm_resonse(qcm, student_name, work)
 
     @app.route("/answers", methods=["POST"])
     def answers():
         id_work = read_id_work_from_cookie(request.cookies)
-        work = Work.query.get(id_work)
-        if work is None:
-            abort(404)
+        work = Work.query.get_or_404(id_work)
+
         if work.is_submitted:
             flash("Vous avez déjà répondu à ce QCM")
-            return render_template("confirmation_page.html")
+            return redirect(url_for("confirmation"))
 
         if not insert_answers_from_request(request.form, id_work):
             flash("Formulaire illisible")
-            return render_template("confirmation_page.html")
+            return redirect(url_for("confirmation"))
 
         work.record()
         flash("Réponses enregistrées")
@@ -629,7 +601,7 @@ def create_app() -> Flask:
 
     @app.route("/confirmation")
     def confirmation():
-        return render_template("confirmation_page.html")
+        return render_template("confirmation.html")
 
     # db.drop_all()
     db.create_all()

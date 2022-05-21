@@ -9,7 +9,7 @@ import csv
 import os
 import secrets
 from datetime import datetime, timedelta
-from random import shuffle
+from random import randint, shuffle
 from typing import Union
 
 from flask_login import UserMixin
@@ -280,6 +280,27 @@ class Student(db.Model):
         two_days_ago = now - timedelta(hours=48)
         cls.query.filter(cls.datetime < two_days_ago).delete()
         db.session.commit()
+
+    @classmethod
+    def find_or_add_student(cls, student_name: str) -> "Student":
+        """
+        Returns a student instance with given student_name
+        If there's exactly one, returns it.
+        If no student is found with this name or there's multiple students :
+            creates a new one and commit.
+        """
+        students = cls.query.filter_by(name=student_name).all()
+        if len(students) == 1:
+            student = students[0]
+        else:
+            if len(students) > 1:
+                # make a new student with variation of name
+                student_name += str(randint(1, 9))
+            # add the new student to database
+            student = Student(name=student_name, datetime=datetime.now())
+            db.session.add(student)
+            db.session.commit()
+        return student
 
     def __repr__(self):
         return f"Student({self.id}, {self.name})"

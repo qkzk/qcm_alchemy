@@ -4,6 +4,13 @@ from wtforms.validators import DataRequired, Email, Length, NumberRange
 from flask_wtf.file import FileAllowed, FileField, FileRequired
 
 
+def trunctate_string(string: str, size: int):
+    """Truncate a string after `size` chars."""
+    if len(string) > size:
+        return string[:size]
+    return string
+
+
 class LoginForm(FlaskForm):
     email = StringField(
         "Email",
@@ -112,6 +119,12 @@ class StudentForm(FlaskForm):
         ],
         render_kw={"placeholder": "Numéro"},
     )
+
+    def format_name(self) -> str:
+        """
+        Format student name as a `lastname firstname`, truncating at 100 chars.
+        """
+        return trunctate_string(f"{self.lastname.data} {self.firstname.data}", 100)
 
 
 class QcmFileForm(FlaskForm):
