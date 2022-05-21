@@ -411,9 +411,9 @@ class Work(db.Model):
             return ""
         return text_answer.text
 
-    def is_correct(self, answser_id: int) -> bool:
+    def is_correct(self, id_answser: int) -> bool:
         """True iff the choice made is correct"""
-        return QcmPartQuestionAnswer.query.get(answser_id).is_valid
+        return QcmPartQuestionAnswer.query.get(id_answser).is_valid
 
     def is_selected(self, id_question, id_answer):
         """
