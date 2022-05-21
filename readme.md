@@ -37,15 +37,14 @@ Vous pouvez intégrer du code en ligne avec `` `code` ``
 
 Pour du code dans le sous-texte :
 
-```markdown
+~~~markdown
 
 ```python
 a = 1
 def f(x):
     return x ** 2
-\`\`\`
-
 ```
+~~~
 
 ## latex, tableaux, images
 
