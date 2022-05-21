@@ -33,7 +33,7 @@ sous texte de la question
 
 ## Code
 
-Vous pouvez intégrer du code en ligne avec `\`code\`` 
+Vous pouvez intégrer du code en ligne avec ``code`` 
 
 ## latex, tableaux, images
 
