@@ -10,6 +10,17 @@ Since this project is aimed to French teachers, the rest of the description is i
 
 Ce projet permet de créer des QCMs depuis un fichier source markdown et de les diffuser facilement aux élèves.
 
+## TL:DR;
+
+1. Vous créez un fichier QCM
+2. Vous créez un compte et le validez via l'email envoyé
+3. Vous vous connectez
+4. Vous envoyez votre QCM
+5. Vous vérifiez qu'il est présenté comme vous l'imaginiez
+6. Vous présentez le numéro du QCM aux élèves
+
+![qcmqkzk](./qcmqkzk.png)
+
 ## Format de fichier
 
 Le plus simple est de regarder cette [vidéo](https://youtu.be/Jogm2cbgnEE) ou de partir de [l'exemple](./src/static/markdown/exemple.md).
@@ -119,10 +130,32 @@ On peut exporter l'ensemble des travaux dans un fichier csv (notes et réponses)
 
 # Hébergement des données
 
-Elles sont en europe et je _crois_ respecter le RGPD.
+Elles sont en Europe et je _crois_ respecter le RGPD.
 
 Les élèves n'ont pas de compte, ils indiquent leurs noms, prénom et numéro du devoir.
 Les réponses des élèves sont effacées après trois jours. Ne tardez pas :smile:
+
+Les enseignants doivent créer un compte, je n'en garde que l'email.
+Chaque QCM et travail d'élève est attribué à un enseignant, via le numéro du QCM.
+
+Les QCM sont eux aussi effacés après trois jours, n'ayant pas la place pour en conserver beaucoup.
+
+# Technologies utilisées
+
+* Python 3
+* Flask (création des pages)
+* Extensions Flask : Flask-WTF, FlaskAlchemy, FlaskLogin etc.
+* Gunicorn (serveur web WSGI)
+* PostgreSQL (bdd)
+* Mathjax (latex)
+* Herokua (service en ligne dans le cloud)
+* AWS (hébergement interne de heroku)
+
+
+
+---
+
+# Development
 
 ## Roadmap
 
