@@ -13,11 +13,13 @@ Ce projet permet de créer des QCMs depuis un fichier source markdown et de les 
 ## TL:DR;
 
 1. Vous créez un fichier QCM
-2. Vous créez un compte et le validez via l'email envoyé
-3. Vous vous connectez
-4. Vous envoyez votre QCM
-5. Vous vérifiez qu'il est présenté comme vous l'imaginiez
-6. Vous présentez le numéro du QCM aux élèves
+2. Vous créez un compte, le validez via l'email envoyé et vous connectez
+3. Vous envoyez votre QCM
+4. Vous vérifiez qu'il est présenté comme vous l'imaginiez
+5. Vous présentez le numéro du QCM aux élèves
+6. Ils rejoignent, saisissent leur nom, prénom et le numéro en question...
+7. Ils répondent aux questions et valident
+8. Vous récoltez leurs scores et leurs réponses
 
 ![qcmqkzk](./qcmqkzk.png)
 
@@ -38,8 +40,8 @@ En gros :
 sous texte de la question
 
 - [x] bonne réponse
-- [ ] mauvaise réponse
-- [ ] autre mauvaise réponse
+- [ ] mauvaise réponse a
+- [ ] mauvaise réponse b
 
 ### question avec une zone de texte ?
 
@@ -157,10 +159,16 @@ Les QCM sont eux aussi effacés après trois jours, n'ayant pas la place pour en
 * Gunicorn (serveur web WSGI)
 * PostgreSQL (bdd)
 * Mathjax (latex)
-* Herokua (service en ligne dans le cloud)
+* Heroku (service en ligne dans le cloud)
 * AWS (hébergement interne de heroku)
 
+# Problèmes, bugs ?
 
+N'hésitez pas à déposer une issue ! Je tenterai d'y répondre :smile:
+
+# Comment ça marche en interne ?
+
+Le code est là pour vous répondre...
 
 ---
 
