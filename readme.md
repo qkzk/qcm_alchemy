@@ -80,6 +80,24 @@ va produire :
 ![sad panda](https://t4.ftcdn.net/jpg/04/77/53/75/360_F_477537591_3WXDC8zpsKBALlg8RBKejezg6SE7YbWh.jpg)
 
 
+## Tableaux
+
+Les tableaux markdown sont supportés nativement :
+
+```markdown
+| nom   | prénom | note |
+|-------|--------|------|
+| Jean  | Dupont | 14   |
+| Marie | Frank  | 20   |
+```
+
+va produire :
+
+| nom   | prénom | note |
+|-------|--------|------|
+| Jean  | Dupont | 14   |
+| Marie | Frank  | 20   |
+
 ## Roadmap
 
 ### Features
