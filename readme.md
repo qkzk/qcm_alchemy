@@ -39,11 +39,11 @@ Pour du code dans le sous-texte :
 
 ```markdown
 
-\`\`\`python
+```python
 a = 1
 def f(x):
     return x ** 2
-\`\`\`
+```
 
 ```
 
