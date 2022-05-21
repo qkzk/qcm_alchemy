@@ -462,22 +462,22 @@ def create_app() -> Flask:
 
             is_valid_file, error_message = QcmFile.validate_file(file)
             if is_valid_file:
-                qcm_id = insert_from_file(file, current_user)
-                if qcm_id == -1:
+                id_qcm = insert_from_file(file, current_user)
+                if id_qcm == -1:
                     flash("Le fichier source n'est pas formaté correctement")
                 else:
-                    print(f"qcm inserted correctly {qcm_id}")
-                    return redirect(url_for("view", qcm_id=qcm_id, inserted=True))
+                    print(f"qcm inserted correctly {id_qcm}")
+                    return redirect(url_for("view", id_qcm=id_qcm, inserted=True))
             else:
                 flash("Fichier invalide")
                 print(f"qcm couldn't be inserted")
 
         return render_template("new.html", data=data, form=form)
 
-    @app.route("/view/<int:qcm_id>/<int:inserted>")
+    @app.route("/view/<int:id_qcm>/<int:inserted>")
     @login_required
-    def view(qcm_id: int, inserted: int):
-        qcm = Qcm.query.get_or_404(qcm_id)
+    def view(id_qcm: int, inserted: int):
+        qcm = Qcm.query.get_or_404(id_qcm)
         if not current_user.is_owner(qcm):
             abort(404)
         if inserted:
@@ -495,20 +495,20 @@ def create_app() -> Flask:
         form = RemoveQCMForm()
         if form.validate_on_submit():
             title = qcm.title
-            qcm_id = qcm.id
+            id_qcm = qcm.id
             qcm.remove_and_commit()
             print(f"{current_user} removed {qcm}")
-            flash(f"QCM : {title}, numero : {qcm_id} supprimé !")
+            flash(f"QCM : {title}, numero : {id_qcm} supprimé !")
             return redirect(url_for("teacher"))
 
         return render_template("remove.html", qcm=qcm, form=form)
 
-    @app.route("/export/<int:qcm_id>")
+    @app.route("/export/<int:id_qcm>")
     @login_required
-    def export(qcm_id: int):
+    def export(id_qcm: int):
         if not current_user.is_confirmed:
             return redirect(url_for("index"))
-        path = Work.write_export(qcm_id)
+        path = Work.write_export(id_qcm)
         directory = os.path.join(os.getcwd(), app.config["DOWNLOAD_FOLDER"])
         return send_from_directory(directory=directory, path=path)
 
@@ -522,8 +522,8 @@ def create_app() -> Flask:
     def preview():
         if not current_user.is_confirmed:
             abort(404)
-        qcm_id = request.values.get("qcm_id")
-        qcm = Qcm.query.get_or_404(qcm_id)
+        id_qcm = request.values.get("id_qcm")
+        qcm = Qcm.query.get_or_404(id_qcm)
 
         if not current_user.is_owner(qcm):
             abort(404)
@@ -575,7 +575,7 @@ def create_app() -> Flask:
             flash("Formulaire illisible")
             return redirect(url_for("confirmation"))
 
-        id_qcm = form.qcm_id.data
+        id_qcm = form.id_qcm.data
         qcm = Qcm.query.get_or_404(id_qcm)
         student_name = form.format_name()
         student = Student.find_or_add_student(student_name)

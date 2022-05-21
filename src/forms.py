@@ -111,7 +111,7 @@ class StudentForm(FlaskForm):
         ],
         render_kw={"placeholder": "Prénom"},
     )
-    qcm_id = IntegerField(
+    id_qcm = IntegerField(
         "Numéro",
         validators=[
             DataRequired(message="Ce champ est requis."),

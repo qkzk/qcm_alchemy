@@ -36,10 +36,10 @@
                     </ul>
                 {% endif %}
                 <br />
-                {{ form.qcm_id(size=20) }}
-                {% if form.qcm_id.errors %}
+                {{ form.id_qcm(size=20) }}
+                {% if form.id_qcm.errors %}
                     <ul class="errors">
-                        {% for error in form.qcm_id.errors %}
+                        {% for error in form.id_qcm.errors %}
                         <li>{{ error }}</li>
                         {% endfor %}
                     </ul>
