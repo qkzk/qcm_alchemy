@@ -1,5 +1,3 @@
-# QCM with SQLAlchemy
-
 # [qcmqkzk.herokuapp.com](https://qcmqkzk.herokuapp.com)
 
 Publish a multiple choice questions to your student from a simple markdown file.
