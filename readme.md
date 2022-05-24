@@ -66,9 +66,7 @@ def f(x):
 ```
 ~~~
 
-Attention, seuls les ```` ``` ```` sont supportés, pas les `~~~`.
-
-Si vous indiquez le langage du code en question, il sera colorié automatiquement.
+Attention seuls les "backticks" (accents graves) sont supportés, pas les tildes.
 
 ## LaTex
 
@@ -372,3 +370,22 @@ Last problem is QCM view for student. Check steps below
     - [ ] créer une adresse expres ?
     - [ ] utiliser une adresse du nom de domaine ???
 - [ ] creates review for students... ????
+- [ ] send unique mails per students
+    - [ ] student mailing list linked to group then to teacher
+            models :
+            teacher <- group <- student-email <-> student <- work
+    - [ ] option for the teacher
+    - [ ] associate email to work (?)
+    - [ ] send lots of unique mails at once... ressource hungry ???
+    - [ ] what to do when the FAIL
+    - [ ] how to deal with lags & whatever ???
+- [ ] auth students with google accounts...
+- [ ] give student list and allow them to pick their name. Won't exclude trolls
+
+   | Solution           | pros          | cons                         |
+   |--------------------|---------------|------------------------------|
+   | unique links email | unique        | difficult to do              |
+   |                    | easy to track | ressource hungry             |
+   | sign with google   | unique        | may be difficult             |
+   | pick from list     | easy          | trolls may pick another name |
+   | read ip            | ?             | doesn't prevent              |

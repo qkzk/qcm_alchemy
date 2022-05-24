@@ -4,7 +4,7 @@ author: qkzk
 date: 2022/05/08
 """
 import os
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from flask import (
     abort,
@@ -27,8 +27,9 @@ from flask_login import (
     login_user,
     logout_user,
 )
-from werkzeug.datastructures import ImmutableMultiDict
+from werkzeug.datastructures import ImmutableMultiDict, FileStorage
 from werkzeug.utils import secure_filename
+from werkzeug import Request
 
 from .forms import (
     ForgottenPasswordForm,
@@ -106,7 +107,7 @@ def delete_old_files(env_name: str):
             os.remove(os.path.join(directory, filename))
 
 
-def insert_from_file(file: "werkzeug.datastructures.FileStorage", current_user) -> int:
+def insert_from_file(file: FileStorage, current_user: Teacher) -> int:
     """
     Insert a QCM in database from a downloaded file which has .md extension.
     Returns its qcm.id
@@ -140,6 +141,10 @@ def insert_choice(key: str, value: str, id_work: int):
 
 
 def read_id_work_from_cookie(cookies: ImmutableMultiDict[str, str]) -> int:
+    """
+    Returns the cookie id_work as int.
+    Returns -1 if there's None.
+    """
     try:
         return int(cookies.get("id_work"))
     except TypeError:
@@ -211,6 +216,11 @@ def email_reset_password_was_sent(email: str, id_teacher: int, reset_key: str) -
         RESET_PASSWORD_MAIL_TOPIC,
         RESET_PASSWORD_MAIL_CONTENT.format(id_teacher=id_teacher, key=reset_key),
     ).send_message()
+
+
+def extract_ip(request: Request) -> str:
+    """Returns the client ip address as a string"""
+    return request.access_route[0]
 
 
 def create_app() -> Flask:
@@ -578,7 +588,8 @@ def create_app() -> Flask:
         id_qcm = form.id_qcm.data
         qcm = Qcm.query.get_or_404(id_qcm)
         student_name = form.format_name()
-        student = Student.find_or_add_student(student_name)
+        student_addr = extract_ip(request)
+        student = Student.find_or_add_student(student_name, student_addr)
         work = Work.create_and_commit(id_qcm=id_qcm, id_student=student.id)
         return construct_qcm_response(qcm, student_name, work)
 
