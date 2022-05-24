@@ -49,7 +49,11 @@ class Qcm(db.Model):
         "QcmPart", back_populates="qcm", cascade="all,delete", passive_deletes=True
     )
     works = db.relationship(
-        "Work", back_populates="qcm", cascade="all,delete", passive_deletes=True
+        "Work",
+        back_populates="qcm",
+        cascade="all,delete",
+        passive_deletes=True,
+        order_by="Work.datetime",
     )
 
     @classmethod
@@ -265,14 +269,19 @@ class Student(db.Model):
     __tablename__ = "student"
     id = db.Column("id", db.Integer, primary_key=True)
     datetime = db.Column("datetime", db.DateTime)
-    name = db.Column("name", db.String(100))
+    name = db.Column("name", db.String(100), nullable=False)
+    address = db.Column("address", db.String(45))  # IPv6 can use up to 45 chars
     works = db.relationship(
-        "Work", back_populates="student", cascade="all,delete", passive_deletes=True
+        "Work",
+        back_populates="student",
+        cascade="all,delete",
+        passive_deletes=True,
     )
     id_teacher = db.Column(db.Integer, db.ForeignKey("teacher.id", ondelete="CASCADE"))
     teacher = db.relationship(
         "Teacher", back_populates="students", passive_deletes=True
     )
+    student_ip = db.UniqueConstraint("name", "address")
 
     @classmethod
     def clear_old_records(cls):
@@ -283,7 +292,7 @@ class Student(db.Model):
         db.session.commit()
 
     @classmethod
-    def find_or_add_student(cls, student_name: str) -> "Student":
+    def find_or_add_student(cls, student_name: str, student_address: str) -> "Student":
         """
         Returns a student instance with given student_name
         If there's exactly one, returns it.
@@ -298,7 +307,9 @@ class Student(db.Model):
                 # make a new student with variation of name
                 student_name += str(randint(1, 9))
             # add the new student to database
-            student = Student(name=student_name, datetime=datetime.now())
+            student = Student(
+                name=student_name, datetime=datetime.now(), address=student_address
+            )
             db.session.add(student)
             db.session.commit()
         return student
@@ -334,7 +345,7 @@ class Work(db.Model):
         "Text", back_populates="work", cascade="all,delete", passive_deletes=True
     )
 
-    _fieldnames = ["Nom", "Points", "Horaire"]
+    _fieldnames = ["Nom", "Addresse", "Points", "Horaire"]
 
     @classmethod
     def create_and_commit(cls, id_qcm: int, id_student: int) -> "Work":
@@ -361,6 +372,7 @@ class Work(db.Model):
         """Format itself into a dict for exporting as CSV file."""
         row = {
             "Nom": self.student.name,
+            "Addresse": self.student.address,
             "Points": self.points,
             "Horaire": self.datetime,
         }
@@ -388,7 +400,7 @@ class Work(db.Model):
         """
         Returns a `csv` content with the marks of every student who answered a QCM.
         """
-        works = cls.query.filter_by(id_qcm=id_qcm).all()
+        works = cls.query.filter_by(id_qcm=id_qcm).order_by(Work.datetime).all()
         if works:
             filename = f"export-{id_qcm}.csv"
             fullpath = get_join_path_from_key("DOWNLOAD_FOLDER", filename)
