@@ -299,7 +299,7 @@ class Student(db.Model):
         If no student is found with this name or there's multiple students :
             creates a new one and commit.
         """
-        students = cls.query.filter_by(name=student_name).all()
+        students = cls.query.filter_by(name=student_name, address=student_address).all()
         if len(students) == 1:
             student = students[0]
         else:
