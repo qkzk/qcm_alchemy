@@ -1,0 +1,17 @@
+                                       Table "public.teacher"
+    Column    |          Type          | Collation | Nullable |               Default               
+--------------+------------------------+-----------+----------+-------------------------------------
+ id           | integer                |           | not null | nextval('teacher_id_seq'::regclass)
+ email        | character varying(120) |           | not null | 
+ password     | character varying(120) |           | not null | 
+ is_confirmed | boolean                |           |          | 
+Indexes:
+    "teacher_pkey" PRIMARY KEY, btree (id)
+    "teacher_email_key" UNIQUE CONSTRAINT, btree (email)
+    "teacher_email_key1" UNIQUE CONSTRAINT, btree (email)
+Referenced by:
+    TABLE "confirmation_key" CONSTRAINT "confirmation_key_id_teacher_fkey" FOREIGN KEY (id_teacher) REFERENCES teacher(id) ON DELETE CASCADE
+    TABLE "qcm" CONSTRAINT "qcm_id_teacher_fkey" FOREIGN KEY (id_teacher) REFERENCES teacher(id) ON DELETE CASCADE
+    TABLE "reset_key" CONSTRAINT "reset_key_id_teacher_fkey" FOREIGN KEY (id_teacher) REFERENCES teacher(id) ON DELETE CASCADE
+    TABLE "student" CONSTRAINT "student_id_teacher_fkey" FOREIGN KEY (id_teacher) REFERENCES teacher(id) ON DELETE CASCADE
+

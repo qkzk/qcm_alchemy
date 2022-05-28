@@ -6,7 +6,6 @@ date: 2022/05/08
 Create a Flask app and an sqlalchemy database.
 """
 import os
-import secrets
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy

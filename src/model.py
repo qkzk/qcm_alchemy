@@ -751,6 +751,7 @@ class QcmFile:
         self.save_file(file)
 
     def save_file(self, file: FileStorage):
+        """Save the uploaded file in the upload folder."""
         full_path = os.path.join(
             app.config["UPLOAD_FOLDER"], secure_filename(file.filename)
         )
