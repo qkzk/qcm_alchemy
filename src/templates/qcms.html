@@ -15,6 +15,7 @@
                 <th>date</th>
                 <th>réponses</th>
                 <th>effacer</th>
+                <th>fermer</th>
             </tr>
         </thead>
 
@@ -46,6 +47,16 @@
                         <a href="{{ url_for('remove', id_qcm=qcm.id) }}">
                             ❌
                         </a>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('toggle_open', id_qcm=qcm.id)}}">
+                            {% if qcm.is_open %}
+                                🔓
+                            {% else %}
+                                🔒
+                            {% endif %}
+                        </a>
+                    </td>
                 </tr>
                 {% endfor %}
             {% endwith %}

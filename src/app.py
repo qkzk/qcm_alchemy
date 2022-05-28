@@ -587,6 +587,10 @@ def create_app() -> Flask:
 
         id_qcm = form.id_qcm.data
         qcm = Qcm.query.get_or_404(id_qcm)
+        if not qcm.is_open:
+            flash("Ce QCM est fermé.")
+            return redirect(url_for("confirmation"))
+
         student_name = form.format_name()
         student_addr = extract_ip(request)
         student = Student.find_or_add_student(student_name, student_addr)
@@ -597,6 +601,9 @@ def create_app() -> Flask:
     def answers():
         id_work = read_id_work_from_cookie(request.cookies)
         work = Work.query.get_or_404(id_work)
+        if not work.qcm.is_open:
+            flash("Ce QCM est fermé.")
+            return redirect(url_for("confirmation"))
 
         if work.is_submitted:
             flash("Vous avez déjà répondu à ce QCM")
@@ -613,6 +620,17 @@ def create_app() -> Flask:
     @app.route("/confirmation")
     def confirmation():
         return render_template("confirmation.html")
+
+    @app.route("/toggle_open")
+    @login_required
+    def toggle_open():
+        id_qcm = request.values.get("id_qcm")
+        qcm = Qcm.query.get_or_404(id_qcm)
+        if not current_user.is_owner(qcm):
+            abort(404)
+        qcm.toggle_open()
+        next = request.referrer if request.referrer else url_for("teacher")
+        return redirect(next)
 
     # db.drop_all()
     db.create_all()
