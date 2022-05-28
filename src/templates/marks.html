@@ -33,6 +33,18 @@
                 {{ qcm.count_works() }}
             </td>
         </tr>
+        <tr>
+            <td class="no-border">
+                Ouvert
+            </td>
+            <td class="no-border bold">
+                {% if qcm.is_open %}
+                Oui
+                {% else %}
+                Non
+                {% endif %}
+            </td>
+        </tr>
     </table>
     <div class="spacediv">
     </div>
@@ -58,8 +70,17 @@
             <a href="{{ url_for('export', id_qcm=qcm.id) }}">
                 Exporter en CSV
             </a>
-            </form>
-            {% endif %}
+        </button>
+        <button>
+            <a href="{{ url_for('toggle_open', id_qcm=qcm.id) }}">
+                {% if qcm.is_open %}
+                Fermer
+                {% else %}
+                Ouvrir
+                {% endif %}
+            </a>
+        </button>
+        {% endif %}
     </div>
 </div>
 {% if qcm.has_works() %}

@@ -44,6 +44,7 @@ class Qcm(db.Model):
     title = db.Column(db.Text)
     datetime = db.Column(db.DateTime)
     id_teacher = db.Column(db.Integer, db.ForeignKey("teacher.id", ondelete="CASCADE"))
+    is_open = db.Column(db.Boolean)
     teacher = db.relationship("Teacher", back_populates="qcms", passive_deletes=True)
     part = db.relationship(
         "QcmPart", back_populates="qcm", cascade="all,delete", passive_deletes=True
@@ -67,6 +68,7 @@ class Qcm(db.Model):
                 title=parsed_qcm.title,
                 datetime=datetime.now(),
                 id_teacher=id_teacher,
+                is_open=True,
             )
             for parsed_part in parsed_qcm.parts:
                 qcm.part.append(QcmPart.from_parser(parsed_part))
@@ -125,7 +127,17 @@ class Qcm(db.Model):
         db.session.commit()
 
     def datetime_formated(self) -> str:
+        """Format the date for presentation"""
         return self.datetime.strftime("%a %d %b %Y - %H:%M")
+
+    def toggle_open(self):
+        """Toggle the status open/close of a QCM"""
+        print(f"{self} is_open : {self.is_open}")
+        if self.is_open is None:
+            self.is_open = True
+        else:
+            self.is_open = not self.is_open
+        db.session.commit()
 
 
 class QcmPart(db.Model):
