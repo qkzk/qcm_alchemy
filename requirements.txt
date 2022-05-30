@@ -1,6 +1,7 @@
 markdown
 flask
 flask-login
+flask-qrcode
 flask-sqlalchemy
 Flask-APScheduler
 Flask-Migrate

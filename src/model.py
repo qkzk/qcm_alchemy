@@ -18,7 +18,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
 from .parser import ParseQCM, QCM_Part, QCM_Question, QCM_Answer
-from .create_app import app, db, ALLOWED_EXTENSIONS
+from .create_app import app, db, qr_code, ALLOWED_EXTENSIONS
 
 
 def get_join_path_from_key(key: str, filename: str) -> str:

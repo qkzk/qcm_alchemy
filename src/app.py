@@ -44,6 +44,7 @@ from .forms import (
 from .model import (
     app,
     db,
+    qr_code,
     EmailConfirmation,
     Choice,
     Qcm,
@@ -253,7 +254,7 @@ def create_app() -> Flask:
     def add_security_headers(resp):
         resp.headers[
             "Content-Security-Policy"
-        ] = "script-src 'self' 'unsafe-inline'; img-src *; default-src 'self'; style-src 'self' 'unsafe-inline'; frame-src www.youtube-nocookie.com www.youtube.com"
+        ] = "script-src 'self' 'unsafe-inline'; img-src * data:; default-src 'self'; style-src 'self' 'unsafe-inline'; frame-src www.youtube-nocookie.com www.youtube.com"
         return resp
 
     @app.context_processor
