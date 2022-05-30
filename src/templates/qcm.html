@@ -13,6 +13,7 @@ table {
 }
 </style>
 <div class="qcm">
+    {% set question_count = qcm.question_count %}
     <div>
         <h1>
             {{ qcm.title|safe }}
@@ -20,13 +21,16 @@ table {
     </div>
     <form method="POST" action="{{ url_for('answers') }}" id="qcm_form" accept-charset="UTF-8" enctype="application/x-www-form-urlencoded;charset=UTF-8">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-        {% for part in qcm.shuffled_parts() %}
+        {% for p_index, part in enumerate(qcm.shuffled_parts()) %}
         <div class="part">
             <h2 class="part-title">
-                {{ part.title|safe }}
+                {{ p_index + 1 }} - {{ part.title|safe }}
             </h2>
-            {% for question in part.shuffled_questions() %}
+            {% for q_index, question in enumerate(part.shuffled_questions()) %}
             <div class="question-answers">
+                <p>
+                    {{ q_index + 1 }} / {{ question_count }}
+                </p>
                 <h3 class="question-question">
                     {{ question.question|safe }}
                 </h3>

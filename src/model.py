@@ -139,6 +139,11 @@ class Qcm(db.Model):
             self.is_open = not self.is_open
         db.session.commit()
 
+    @property
+    def question_count(self) -> int:
+        """The number of questions in this QCM."""
+        return len([question for part in self.part for question in part.questions])
+
 
 class QcmPart(db.Model):
     """
