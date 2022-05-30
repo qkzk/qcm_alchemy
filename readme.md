@@ -384,6 +384,7 @@ Last problem is QCM view for student. Check steps below
     - [ ] how to deal with lags & whatever ???
 - [x] open close a QCM
 - [x] sort marks per column (doesn't work for dates...)
+- [x] QR codes
 - [ ] auth students with google accounts...
 - [ ] give student list and allow them to pick their name. Won't exclude trolls
 
