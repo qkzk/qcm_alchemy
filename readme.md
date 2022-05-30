@@ -17,7 +17,9 @@ Ce projet permet de créer des QCMs depuis un fichier source markdown et de les 
 5. Vous présentez le numéro du QCM aux élèves
 6. Ils rejoignent, saisissent leur nom, prénom et le numéro en question...
 7. Ils répondent aux questions et valident
-8. Vous récoltez leurs scores et leurs réponses
+8. Vous pouvez fermer le QCM et empecher les élèves d'y contribuer
+9. Vous récoltez leurs scores et leurs réponses
+
 
 ![qcmqkzk](./qcmqkzk.png)
 
@@ -380,6 +382,7 @@ Last problem is QCM view for student. Check steps below
     - [ ] send lots of unique mails at once... ressource hungry ???
     - [ ] what to do when the FAIL
     - [ ] how to deal with lags & whatever ???
+- [x] open close a QCM
 - [ ] auth students with google accounts...
 - [ ] give student list and allow them to pick their name. Won't exclude trolls
 
@@ -390,3 +393,5 @@ Last problem is QCM view for student. Check steps below
    | sign with google   | unique        | may be difficult             |
    | pick from list     | easy          | trolls may pick another name |
    | read ip            | ?             | doesn't prevent              |
+   | open / close       | easy          | not much                     |
+

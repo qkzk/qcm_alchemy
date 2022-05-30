@@ -1,7 +1,7 @@
 // Allow a teacher to click on the QCM-ID part :
 // maximize the font-size for easier readbility on projectors
 // blur the rest of the screen
-const id_qcm = document.getElementById("qcm-id");
+const id_qcm = document.getElementById("qcm-card");
 const id_qcm_title = document.getElementById("qcm-id-title");
 const qcm_url = document.getElementById("qcm-url");
 const teacher_consign = document.getElementById("teacher-consign")
