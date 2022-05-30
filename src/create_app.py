@@ -8,6 +8,7 @@ Create a Flask app and an sqlalchemy database.
 import os
 
 from flask import Flask
+from flask_qrcode import QRcode
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
@@ -37,6 +38,7 @@ app.config["SECRET_KEY"] = env_secret if env_secret else "my_secret_key"
 csrf = CSRFProtect(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+qr_code = QRcode(app)
 
 if "sqlite" in app.config["SQLALCHEMY_DATABASE_URI"]:
 
