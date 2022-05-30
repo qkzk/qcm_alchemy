@@ -1,4 +1,6 @@
 {% if qcm %}
+<script src="{{ url_for('static', filename='javascript/sort_table.js') }}">
+</script>
 <div class="question-answers">
     <table class="center colored-background" style="border: none; outline: none">
         <tr>
@@ -6,7 +8,7 @@
                 Numero
             </td>
             <td class="no-border bold">
-                {{ qcm.id}}
+                {{ qcm.id }}
             </td>
         </tr>
         <tr>
@@ -76,43 +78,35 @@
     <h3>
         Résultats enregistrés
     </h3>
-    <table class="center colored-background">
+    <table class="center colored-background" id="marks-table">
         <tr>
-            <th scope="col">
+            <th onclick="sortTable(0)" scope="col">
                 Nom
             </th>
-            <th scope="col">
+            <th onclick="sortTable(1)" scope="col">
                 Adresse
             </th>
-            <th scope="col" class="text-center">
+            <th onclick="sortTable(2)" scope="col" class="text-center">
                 Points
             </th>
-            <th scope="col">
+            <th onclick="sortTable(3)" scope="col">
                 Horaire
             </th>
         </tr>
         {% for index, work in enumerate(qcm.works) %}
-        <tr>
-            <th scope="row">
-                <a href="{{ url_for('work', id_qcm=qcm.id, index=index) }}">
-                    {{ work.student.name|safe }}
-                </a>
-            </th>
-            <th scope="row">
-                <a href="{{ url_for('work', id_qcm=qcm.id, index=index) }}">
-                    {{ work.student.address|safe }}
-                </a>
-            </th>
+        <tr onclick=window.location="{{ url_for('work', id_qcm=qcm.id, index=index) }}" ; style='cursor: pointer;'>
+            <td scope="row">
+                {{ work.student.name|safe }}
+            </td>
+            <td scope="row">
+                {{ work.student.address|safe }}
+            </td>
             <td class="text-center">
-                <a href="{{ url_for('work', id_qcm=qcm.id, index=index) }}">
-                    {{ work.points }}
-                </a>
+                {{ work.points }}
             </td>
             <td>
-                <a href="{{ url_for('work', id_qcm=qcm.id, index=index) }}">
-                    {{ work.datetime_formated() }}
-                </a>
-                </dt>
+                {{ work.datetime_formated() }}
+            </td>
         </tr>
         {% endfor %}
     </table>
