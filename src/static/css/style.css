@@ -155,11 +155,17 @@ td {
 }
 
 pre {
-  font-size: max(1.5vw, 16px);
+  font-size: min(max(1.2vw, 16px), 20px);
   margin-left: auto;
   margin-right: auto;
   width: 70%;
   color: var(--main-pre-color);
+}
+
+@media only screen and (max-width: 600px) {
+  .codehilite pre {
+    margin-left: 1rem;
+  }
 }
 
 textarea {
