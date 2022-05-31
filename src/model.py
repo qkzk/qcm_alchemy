@@ -104,7 +104,7 @@ class Qcm(db.Model):
         cls.query.filter(cls.datetime < two_days_ago).delete()
         db.session.commit()
 
-    def shuffled_parts(self):
+    def shuffled_parts(self) -> list["QcmPart"]:
         """
         Shuffle the parts to randomize the QCM.
         Used by the view to creates different work for students.
@@ -113,8 +113,8 @@ class Qcm(db.Model):
         shuffle(parts)
         return parts
 
-    def flat_questions_formatted(self):
-        """Returns a flat list of every of this QCM question, formatted."""
+    def flat_questions_formatted(self) -> list[str]:
+        """Returns a flat list of formatted `Question`s of this QCM."""
         return [question.format() for part in self.part for question in part.questions]
 
     def remove_and_commit(self):
@@ -164,7 +164,7 @@ class QcmPart(db.Model):
         passive_deletes=True,
     )
 
-    def shuffled_questions(self):
+    def shuffled_questions(self) -> list["QcmPartQuestion"]:
         """Shuffle its questions to randomize for the student view."""
         questions = list(self.questions)
         shuffle(questions)
@@ -213,7 +213,7 @@ class QcmPartQuestion(db.Model):
         passive_deletes=True,
     )
 
-    def shuffled_answers(self):
+    def shuffled_answers(self) -> list["QcmPartQuestionAnswer"]:
         """Shuffle the answers to randomize the test."""
         answers = list(self.answers)
         shuffle(answers)
@@ -712,7 +712,7 @@ class EmailConfirmation(db.Model):
     @classmethod
     def remove_key(cls, id_teacher: int):
         """Remove all keys for this id_teacher and commit."""
-        keys = cls.query.filter_by(id_teacher=id_teacher).delete()
+        cls.query.filter_by(id_teacher=id_teacher).delete()
         db.session.commit()
 
     @classmethod
