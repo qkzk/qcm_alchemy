@@ -540,7 +540,11 @@ class Teacher(UserMixin, db.Model):
     password = db.Column("password", db.String(120), nullable=False)
     is_confirmed = db.Column("is_confirmed", db.Boolean)
     qcms = db.relationship(
-        "Qcm", back_populates="teacher", cascade="all,delete", passive_deletes=True
+        "Qcm",
+        back_populates="teacher",
+        cascade="all,delete",
+        passive_deletes=True,
+        order_by=Qcm.id,
     )
     keys = db.relationship(
         "ResetKey", back_populates="teacher", cascade="all,delete", passive_deletes=True

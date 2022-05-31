@@ -87,6 +87,16 @@
         Résultats enregistrés
     </h3>
     <table class="center colored-background" id="marks-table">
+        <col>
+        </col>
+        <col>
+        </col>
+        <col>
+        </col>
+        <col style="visibility: collapse;">
+        </col>
+        <col>
+        </col>
         <tr>
             <th onclick="sortTable(0)" scope="col">
                 Nom
@@ -96,6 +106,8 @@
             </th>
             <th onclick="sortTable(2)" scope="col" class="text-center">
                 Points
+            </th>
+            <th style="display: collapse;">
             </th>
             <th onclick="sortTable(3)" scope="col">
                 Horaire
@@ -111,6 +123,9 @@
             </td>
             <td class="text-center">
                 {{ work.points }}
+            </td>
+            <td style="visibility: collapse;">
+                {{ work.datetime }}
             </td>
             <td>
                 {{ work.datetime_formated() }}
