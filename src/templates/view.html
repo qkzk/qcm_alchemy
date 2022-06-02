@@ -33,6 +33,9 @@
 <div class="part" id="qcm-marks">
     {% include('marks.html', qcm) %}
 </div>
+<div>
+    {% include('graphs.html', qcm) %}
+</div>
 <script src="{{ url_for('static', filename='javascript/id_qcm_popup.js') }}">
 </script>
 {% endblock %}

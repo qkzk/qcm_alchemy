@@ -117,6 +117,10 @@ class Qcm(db.Model):
         """Returns a flat list of formatted `Question`s of this QCM."""
         return [question.format() for part in self.part for question in part.questions]
 
+    def flat_questions(self) -> list["QcmPartQuestion"]:
+        """Returns a flat list of formatted `Question`s of this QCM."""
+        return [question for part in self.part for question in part.questions]
+
     def remove_and_commit(self):
         """
         Remove the `self` QCM and commit.
@@ -273,6 +277,10 @@ class QcmPartQuestionAnswer(db.Model):
     def from_parser(cls, parsed_answer: QCM_Answer) -> "QcmPartQuestionAnswer":
         """Creates an answer record from a parsed answer."""
         return cls(answer=parsed_answer.text, is_valid=parsed_answer.is_valid)
+
+    def nb_of_selection(self) -> int:
+        """Returns the number of time this answer has been selected by as `Student`."""
+        return Choice.query.filter_by(id_answer=self.id).count()
 
 
 class Student(db.Model):
