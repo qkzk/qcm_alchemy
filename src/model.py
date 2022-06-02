@@ -132,7 +132,6 @@ class Qcm(db.Model):
 
     def toggle_open(self):
         """Toggle the status open/close of a QCM"""
-        print(f"{self} is_open : {self.is_open}")
         if self.is_open is None:
             self.is_open = True
         else:
