@@ -229,6 +229,12 @@ img {
   height: auto;
 }
 
+.center {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
 table.center {
   margin-left: auto;
   margin-right: auto;
@@ -391,4 +397,13 @@ footer {
 
 .wsh-table {
   min-width: rem-calc(640);
+}
+
+.div_pie_chart {
+  width: 600px;
+  height: 600px;
+}
+
+#toggle_chart {
+  color: var(--main-text-color);
 }

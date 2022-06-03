@@ -30,9 +30,17 @@
         </h1>
     </div>
 </div>
+<div class="part" id="qcm-view-menu">
+    {% include('view_menu.html', qcm) %}
+</div>
 <div class="part" id="qcm-marks">
     {% include('marks.html', qcm) %}
 </div>
+<div class="part" id="qcm-chart">
+    {% include('chart.html', qcm) %}
+</div>
 <script src="{{ url_for('static', filename='javascript/id_qcm_popup.js') }}">
+</script>
+<script src='{{ url_for('static', filename='javascript/load_mark_chart_setting.js') }}'>
 </script>
 {% endblock %}
