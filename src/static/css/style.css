@@ -398,3 +398,8 @@ footer {
 .wsh-table {
   min-width: rem-calc(640);
 }
+
+.div_pie_chart {
+  width: 600px;
+  height: 600px;
+}
