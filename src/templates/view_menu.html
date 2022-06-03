@@ -1,0 +1,106 @@
+{% if qcm %}
+<script src="{{ url_for('static', filename='javascript/sort_table.js') }}">
+</script>
+<div class="question-answers">
+    <table class="center colored-background" style="border: none; outline: none">
+        <tr>
+            <td class="no-border">
+                Numero
+            </td>
+            <td class="no-border bold">
+                {{ qcm.id }}
+            </td>
+        </tr>
+        <tr>
+            <td class="no-border">
+                Titre
+            </td>
+            <td class="no-border bold">
+                {{ qcm.title|safe }}
+            </td>
+        </tr>
+        <tr>
+            <td class="no-border">
+                Création
+            </td>
+            <td class="no-border bold">
+                {{ qcm.datetime_formated() }}
+            </td>
+        </tr>
+        <tr>
+            <td class="no-border">
+                Questions
+            </td>
+            <td class="no-border bold">
+                {{ qcm.question_count }}
+            </td>
+        </tr>
+        <tr>
+            <td class="no-border">
+                Réponses
+            </td>
+            <td class="no-border bold">
+                {{ qcm.count_works() }}
+            </td>
+        </tr>
+    </table>
+    <div class="spacediv">
+    </div>
+    <div class="spacediv">
+    </div>
+    <div class="spacediv">
+    </div>
+    <div class="spacediv">
+    </div>
+    <div style="text-align: center;">
+        <button>
+            <a href="{{ url_for('preview', id_qcm=qcm.id) }}">
+                Voir
+            </a>
+        </button>
+        <button>
+            <a href="{{ url_for('remove', id_qcm=qcm.id) }}">
+                Supprimer
+            </a>
+        </button>
+        {% if qcm.has_works() %}
+        <button>
+            <a href="{{ url_for('export', id_qcm=qcm.id) }}">
+                CSV
+            </a>
+        </button>
+        {% endif %}
+        <button>
+            <a href="{{ url_for('toggle_open', id_qcm=qcm.id) }}">
+                {% if qcm.is_open %}
+                Fermer
+                {% else %}
+                Ouvrir
+                {% endif %}
+            </a>
+        </button>
+        <button id="toggle_chart">
+            Graphes
+        </button>
+    </div>
+</div>
+<script>
+    const toggle_chart = document.getElementById("toggle_chart");
+    toggle_chart.addEventListener("click", toogle_details);
+
+    function toogle_details() {
+        const marks_elm = document.getElementById("qcm-marks");
+        const chart_elm = document.getElementById("qcm-chart");
+        if (marks_elm.style.display != 'none') {
+            marks_elm.style.display = 'none';
+            chart_elm.style.display = 'block';
+            toggle_chart.innerText = "Notes";
+        }
+        else {
+            marks_elm.style.display = 'block';
+            chart_elm.style.display = 'none';
+            toggle_chart.innerText = "Graphes";
+        }
+    }
+</script>
+{% endif %}

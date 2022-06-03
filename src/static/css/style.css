@@ -403,3 +403,7 @@ footer {
   width: 600px;
   height: 600px;
 }
+
+#toggle_chart {
+  color: var(--main-text-color);
+}
