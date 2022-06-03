@@ -43,14 +43,20 @@ function createChart(chartId, chartData, colorScale, colorRangeInfo) {
 
 
     /* Create chart */
-    const myChart = new Chart(chartElement, {
+    return new Chart(chartElement, {
         type: 'pie',
         data: chartData,
         options: {
             plugins: {
                 legend: {
                     display: true,
-                    position: 'right'
+                    position: 'right',
+                    labels: {
+                        color: "#888888",
+                        font: {
+                            size: 14,
+                        }
+                    },
                 }
             },
             radius: 150,
@@ -63,7 +69,6 @@ function createChart(chartId, chartData, colorScale, colorRangeInfo) {
         }
     });
 
-    return myChart;
 }
 
 const colorScale = d3.interpolateSpectral;
