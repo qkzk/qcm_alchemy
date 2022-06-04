@@ -126,7 +126,7 @@ class ParseQCM:
         Mutate `result`.
         """
         if not result:
-            raise ParseQCMError("Sent storage list shoudln't be empty")
+            raise ParseQCMError("Sent storage list shouldn't be empty")
         result[0] = cls.from_file(input_filename)
 
     def __repr__(self):
