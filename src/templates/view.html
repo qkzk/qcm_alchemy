@@ -17,8 +17,8 @@
 <div class="part" id="qcm-card">
     <div class="text-center question-answers">
         <h2 class="not-visible" id="qcm-url">
-            <img src="{{ qrcode("https://qcmqkzk.herokuapp.com/student", border=2) }}">
-            qcmqkzk.herokuapp.com
+            <img src="{{ qrcode(url_for('student', _external=True), border=2) }}"}>
+            {{ url_for("index", _external=True) }}
             <div class="spacediv"></div>
             QCM Numéro :
         </h2>
