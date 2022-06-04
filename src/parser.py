@@ -24,8 +24,17 @@ def no_p_markdown(non_p_string) -> str:
     )
 
 
+class ParseQCMError(Exception):
+    """Exception raised when parsing went wrong."""
+
+    pass
+
+
 class ParseQCM:
-    """Parse a QCM into a QCM class"""
+    """
+    Parse a QCM into a QCM class.
+    Raise `ParseQCMError` if parsing went wrong.
+    """
 
     def __init__(self, lines: list, mode="web", code_present: bool = False):
         self.lines = lines
@@ -47,6 +56,8 @@ class ParseQCM:
                 )
             if not is_code_block and line.startswith("# "):
                 title = no_p_markdown(line[2:])
+        if not title:
+            raise ParseQCMError("The QCM has no title.")
         return title
 
     def separate_parts(self) -> list:
@@ -75,6 +86,8 @@ class ParseQCM:
                 if start_end_parts != []:
                     start_end_parts[-1].append(start)
                 start_end_parts.append([start])
+        if not start_end_parts:
+            raise ParseQCMError("The QCM has no parts")
         start_end_parts[-1].append(len(self.lines))
         return start_end_parts
 
@@ -90,9 +103,12 @@ class ParseQCM:
     def from_file(
         cls, input_filename: str, mode="web", code_present: bool = False
     ) -> "ParseQCM":
-        """open and read the file, returns a parsed QCM"""
+        """
+        Open and read an utf-8 encoded QCM file, returns a parsed QCM.
+        Raise various kinds of errors if the QCM isn't encoded properly.
+        """
         try:
-            with open(input_filename) as file_content:
+            with open(input_filename, encoding="utf-8") as file_content:
                 return cls(
                     file_content.readlines(),
                     mode=mode,
@@ -102,8 +118,23 @@ class ParseQCM:
             print("The first argument should be a correct filepath")
             raise
 
+    @classmethod
+    def from_file_into(cls, input_filename: str, result: list):
+        """
+        Store the parsed `input_filename` into `result[0]`
+        using default parameters.
+        Mutate `result`.
+        """
+        if not result:
+            raise ParseQCMError("Sent storage list shoudln't be empty")
+        result[0] = cls.from_file(input_filename)
+
     def __repr__(self):
         return "".join(map(repr, self.parts))
+
+
+class QCM_PartError(Exception):
+    """Exception raised when parsing a `QCM_Part` went wrong."""
 
 
 class QCM_Part:
@@ -126,7 +157,7 @@ class QCM_Part:
         for index, line in enumerate(self.lines):
             if line.startswith("## "):
                 return index + 1, escape(no_p_markdown(line[3:]))
-        raise ValueError(f"No title found for this part : {self}")
+        raise QCM_PartError(f"No title found for this part : {self}")
 
     def read_questions(self) -> list:
         """Returns a list of line indexes questions"""
@@ -142,12 +173,18 @@ class QCM_Part:
                 if questions != []:
                     questions[-1].append(start)
                 questions.append([start])
+        if not questions:
+            raise QCM_PartError("The part has no question.")
         questions[-1].append(len(self.lines))
         return questions
 
     def read_question(self, start: int, end: int) -> "QCM_Question":
         """Read a single questions, returns a `QCM_Question` object"""
         return QCM_Question(self.lines[start:end], mode=self.mode)
+
+
+class QCM_QuestionError(Exception):
+    """Raised when parsing a question went wrong"""
 
 
 class QCM_Question:
@@ -160,6 +197,20 @@ class QCM_Question:
         self.text, self.end_text = self.read_text()
         self.is_text_question = False
         self.answers = self.read_answers()
+        self.reject_wrong_question()
+
+    def reject_wrong_question(self):
+        """
+        Raise QCM_QuestionError if the question has no valid answer and isn't a text question.
+        """
+        if not self.is_text_question and not self.has_valid_answers():
+            raise QCM_QuestionError(
+                "Question should be 'text question' or have at least one valid answers"
+            )
+
+    def has_valid_answers(self) -> bool:
+        """True iff there's at least one valid answer"""
+        return len([answer for answer in self.answers if answer.is_valid]) > 0
 
     def __repr__(self):
         return "/n".join(
@@ -171,9 +222,9 @@ class QCM_Question:
         for index, line in enumerate(self.lines):
             if line.startswith("### "):
                 return index + 1, no_p_markdown(line[4:])
-        raise ValueError(f"No title found for this question : {self}")
+        raise QCM_QuestionError(f"The question has no title")
 
-    def read_text(self):
+    def read_text(self) -> tuple[str, int]:
         """
         Read the 'text' of the question, the lines below the title and
         before the answer.
@@ -195,14 +246,23 @@ class QCM_Question:
                     )
                 elif self.mode == "pdf":
                     return "".join(self.lines[self.start_text : end]), end
-        raise ValueError(f"No text found for question {self}")
+        raise QCM_QuestionError(f"No text found for question {self}")
 
-    def read_answers(self):
-        """returns a list of answers from the content"""
+    def read_answers(self) -> list["QCM_Answer"]:
+        """
+        Returns a list of answers from the content.
+        Set the `is_text_question` flag if it's a text question.
+
+        if there's answers, it can't be a "text_question".
+        """
         answers = []
         for line in self.lines[self.end_text :]:
             if line.startswith("- [t]"):
                 self.is_text_question = True
+                if answers:
+                    raise QCM_QuestionError(
+                        "Question can't be a `text_question` and have answers."
+                    )
                 return []
             elif line.startswith("- ["):
                 answers.append(QCM_Answer.from_line(line))

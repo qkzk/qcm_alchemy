@@ -5,6 +5,8 @@ date: 2022/05/08
 """
 import os
 from datetime import timedelta
+from threading import Thread
+from typing import Union
 
 from flask import (
     abort,
@@ -108,6 +110,15 @@ def delete_old_files(env_name: str):
             os.remove(os.path.join(directory, filename))
 
 
+def parse_file(filename: str) -> Union[None, ParseQCM]:
+    """Uses a thread to parse the file at `filename` into a QCM."""
+    result: list[Union[None, ParseQCM]] = [None]
+    t = Thread(target=ParseQCM.from_file_into, args=(filename, result))
+    t.start()
+    t.join()
+    return result[0]
+
+
 def insert_from_file(file: FileStorage, current_user: Teacher) -> int:
     """
     Insert a QCM in database from a downloaded file which has .md extension.
@@ -116,9 +127,11 @@ def insert_from_file(file: FileStorage, current_user: Teacher) -> int:
     """
     try:
         qcm_file = QcmFile.from_file(file)
-        parsed_qcm = ParseQCM.from_file(qcm_file.filename)
+        parsed_qcm = parse_file(qcm_file.filename)
+        if parsed_qcm is None:
+            raise ValueError("Couldn't read the QCM file.")
         qcm = Qcm.from_parser(parsed_qcm, current_user.id)
-        print(qcm)
+        print(f"{current_user} parsed {qcm} from {qcm_file.filename}")
         db.session.add(qcm)
         db.session.commit()
         return qcm.id
