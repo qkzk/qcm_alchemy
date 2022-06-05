@@ -121,7 +121,7 @@ class ParseQCM:
 
         Try to parse `input_filename`.
             If the parsing is done correctly, stores it into `return_dict["qcm"]`
-            Else, stores the error into `return_dict["error"]`
+            Else, stores the Exception into `return_dict["error"]`
 
         This interface is there to allow parsing from a Process.
         """
