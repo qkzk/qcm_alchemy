@@ -7,9 +7,9 @@ Forms classes for flask_wtf.
 Every form, except QCM - which is dynamic - is created with a form model.
 """
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileAllowed, FileField, FileRequired
 from wtforms import IntegerField, PasswordField, StringField, SubmitField
 from wtforms.validators import DataRequired, Email, Length, NumberRange
-from flask_wtf.file import FileAllowed, FileField, FileRequired
 
 
 def trunctate_string(string: str, size: int):

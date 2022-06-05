@@ -58,7 +58,7 @@ from .model import (
     Text,
     Work,
 )
-from .parser import ParseQCM, ParseQCMError
+from qcm_parser.parser import ParseQCM, ParseQCMError
 from .sendmail import check_email, EmailSender
 
 

@@ -14,3 +14,4 @@ google-auth-oauthlib
 gunicorn
 psycopg2
 pygments
+qcm_parser
