@@ -17,7 +17,7 @@ from werkzeug.datastructures import FileStorage
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
-from .parser import ParseQCM, QCM_Part, QCM_Question, QCM_Answer
+from qcm_parser.parser import ParseQCM, QCM_Part, QCM_Question, QCM_Answer
 from .create_app import app, db, qr_code, ALLOWED_EXTENSIONS
 
 
@@ -787,23 +787,13 @@ class QcmFile:
         self.file.save(self.filename)
 
     @classmethod
-    def validate_file(cls, file: FileStorage) -> tuple:
+    def validate_file(cls, file: FileStorage) -> bool:
         """
         Returns the couple (is_valid, message) where `is_valid` is `True` iff we could
         parse the content. The error message is used by the view to inform the teacher
         of the error : invalid filetype, file not found, error while parsing.
         """
-        is_valid = True
-        message = ""
-
-        if not file or file.filename == "":
-            is_valid = False
-            message = "Fichier introuvable"
-        elif not cls.validate_filename(file):
-            is_valid = False
-            message = "Fichier invalide"
-
-        return is_valid, message
+        return bool(file) and file.filename != "" and cls.validate_filename(file)
 
     @staticmethod
     def validate_filename(file: FileStorage) -> bool:
@@ -820,11 +810,14 @@ class QcmFile:
         Creates a QcmFile from a markdown file.
         Raise `QcmFileError` if it's impossible.
         """
+        if not cls.validate_file(file):
+            raise QcmFileError("Invalid filename")
+
         try:
             return cls(file)
         except Exception as e:
             print(repr(e))
-            raise QcmFileError(repr(e))
+            raise QcmFileError(e) from e
 
     def __repr__(self):
         return f"Qcm({self.file})"

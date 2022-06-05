@@ -24,11 +24,11 @@
                 Envoyer
             </button>
             {% if form.source.errors %}
-                <ul class="errors">
+                <div class="errors">
                     {% for error in form.source.errors %}
-                        <li>
+                        <p>
                             {{ error }}
-                        </li>
+                        </p>
                     {% endfor %}
                 </ul>
             {% endif %}

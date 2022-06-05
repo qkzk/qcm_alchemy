@@ -5,6 +5,8 @@ date: 2022/05/08
 """
 import os
 from datetime import timedelta
+import multiprocessing
+from typing import Union
 
 from flask import (
     abort,
@@ -42,6 +44,7 @@ from .forms import (
     StudentForm,
 )
 from .model import (
+    QcmFileError,
     app,
     db,
     qr_code,
@@ -55,7 +58,7 @@ from .model import (
     Text,
     Work,
 )
-from .parser import ParseQCM
+from qcm_parser.parser import ParseQCM, ParseQCMError
 from .sendmail import check_email, EmailSender
 
 
@@ -108,22 +111,50 @@ def delete_old_files(env_name: str):
             os.remove(os.path.join(directory, filename))
 
 
+def parse_file(
+    filename: str, max_duration=app.config["MAX_PARSING_DURATION"]
+) -> ParseQCM:
+    """
+    Uses a Process to parse the file at `filename` into a QCM.
+    """
+    manager = multiprocessing.Manager()
+    return_dict = manager.dict()
+    parser = multiprocessing.Process(
+        target=ParseQCM.from_file_into_dict, args=(filename, return_dict)
+    )
+    parser.start()
+    parser.join(max_duration)
+    if parser.is_alive():
+        parser.terminate()
+        raise TimeoutError("Parsing took too long.")
+
+    print(f"parsing filled return_dict: {return_dict}")
+
+    if "error" in return_dict:
+        error = return_dict["error"]
+        if isinstance(error, Exception):
+            raise error
+        else:
+            raise ValueError(f"Parsing went wrong: {error}")
+    if not "qcm" in return_dict:
+        raise ValueError("Parser didn't terminate properly")
+
+    return return_dict["qcm"]
+
+
 def insert_from_file(file: FileStorage, current_user: Teacher) -> int:
     """
     Insert a QCM in database from a downloaded file which has .md extension.
     Returns its qcm.id
     Returns -1 if the insertion went wrong.
     """
-    try:
-        qcm_file = QcmFile.from_file(file)
-        parsed_qcm = ParseQCM.from_file(qcm_file.filename)
-        qcm = Qcm.from_parser(parsed_qcm, current_user.id)
-        print(qcm)
-        db.session.add(qcm)
-        db.session.commit()
-        return qcm.id
-    except Exception:
-        return -1
+    qcm_file = QcmFile.from_file(file)
+    parsed_qcm = parse_file(qcm_file.filename)
+    qcm = Qcm.from_parser(parsed_qcm, current_user.id)
+    print(f"{current_user} parsed {qcm} from {qcm_file.filename}")
+    db.session.add(qcm)
+    db.session.commit()
+    return qcm.id
 
 
 def insert_textarea(key: str, value: str, id_work: int):
@@ -471,17 +502,17 @@ def create_app() -> Flask:
             filename = secure_filename(file.filename)
             print(f"qcm with sent filename {filename}")
 
-            is_valid_file, error_message = QcmFile.validate_file(file)
-            if is_valid_file:
+            try:
                 id_qcm = insert_from_file(file, current_user)
-                if id_qcm == -1:
-                    flash("Le fichier source n'est pas formaté correctement")
-                else:
-                    print(f"qcm inserted correctly {id_qcm}")
-                    return redirect(url_for("view", id_qcm=id_qcm, inserted=True))
-            else:
-                flash("Fichier invalide")
-                print(f"qcm couldn't be inserted")
+                print(f"qcm inserted correctly {id_qcm}")
+                return redirect(url_for("view", id_qcm=id_qcm, inserted=True))
+            except (QcmFileError, ParseQCMError, ValueError, TimeoutError) as e:
+                print(repr(e))
+                flash("Fichier source illisible")
+            except Exception as e:
+                print(f"QCM parser uncatched error: {e}")
+                print(repr(e))
+                flash("Fichier source illisible")
 
         return render_template("new.html", data=data, form=form)
 
