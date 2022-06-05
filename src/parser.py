@@ -107,33 +107,37 @@ class ParseQCM:
         Open and read an utf-8 encoded QCM file, returns a parsed QCM.
         Raise various kinds of errors if the QCM isn't encoded properly.
         """
-        try:
-            with open(input_filename, encoding="utf-8") as file_content:
-                return cls(
-                    file_content.readlines(),
-                    mode=mode,
-                    code_present=code_present,
-                )
-        except:
-            print("The first argument should be a correct filepath")
-            raise
+        with open(input_filename, encoding="utf-8") as file_content:
+            return cls(
+                file_content.readlines(),
+                mode=mode,
+                code_present=code_present,
+            )
 
     @classmethod
-    def from_file_into(cls, input_filename: str, result: list):
+    def from_file_into_dict(cls, input_filename: str, return_dict: dict, **kwargs):
         """
-        Store the parsed `input_filename` into `result[0]`
-        using default parameters.
-        Mutate `result`.
+        Parse a QCM using with given parameters.
+
+        Try to parse `input_filename`.
+            If the parsing is done correctly, stores it into `return_dict["qcm"]`
+            Else, stores the error into `return_dict["error"]`
+
+        This interface is there to allow parsing from a Process.
         """
-        if not result:
-            raise ParseQCMError("Sent storage list shouldn't be empty")
-        result[0] = cls.from_file(input_filename)
+        mode = kwargs.get("mode", "web")
+        code_present = kwargs.get("code_present", False)
+        try:
+            qcm = cls.from_file(input_filename, mode=mode, code_present=code_present)
+            return_dict["qcm"] = qcm
+        except (ParseQCMError, UnicodeDecodeError) as e:
+            return_dict["error"] = e
 
     def __repr__(self):
         return "".join(map(repr, self.parts))
 
 
-class QCM_PartError(Exception):
+class QCM_PartError(ParseQCMError):
     """Exception raised when parsing a `QCM_Part` went wrong."""
 
 
@@ -183,7 +187,7 @@ class QCM_Part:
         return QCM_Question(self.lines[start:end], mode=self.mode)
 
 
-class QCM_QuestionError(Exception):
+class QCM_QuestionError(ParseQCMError):
     """Raised when parsing a question went wrong"""
 
 

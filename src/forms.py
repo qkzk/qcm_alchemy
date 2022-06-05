@@ -140,7 +140,7 @@ class QcmFileForm(FlaskForm):
         "Envoyez un fichier source",
         validators=[
             FileRequired(),
-            FileAllowed(["md"], message="Seulement des fichiers .md"),
+            FileAllowed(["md"], message="Seuls les fichiers .md sont acceptés"),
         ],
     )
 
