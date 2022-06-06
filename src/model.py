@@ -13,11 +13,11 @@ from random import randint, shuffle
 from typing import Union, Type
 
 from flask_login import UserMixin
+from qcm_parser.parser import ParseQCM, QCM_Part, QCM_Question, QCM_Answer
 from werkzeug.datastructures import FileStorage
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
-from qcm_parser.parser import ParseQCM, QCM_Part, QCM_Question, QCM_Answer
 from .create_app import app, db, qr_code, ALLOWED_EXTENSIONS
 
 
