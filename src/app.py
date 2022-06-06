@@ -29,6 +29,7 @@ from flask_login import (
     login_user,
     logout_user,
 )
+from qcm_parser.parser import ParseQCM, ParseQCMError
 from werkzeug.datastructures import ImmutableMultiDict, FileStorage
 from werkzeug.utils import secure_filename
 from werkzeug import Request
@@ -58,7 +59,6 @@ from .model import (
     Text,
     Work,
 )
-from qcm_parser.parser import ParseQCM, ParseQCMError
 from .sendmail import check_email, EmailSender
 
 
