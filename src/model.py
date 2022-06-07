@@ -226,7 +226,7 @@ class QcmPartQuestion(db.Model):
     def from_parser(cls, parsed_question: QCM_Question) -> "QcmPartQuestion":
         """Creates a database record Question from  a parsed question."""
         question = cls(
-            question=parsed_question.question_title,
+            question=parsed_question.title,
             sub_text=parsed_question.text,
             is_text_question=parsed_question.is_text_question,
         )
@@ -276,7 +276,7 @@ class QcmPartQuestionAnswer(db.Model):
     @classmethod
     def from_parser(cls, parsed_answer: QCM_Answer) -> "QcmPartQuestionAnswer":
         """Creates an answer record from a parsed answer."""
-        return cls(answer=parsed_answer.text, is_valid=parsed_answer.is_valid)
+        return cls(answer=parsed_answer.title, is_valid=parsed_answer.is_valid)
 
     def nb_of_selection(self) -> int:
         """Returns the number of time this answer has been selected by as `Student`."""

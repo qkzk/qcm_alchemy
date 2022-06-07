@@ -6,7 +6,6 @@ date: 2022/05/08
 import os
 from datetime import timedelta
 import multiprocessing
-from typing import Union
 
 from flask import (
     abort,
