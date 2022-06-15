@@ -20,7 +20,13 @@ table {
             {{ qcm.title|safe }}
         </h1>
     </div>
-    <form method="POST" action="{{ url_for('answers') }}" id="qcm_form" accept-charset="UTF-8" enctype="application/x-www-form-urlencoded;charset=UTF-8">
+    <form 
+        method="POST" 
+        action="{{ url_for('answers') }}" 
+        id="qcm_form" 
+        accept-charset="UTF-8" 
+        enctype="application/x-www-form-urlencoded;charset=UTF-8"
+    >
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         {% for p_index, part in enumerate(qcm.shuffled_parts()) %}
         <div class="part">
@@ -41,10 +47,31 @@ table {
                 </p>
                 {% if question.is_text_question %}
                 <div class="answer">
-                    <textarea name="T_{{ question.id }}" id="Q_{{ question.id }}" cols="40" rows="5"></textarea>
+                    <textarea 
+                        name="T_{{ question.id }}" 
+                        id="Q_{{ question.id }}" 
+                        cols="40" 
+                        rows="5"
+                        onblur="this.form.send_partials();"
+                    ></textarea>
                 </div>
                 {% else %}
                 <div class="answers">
+                    <div class="answer" id="answer_A_F_{{ question.id }}">
+                        <input 
+                            type="radio" 
+                            name="Q_{{ question.id }}" 
+                            id="A_F_{{ question.id }}" 
+                            value="F"
+                            autocomplete="off"
+                            class="radio"
+                            onchange="this.form.send_partials();"
+                        >
+                        </input>
+                        <label for="A_F_{{ question.id }}">
+                            <em>Je ne sais pas</em>
+                        </label>
+                    </div>
                     {% for answer in question.shuffled_answers() %}
                     <div class="answer" id="answer_A_{{ answer.id }}">
                         <input 
@@ -54,6 +81,7 @@ table {
                             value="A_{{ answer.id }}"
                             autocomplete="off"
                             class="radio"
+                            onchange="this.form.send_partials();"
                         >
                         </input>
                         <label for="A_{{ answer.id }}">
@@ -79,6 +107,61 @@ table {
 <script id="chosen_label_switcher" src={{ url_for('static', filename='javascript/chosen_label_theme_switcher.js') }}>
 </script>
 {% if not preview %}
+    <script src={{ url_for('static', filename='javascript/submit_partials.js') }}>
+    </script>
+    <script>
+        // TODO move this ugly script elsewhere, make it a function using sent data.
+        // This ugly script has to stay here atm...
+        // We're writing some part of it from Jinja.
+        // We should find a way to make it a json object to call a function.
+
+        
+        let qcm_form = document.getElementById("qcm_form");
+        /*
+        * Called when the user click on a label or leaves a textarea zone.
+        * Is used to get partials results even if the student doest submit his answers.
+        * This will allow us to get results from student who :
+        * start the QCM when it is opened
+        * select some answers
+        * click on Envoyer too late ie. When it is closed.
+        * We select every textarea and clicked label, make it into a JSON object and 
+        * send it back to us with AJAX request.
+        */
+        qcm_form.send_partials = function() {
+            let partials = {
+                "id": {{ qcm.id|safe }},
+            };
+            {% for p_index, part in enumerate(qcm.part) %}
+                {% for question in part.questions %}
+                    {% if question.is_text_question %}
+                        try {
+                            let q_t = document.getElementById("Q_{{ question.id }}").value;
+                            partials['T_{{ question.id }}'] = q_t;
+                        } catch(error) {
+                            if (! (error instanceof TypeError) ) {
+                                console.log(error);
+                            } 
+                        } 
+                    {% else %}
+                        try {
+                            let q_a = document.querySelector(
+                                'input[name="Q_{{ question.id }}"]:checked'
+                            ).value;
+                            partials['Q_{{ question.id }}'] = q_a;
+                        } catch(error) {
+                            if (! (error instanceof TypeError) ) {
+                                console.log(error);
+                            } 
+                        } 
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+
+            let csrf_token = "{{ csrf_token() }}";
+            let url = "{{ url_for('partials') }}";
+            send_xhr(partials, url, csrf_token);
+        }
+    </script>
     <script id="anticheat" src={{ url_for('static', filename='javascript/anticheat.js') }}>
     </script>
 {% endif %}

@@ -201,6 +201,17 @@ def insert_answers_from_request(form: ImmutableMultiDict[str, str], id_work: int
     return True
 
 
+def delete_old_partials(id_work: int):
+    """
+    Deletes old partials (ie. not 'submitted') answers
+    for this work.
+    This will ensure we only have one choice/text per question
+    for this work.
+    """
+    Choice.query.filter_by(id_work=id_work).delete()
+    Text.query.filter_by(id_work=id_work).delete()
+
+
 def construct_qcm_response(qcm: Qcm, name: str, work: Work):
     """Creates a QCM response with a cookie containing the id of work"""
     format_name = f" - Nom: {name}"
@@ -640,6 +651,7 @@ def create_app() -> Flask:
             flash("Vous avez déjà répondu à ce QCM")
             return redirect(url_for("confirmation"))
 
+        Choice.query.filter_by(id_work=id_work).delete()
         if not insert_answers_from_request(request.form, id_work):
             flash("Formulaire illisible")
             return redirect(url_for("confirmation"))
@@ -647,6 +659,29 @@ def create_app() -> Flask:
         work.record()
         flash("Réponses enregistrées")
         return redirect(url_for("confirmation"))
+
+    @app.route("/partials", methods=["GET", "POST"])
+    def partials():
+        if request.json is None:
+            return ""
+
+        id_qcm = request.json.get("id")
+        qcm = Qcm.query.get(id_qcm)
+        if not qcm.is_open:
+            return ""
+
+        id_work = read_id_work_from_cookie(request.cookies)
+        # TODO remove when satisfied
+        print(f"id_work: {id_work}")
+
+        work = Work.query.get(id_work)
+        if work is not None and not work.is_submitted:
+            delete_old_partials(id_work)
+            if insert_answers_from_request(request.json, work.id):
+                work.save_partials()
+        else:
+            print(f"no work {id_work}")
+        return ""
 
     @app.route("/confirmation")
     def confirmation():
