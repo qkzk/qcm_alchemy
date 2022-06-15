@@ -462,8 +462,23 @@ class Work(db.Model):
                 return True
         return False
 
+    def save_partials(self):
+        """
+        Exit early if `self` is submitted.
+        Doesn't mark the work as submitted, count the points and commit.
+        This is used when a student click a radio element.
+        Not when he clicks on "Envoyer" button.
+        """
+        if self.is_submitted:
+            return
+        self.count_points()
+        db.session.commit()
+
     def record(self):
-        """Mark the work as submitted, count the points and commit."""
+        """
+        Marks the work as submitted, count the points and commit.
+        This is used when a student clicks on "Envoyer" button.
+        """
         self.is_submitted = True
         self.count_points()
         db.session.commit()
