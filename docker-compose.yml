@@ -14,7 +14,7 @@ services:
     links:
       - database
     ports:
-      - 8000:8000
+      - 443:443
 volumes:
   db_volume:
   app:

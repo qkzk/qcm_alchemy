@@ -4,7 +4,7 @@ FROM python:3.10
 # The EXPOSE instruction indicates the ports on which a container 
 # will listen for connections
 # Since Flask apps listen to port 5000  by default, we expose it
-EXPOSE 8000
+EXPOSE 443
 
 # Sets the working directory for following COPY and CMD instructions
 # Notice we haven’t created a directory by this name - this instruction 
@@ -18,4 +18,4 @@ RUN pip install -r requirements.txt
 COPY . /app
 WORKDIR /app
 
-CMD ["gunicorn"  , "--bind", "0.0.0.0:8000", "wsgi:app"]
+CMD ["gunicorn"  , "--bind", "0.0.0.0:443", "wsgi:app"]
