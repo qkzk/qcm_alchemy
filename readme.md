@@ -407,8 +407,18 @@ Last problem is QCM view for student. Check steps below
 
 Pour l'instant j'ai 3 soucis
 
-- [ ] la bdd est accessible depuis l'extérieur
+- [x] la bdd est accessible depuis l'extérieur : bloquer dans ufw. [source](https://ettayeb.fr/faire-cohabiter-docker-et-ufw/)
 - [ ] la bdd est reset à chaque `sudo docker-compose down` puis `sudo docker-compose up -d`
-- [ ] les identifiants de bdd ne sont pas sécurisés
+  - fix bizarre... ne pas faire `down` et `up` mais `stop` et `start`
+- [ ] les identifiants de bdd ne sont pas sécurisés : pas grave inaccessible depuis l'extérieur
   - [ ] utiliser un export local depuis un fichier transféré à la main
   - [ ] lire les identifiants dans python et dans docker
+  - [ ] accéder à la bdd depuis VPS : `psql -h 172.17.0.1 -U quentin qcm`
+
+### Contrôler
+
+- accéder au vps depuis qkzk `ssh debian@54.38.243.9 -p 44444`
+- accéder à la bdd depuis vps `psql -h 172.17.0.1 -U quentin qcm`
+- relancer le firewall : `sudo ufw reload`
+- settings du firewall : `sudo vim /etc/ufw/after.rules`
+- relancer les serveurs : `sudo docker-compose stop` et `sudo docker-compose start`
