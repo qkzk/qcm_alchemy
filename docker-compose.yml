@@ -1,8 +1,9 @@
 version: '3.5'
 services:
-  database:
+  db_volume:
     container_name: postgres
     image: postgres:latest
+    restart: always
     env_file: database.conf
     ports:
       - 5432:5432  
@@ -12,7 +13,7 @@ services:
     build: 
       context: ./
     links:
-      - database
+      - db_volume
     ports:
       - 443:443
 volumes:

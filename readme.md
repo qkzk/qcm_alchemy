@@ -395,3 +395,20 @@ Last problem is QCM view for student. Check steps below
   | open / close       | easy          | not much                     |
 
 - [x] Heroku devient payant et le site est migré chez OVH : [qcmqkzk.fr](https://qcmqkzk.fr) qui est lui même payant mais moins cher.
+
+## Migration OVH
+
+1. docker compose pour la bdd et le site
+2. VPS debian OVH, configuré correctement (ssh passwordless etc.)
+3. nom de domaine OVH
+4. SSL proposé par OVH, changer la redirection vers 443
+
+### BDD reset
+
+Pour l'instant j'ai 3 soucis
+
+- [ ] la bdd est accessible depuis l'extérieur
+- [ ] la bdd est reset à chaque `sudo docker-compose down` puis `sudo docker-compose up -d`
+- [ ] les identifiants de bdd ne sont pas sécurisés
+  - [ ] utiliser un export local depuis un fichier transféré à la main
+  - [ ] lire les identifiants dans python et dans docker
