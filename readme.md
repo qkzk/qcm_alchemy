@@ -415,6 +415,22 @@ Pour l'instant j'ai 3 soucis
   - [ ] lire les identifiants dans python et dans docker
   - [ ] accéder à la bdd depuis VPS : `psql -h 172.17.0.1 -U quentin qcm`
 
+### setup
+
+1. debian vps
+
+- apt-get update && apt-get upgrade
+- apt-get install postgresql postgresql-client
+- setup sshd pour login passwordless depuis PC, disable root login, disable password login, change default port
+- install ufw, disable tout, ajouter port du ssh, ajouter route 443 pour flask
+- installer docker & docker-compose
+- git clone repo, branch docker
+- ajouter à la main le dossier token
+- docker compose build up, docker ps, docker-compose ps, check logs
+
+2. activer un nom de domain, router vers ip du VPS
+3. ativer ssh OVH, router vers 443
+
 ### Contrôler
 
 - accéder au vps depuis qkzk `ssh debian@54.38.243.9 -p 44444`
@@ -422,3 +438,37 @@ Pour l'instant j'ai 3 soucis
 - relancer le firewall : `sudo ufw reload`
 - settings du firewall : `sudo vim /etc/ufw/after.rules`
 - relancer les serveurs : `sudo docker-compose stop` et `sudo docker-compose start`
+- logs docker : `sudo docker-compose logs -f`
+
+## Status
+
+```bash
+sudo ufw status
+Status: active
+
+To                         Action      From
+--                         ------      ----
+44444                      ALLOW       Anywhere
+22/tcp                     ALLOW       Anywhere
+44444 (v6)                 ALLOW       Anywhere (v6)
+22/tcp (v6)                ALLOW       Anywhere (v6)
+
+443/tcp                    ALLOW FWD   Anywhere
+443/tcp (v6)               ALLOW FWD   Anywhere (v6)
+```
+
+```bash
+sudo docker ps
+CONTAINER ID   IMAGE             COMMAND                  CREATED          STATUS         PORTS
+                  NAMES
+040e81c8632a   qcm_alchemy_app   "gunicorn --bind 0.0…"   39 minutes ago   Up 8 minutes   0.0.0.0:443->443/tcp, :::443->443/tcp       qcm_alchemy_app_1
+1fde529fb39b   postgres:latest   "docker-entrypoint.s…"   39 minutes ago   Up 8 minutes   0.0.0.0:5432->5432/tcp, :::5432->5432/tcp   postgres
+```
+
+```bash
+sudo docker-compose ps
+      Name                     Command               State                    Ports
+-----------------------------------------------------------------------------------------------------
+postgres            docker-entrypoint.sh postgres    Up      0.0.0.0:5432->5432/tcp,:::5432->5432/tcp
+qcm_alchemy_app_1   gunicorn --bind 0.0.0.0:44 ...   Up      0.0.0.0:443->443/tcp,:::443->443/tcp
+```
