@@ -12,6 +12,7 @@ services:
   app:
     build: 
       context: ./
+    restart: always
     links:
       - database
     ports:
