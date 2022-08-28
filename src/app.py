@@ -67,7 +67,7 @@ RESET_PASSWORD_MAIL_CONTENT = """Cher utilisateur de qcmqkzk,
 
 Réinitialisez votre mot de passe en suivant ce lient : 
 
-https://qcmqkzk.herokuapp.com/reset_password/{id_teacher}/{key} 
+https://qcmqkzk.fr/reset_password/{id_teacher}/{key} 
 
 Ce lien est valable une heure.
 
@@ -81,7 +81,7 @@ Votre compte n'est pas encore actif.
 
 Veuillez suivre sur le lien ci-dessous pour le confirmer : 
 
-https://qcmqkzk.herokuapp.com/email_confirmation/{id_teacher}/{key}
+https://qcmqkzk.fr/email_confirmation/{id_teacher}/{key}
 
 À bientôt,
 
