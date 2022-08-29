@@ -8,14 +8,15 @@ services:
     ports:
       - 5432:5432  
     volumes:
-      - db_volume:/var/lib/postgresql/data
+      - db_volume:/var/lib/postgresql
   app:
     build: 
       context: ./
     restart: always
-    depends_on:
-      - database
     links:
       - database
     ports:
       - 443:443
+volumes:
+  db_volume:
+  app:
