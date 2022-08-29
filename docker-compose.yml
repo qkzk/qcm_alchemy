@@ -15,7 +15,5 @@ services:
     restart: always
     depends_on:
       - database
-    links:
-      - database
     ports:
       - 443:443
