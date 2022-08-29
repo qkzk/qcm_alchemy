@@ -19,4 +19,4 @@ services:
       - 443:443
   volumes:
     app:
-    db_volume:
+    database:
