@@ -18,5 +18,5 @@ services:
     ports:
       - 443:443
   volumes:
-    - app:
-    - db_volume:
+    app:
+    db_volume:
