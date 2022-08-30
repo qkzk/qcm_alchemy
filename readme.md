@@ -439,6 +439,7 @@ Pour l'instant j'ai 3 soucis
 - settings du firewall : `sudo vim /etc/ufw/after.rules`
 - relancer les serveurs : `sudo docker-compose stop` et `sudo docker-compose start`
 - logs docker : `sudo docker-compose logs -f`
+- reconstruire les images sans effacer la bdd : `sudo docker-compose down` et `sudo docker-compose up --build -d`
 
 ## Status
 

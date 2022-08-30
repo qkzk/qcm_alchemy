@@ -4,7 +4,7 @@ author: qkzk
 date: 2022/05/08
 """
 import os
-from datetime import timedelta
+from datetime import datetime, timedelta
 import multiprocessing
 
 from flask import (
@@ -100,6 +100,19 @@ def clear_records_and_files():
     delete_old_files("UPLOAD_FOLDER")
     delete_old_files("DOWNLOAD_FOLDER")
     print("cleaner completed")
+    EmailSender(
+        SERVER_PASSWORD_MAIL_ADDRESS,
+        "leclemenceau@gmail.com",
+        f"QCM server clear records done at {datetime.now()}",
+        """QCM server cleared old records from :
+* Qcm,
+* Student,
+* ResetKey,
+* EmailConfirmation,
+* upload folder,
+* download folder.
+""",
+    ).send_message()
 
 
 def delete_old_files(env_name: str):
