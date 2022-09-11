@@ -122,7 +122,9 @@ def delete_old_files(env_name: str):
     directory = os.path.join(os.getcwd(), app.config[env_name])
     for filename in os.listdir(directory):
         if filename != "readme.md":
-            os.remove(os.path.join(directory, filename))
+            filepath = os.path.join(directory, filename)
+            os.remove(filepath)
+            logger.warning(f"removed {filepath}")
 
 
 def parse_file(
@@ -352,6 +354,7 @@ def create_app() -> Flask:
                 print(f"{teacher}: login successful")
                 login_user(teacher)
                 flash("Vous êtes maintenant connecté.")
+                logger.warning(f"teacher {teacher} logged in.")
                 return redirect(url_for("teacher"))
             else:
                 flash("Identifants incorrects.")
@@ -404,6 +407,7 @@ def create_app() -> Flask:
                 print(f"teacher {teacher} inserted... sending mail")
                 confirmation_key = EmailConfirmation.clear(teacher.id).new(teacher.id)
                 if email_confirmation_was_sent(email, teacher.id, confirmation_key.key):
+                    logger.warning(f"teacher {teacher} added - pending confimation")
                     db.session.add(confirmation_key)
                     db.session.commit()
                     return redirect(url_for("email_confirmation"))
@@ -469,6 +473,7 @@ def create_app() -> Flask:
             EmailConfirmation.remove_key(teacher.id)
             print(f"{teacher}: email confirmed")
             flash("Votre compte est crée. Vous pouvez vous connecter")
+            logger.warning(f"teacher {teacher}: email confirmed")
             return render_template("index.html")
         abort(404)
 
@@ -497,9 +502,11 @@ def create_app() -> Flask:
     def remove_account():
         teacher_email = current_user.email
         id_teacher = current_user.id
+        logger.warning(f"removing account for {current_user}")
         current_user.remove_and_commit()
         print(f"{teacher_email}, {id_teacher} removed from db")
         flash("Votre compte, vos qcms et les travaux de vos élèves sont supprimés.")
+
         return redirect(url_for("index"))
 
     @app.route("/rgpd")
@@ -533,7 +540,10 @@ def create_app() -> Flask:
 
             try:
                 id_qcm = insert_from_file(file, current_user)
-                print(f"qcm inserted correctly {id_qcm}")
+                warning = f"qcm inserted correctly {id_qcm}"
+                print(warning)
+                logger.warning(warning)
+
                 return redirect(url_for("view", id_qcm=id_qcm, inserted=True))
             except (QcmFileError, ParseQCMError, ValueError, TimeoutError) as e:
                 print(repr(e))

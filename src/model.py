@@ -18,7 +18,13 @@ from werkzeug.datastructures import FileStorage
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
-from .create_app import app, db, qr_code, ALLOWED_EXTENSIONS
+from .create_app import (
+    app,
+    db,
+    qr_code,
+    ALLOWED_EXTENSIONS,
+)
+from .logger import logger
 
 
 def get_join_path_from_key(key: str, filename: str) -> str:
@@ -101,7 +107,10 @@ class Qcm(db.Model):
         """Self cleaning of the database. Uses the ForeignKey to clean children as well."""
         now = datetime.now()
         two_days_ago = now - timedelta(hours=48)
-        cls.query.filter(cls.datetime < two_days_ago).delete()
+        deleted = cls.query.filter(cls.datetime < two_days_ago).delete()
+        warning = f"{cls.__name__} deleted {deleted}"
+        print(warning)
+        logger.warning(warning)
         db.session.commit()
 
     def shuffled_parts(self) -> list["QcmPart"]:
@@ -312,7 +321,10 @@ class Student(db.Model):
         """Self cleaning purpose. Delete every old student and its children (Work)."""
         now = datetime.now()
         two_days_ago = now - timedelta(hours=48)
-        cls.query.filter(cls.datetime < two_days_ago).delete()
+        deleted = cls.query.filter(cls.datetime < two_days_ago).delete()
+        warning = f"{cls.__name__} deleted {deleted}"
+        print(warning)
+        logger.warning(warning)
         db.session.commit()
 
     @classmethod
@@ -695,7 +707,10 @@ class ResetKey(db.Model):
         """Self cleaning purpose. Delete every old keys. Commit."""
         now = datetime.now()
         three_hours_ago = now - timedelta(hours=3)
-        cls.query.filter(cls.datetime < three_hours_ago).delete()
+        deleted = cls.query.filter(cls.datetime < three_hours_ago).delete()
+        warning = f"{cls.__name__} deleted {deleted}"
+        print(warning)
+        logger.warning(warning)
         db.session.commit()
 
     @classmethod
@@ -761,7 +776,10 @@ class EmailConfirmation(db.Model):
         """Self cleaning purpose. Delete every old keys."""
         now = datetime.now()
         three_hours_ago = now - timedelta(hours=3)
-        cls.query.filter(cls.datetime < three_hours_ago).delete()
+        deleted = cls.query.filter(cls.datetime < three_hours_ago).delete()
+        warning = f"{cls.__name__} deleted {deleted}"
+        print(warning)
+        logger.warning(warning)
         db.session.commit()
 
     @classmethod
