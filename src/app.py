@@ -290,6 +290,8 @@ def create_app() -> Flask:
         hours=24,
     )
     sched.start()
+    jobs = sched.get_jobs()
+    logger.warning(f"shed started. Jobs: {jobs}")
 
     login = LoginManager(app)
     login.login_view = "login"
