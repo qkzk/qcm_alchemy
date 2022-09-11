@@ -43,6 +43,7 @@ from .forms import (
     QcmFileForm,
     StudentForm,
 )
+from .logger import logger
 from .model import (
     QcmFileError,
     app,
@@ -92,7 +93,7 @@ qcmqkzk
 
 def clear_records_and_files():
     """Scheduled task : clean the database and the old files."""
-    print("cleaner is running...")
+    logger.warning("cleaner: records is running...")
     Qcm.clear_old_records()
     Student.clear_old_records()
     ResetKey.clear_old_records()
@@ -113,6 +114,7 @@ def clear_records_and_files():
 * download folder.
 """,
     ).send_message()
+    logger.warning("cleaner: records cleared")
 
 
 def delete_old_files(env_name: str):
