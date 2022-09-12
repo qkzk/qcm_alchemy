@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from src import on_starting as src_on_starting
 
 print("on_starting")
