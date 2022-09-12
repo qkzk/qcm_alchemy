@@ -19,4 +19,4 @@ COPY . /app
 WORKDIR /app
 
 # CMD ["gunicorn"  , "--bind", "0.0.0.0:443", "wsgi:app", "--config gunicorn_hooks_config.py"]
-CMD ["gunicorn"  , "--config gunicorn_config.py"]
+CMD ["gunicorn"  , "wsgi:app",  "--config gunicorn_config.py"]
