@@ -290,7 +290,7 @@ def on_starting():
         id="clear_records_and_files",
         func=clear_records_and_files,
         trigger="interval",
-        hours=24,
+        minutes=30,
     )
     sched.start()
     jobs = sched.get_jobs()
