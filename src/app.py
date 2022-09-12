@@ -125,7 +125,9 @@ def delete_old_files(env_name: str):
         if filename.lower() not in DO_NOT_DELETE_FILENAMES:
             filepath = os.path.join(directory, filename)
             os.remove(filepath)
-            logger.warning(f"removed {filepath}")
+            message = f"removed {filepath}"
+            print(message)
+            logger.warning(message)
 
 
 def parse_file(
