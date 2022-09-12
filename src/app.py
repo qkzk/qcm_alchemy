@@ -283,8 +283,8 @@ def extract_ip(request: Request) -> str:
 
 
 def on_starting():
-    print("gunicorn on_starting...")
-    logger.warning("gunicorn on_starting...")
+    print("on_starting...")
+    logger.warning("on_starting...")
     sched = APScheduler()
     sched.add_job(
         id="clear_records_and_files",
@@ -301,6 +301,7 @@ def on_starting():
 
 def create_app() -> Flask:
     """Create a Flask Application with database and scheduler."""
+    on_starting()
 
     login = LoginManager(app)
     login.login_view = "login"
