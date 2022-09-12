@@ -9,6 +9,7 @@ from src import on_starting as src_on_starting
 
 print("on_starting")
 
+chdir = "app"
 loglevel = "info"
 workers = 3
 bind = "0.0.0.0:443"
