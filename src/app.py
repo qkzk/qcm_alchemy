@@ -89,6 +89,7 @@ https://qcmqkzk.fr/email_confirmation/{id_teacher}/{key}
 qcmqkzk
 
                     """
+DO_NOT_DELETE_FILENAMES = ("readme.md", "readme.txt")
 
 
 def clear_records_and_files():
@@ -121,7 +122,7 @@ def delete_old_files(env_name: str):
     """Delete old files from created_files and uploads"""
     directory = os.path.join(os.getcwd(), app.config[env_name])
     for filename in os.listdir(directory):
-        if filename != "readme.md":
+        if filename.lower() not in DO_NOT_DELETE_FILENAMES:
             filepath = os.path.join(directory, filename)
             os.remove(filepath)
             logger.warning(f"removed {filepath}")
