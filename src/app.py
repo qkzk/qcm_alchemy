@@ -282,8 +282,7 @@ def extract_ip(request: Request) -> str:
     return request.access_route[0]
 
 
-def create_app() -> Flask:
-    """Create a Flask Application with database and scheduler."""
+def on_starting():
     sched = APScheduler()
     sched.add_job(
         id="clear_records_and_files",
@@ -296,6 +295,10 @@ def create_app() -> Flask:
     warning = f"shed started. Jobs: {jobs}"
     print(warning)
     logger.warning(warning)
+
+
+def create_app() -> Flask:
+    """Create a Flask Application with database and scheduler."""
 
     login = LoginManager(app)
     login.login_view = "login"
