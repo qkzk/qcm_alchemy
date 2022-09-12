@@ -283,6 +283,8 @@ def extract_ip(request: Request) -> str:
 
 
 def on_starting():
+    print("gunicorn on_starting...")
+    logger.warning("gunicorn on_starting...")
     sched = APScheduler()
     sched.add_job(
         id="clear_records_and_files",
