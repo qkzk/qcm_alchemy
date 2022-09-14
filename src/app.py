@@ -275,8 +275,8 @@ def extract_ip(request: Request) -> str:
 
 
 def on_starting():
-    print("on_starting...")
-    logger.warning("on_starting...")
+    print("app starting")
+    logger.warning("app starting")
     sched = APScheduler()
     sched.add_job(
         id="clear_records_and_files",
