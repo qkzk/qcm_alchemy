@@ -38,7 +38,18 @@ class QcmParserError(Exception):
     pass
 
 
-class Qcm(db.Model):
+class SupportsCleaner:
+    @classmethod
+    def clear_old_records(cls) -> int:
+        """Self cleaning of the database. Uses the ForeignKey to clean children as well."""
+        now = datetime.now()
+        two_days_ago = now - timedelta(hours=48)
+        deleted = cls.query.filter(cls.datetime < two_days_ago).delete()
+        db.session.commit()
+        return deleted
+
+
+class Qcm(db.Model, SupportsCleaner):
     """
     Root Qcm model.
     Its childen (`QcmPart`) holds questions which holds answers.
@@ -102,17 +113,17 @@ class Qcm(db.Model):
         """True iff there's submitted works for this QCM"""
         return self.count_works() > 0
 
-    @classmethod
-    def clear_old_records(cls) -> int:
-        """Self cleaning of the database. Uses the ForeignKey to clean children as well."""
-        now = datetime.now()
-        two_days_ago = now - timedelta(hours=48)
-        deleted = cls.query.filter(cls.datetime < two_days_ago).delete()
-        # warning = f"{cls.__name__} deleted {deleted}"
-        # print(warning)
-        # logger.warning(warning)
-        db.session.commit()
-        return deleted
+    # @classmethod
+    # def clear_old_records(cls) -> int:
+    #     """Self cleaning of the database. Uses the ForeignKey to clean children as well."""
+    #     now = datetime.now()
+    #     two_days_ago = now - timedelta(hours=48)
+    #     deleted = cls.query.filter(cls.datetime < two_days_ago).delete()
+    #     # warning = f"{cls.__name__} deleted {deleted}"
+    #     # print(warning)
+    #     # logger.warning(warning)
+    #     db.session.commit()
+    #     return deleted
 
     def shuffled_parts(self) -> list["QcmPart"]:
         """
