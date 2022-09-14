@@ -96,7 +96,8 @@ def clear_records_and_files():
     """Scheduled task : clean the database and the old files."""
     logger.warning("cleaner: records is running...")
     deleted = Qcm.clear_old_records()
-    assert isinstance(deleted, int)
+    print(deleted, type(deleted))
+    logger.warning(f"{deleted}, {type(deleted)}")
     Student.clear_old_records()
     ResetKey.clear_old_records()
     EmailConfirmation.clear_old_records()
