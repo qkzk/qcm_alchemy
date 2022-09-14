@@ -282,8 +282,8 @@ def on_starting():
         id="clear_records_and_files",
         func=clear_records_and_files,
         trigger="interval",
-        minutes=5,
-        misfire_grace_time=900,
+        minutes=1,
+        misfire_grace_time=20,
     )
     sched.start()
     jobs = sched.get_jobs()
