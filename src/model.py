@@ -103,15 +103,16 @@ class Qcm(db.Model):
         return self.count_works() > 0
 
     @classmethod
-    def clear_old_records(cls):
+    def clear_old_records(cls) -> int:
         """Self cleaning of the database. Uses the ForeignKey to clean children as well."""
         now = datetime.now()
         two_days_ago = now - timedelta(hours=48)
         deleted = cls.query.filter(cls.datetime < two_days_ago).delete()
-        warning = f"{cls.__name__} deleted {deleted}"
-        print(warning)
-        logger.warning(warning)
+        # warning = f"{cls.__name__} deleted {deleted}"
+        # print(warning)
+        # logger.warning(warning)
         db.session.commit()
+        return deleted
 
     def shuffled_parts(self) -> list["QcmPart"]:
         """

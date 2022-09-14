@@ -95,7 +95,8 @@ DO_NOT_DELETE_FILENAMES = ("readme.md", "readme.txt")
 def clear_records_and_files():
     """Scheduled task : clean the database and the old files."""
     logger.warning("cleaner: records is running...")
-    Qcm.clear_old_records()
+    deleted = Qcm.clear_old_records()
+    assert isinstance(deleted, int)
     Student.clear_old_records()
     ResetKey.clear_old_records()
     EmailConfirmation.clear_old_records()
@@ -280,7 +281,7 @@ def on_starting():
         id="clear_records_and_files",
         func=clear_records_and_files,
         trigger="interval",
-        minutes=30,
+        minutes=1,
     )
     sched.start()
     jobs = sched.get_jobs()
