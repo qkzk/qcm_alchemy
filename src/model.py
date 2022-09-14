@@ -38,18 +38,25 @@ class QcmParserError(Exception):
     pass
 
 
-class SupportsCleaner:
+class SupportsClearOldRecords:
+    """
+    Holds a clear olds records classmethod.
+    """
+
     @classmethod
     def clear_old_records(cls, hours: int = 48) -> int:
-        """Self cleaning of the database. Uses the ForeignKey to clean children as well."""
+        """
+        Self cleaning of the database. Uses the ForeignKey to clean children as well.
+        Returns the number of deleted rows.
+        """
         now = datetime.now()
-        two_days_ago = now - timedelta(hours=hours)
-        deleted = cls.query.filter(cls.datetime < two_days_ago).delete()
+        hours_ago = now - timedelta(hours=hours)
+        deleted = cls.query.filter(cls.datetime < hours_ago).delete()
         db.session.commit()
         return deleted
 
 
-class Qcm(db.Model, SupportsCleaner):
+class Qcm(db.Model, SupportsClearOldRecords):
     """
     Root Qcm model.
     Its childen (`QcmPart`) holds questions which holds answers.
@@ -304,7 +311,7 @@ class QcmPartQuestionAnswer(db.Model):
         return Choice.query.filter_by(id_answer=self.id).count()
 
 
-class Student(db.Model):
+class Student(db.Model, SupportsClearOldRecords):
     """
     Holds the information about our students.
     We records only their name and their answers. Thoses answers can't be retrieved yet.
@@ -327,17 +334,6 @@ class Student(db.Model):
         "Teacher", back_populates="students", passive_deletes=True
     )
     student_ip = db.UniqueConstraint("name", "address")
-
-    @classmethod
-    def clear_old_records(cls):
-        """Self cleaning purpose. Delete every old student and its children (Work)."""
-        now = datetime.now()
-        two_days_ago = now - timedelta(hours=48)
-        deleted = cls.query.filter(cls.datetime < two_days_ago).delete()
-        warning = f"{cls.__name__} deleted {deleted}"
-        print(warning)
-        logger.warning(warning)
-        db.session.commit()
 
     @classmethod
     def find_or_add_student(cls, student_name: str, student_address: str) -> "Student":
@@ -671,7 +667,7 @@ class Teacher(UserMixin, db.Model):
         return f"Teacher({self.email})"
 
 
-class ResetKey(db.Model):
+class ResetKey(db.Model, SupportsClearOldRecords):
     """
     Holds the reset key
     """
@@ -715,17 +711,6 @@ class ResetKey(db.Model):
         return (datetime.now() - key.datetime).total_seconds() < 3600
 
     @classmethod
-    def clear_old_records(cls) -> None:
-        """Self cleaning purpose. Delete every old keys. Commit."""
-        now = datetime.now()
-        three_hours_ago = now - timedelta(hours=3)
-        deleted = cls.query.filter(cls.datetime < three_hours_ago).delete()
-        warning = f"{cls.__name__} deleted {deleted}"
-        print(warning)
-        logger.warning(warning)
-        db.session.commit()
-
-    @classmethod
     def clear(cls, id_teacher: int) -> type:
         """Remove all keys for `id_teacher` and return its class"""
         cls.remove_key(id_teacher)
@@ -738,7 +723,7 @@ class ResetKey(db.Model):
         return cls(key=key, id_teacher=id_teacher, datetime=datetime.now())
 
 
-class EmailConfirmation(db.Model):
+class EmailConfirmation(db.Model, SupportsClearOldRecords):
     """
     Holds the confirmation key
     """
@@ -782,17 +767,6 @@ class EmailConfirmation(db.Model):
             return False
         key = keys[0]
         return (datetime.now() - key.datetime).total_seconds() < 3600
-
-    @classmethod
-    def clear_old_records(cls) -> None:
-        """Self cleaning purpose. Delete every old keys."""
-        now = datetime.now()
-        three_hours_ago = now - timedelta(hours=3)
-        deleted = cls.query.filter(cls.datetime < three_hours_ago).delete()
-        warning = f"{cls.__name__} deleted {deleted}"
-        print(warning)
-        logger.warning(warning)
-        db.session.commit()
 
     @classmethod
     def clear(cls, id_teacher: int) -> Type["EmailConfirmation"]:

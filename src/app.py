@@ -94,17 +94,24 @@ DO_NOT_DELETE_FILENAMES = ("readme.md", "readme.txt")
 
 def clear_records_and_files():
     """Scheduled task : clean the database and the old files."""
-    logger.warning("cleaner: records is running...")
-    deleted = Qcm.clear_old_records()
-    print(deleted, type(deleted))
-    logger.warning(f"{deleted}, {type(deleted)}")
-    Student.clear_old_records()
-    ResetKey.clear_old_records()
-    EmailConfirmation.clear_old_records()
-    deleted = delete_old_files("UPLOAD_FOLDER")
-    deleted = delete_old_files("DOWNLOAD_FOLDER")
-    print("cleaner completed")
-    logger.warning("cleaner completed")
+    start_message = "cleaner started"
+    print(start_message)
+    logger.warning(start_message)
+    deleted = {
+        "Qcm": Qcm.clear_old_records(hours=48),
+        "Student": Student.clear_old_records(hours=48),
+        "ResetKey": ResetKey.clear_old_records(hours=3),
+        "EmailConfirmation": EmailConfirmation.clear_old_records(hours=3),
+        "UPLOAD_FOLDER": delete_old_files("UPLOAD_FOLDER"),
+        "DOWNLOAD_FOLDER": delete_old_files("DOWNLOAD_FOLDER"),
+    }
+    if any(deleted.values()):
+        warning = f"deleted: {deleted}"
+        print(warning)
+        logger.warning(warning)
+    completed_message = "cleaner completed"
+    print(completed_message)
+    logger.warning(completed_message)
 
 
 def delete_old_files(env_name: str) -> list[str]:
@@ -282,8 +289,8 @@ def on_starting():
         id="clear_records_and_files",
         func=clear_records_and_files,
         trigger="interval",
-        minutes=1,
-        misfire_grace_time=20,
+        minutes=30,
+        misfire_grace_time=200,
     )
     sched.start()
     jobs = sched.get_jobs()
