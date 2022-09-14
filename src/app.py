@@ -101,22 +101,22 @@ def clear_records_and_files():
     Student.clear_old_records()
     ResetKey.clear_old_records()
     EmailConfirmation.clear_old_records()
-    delete_old_files("UPLOAD_FOLDER")
-    delete_old_files("DOWNLOAD_FOLDER")
+    deleted = delete_old_files("UPLOAD_FOLDER")
+    deleted = delete_old_files("DOWNLOAD_FOLDER")
     print("cleaner completed")
     logger.warning("cleaner completed")
 
 
-def delete_old_files(env_name: str):
+def delete_old_files(env_name: str) -> list[str]:
     """Delete old files from created_files and uploads"""
     directory = os.path.join(os.getcwd(), app.config[env_name])
+    removed = []
     for filename in os.listdir(directory):
         if filename.lower() not in DO_NOT_DELETE_FILENAMES:
             filepath = os.path.join(directory, filename)
             os.remove(filepath)
-            message = f"removed {filepath}"
-            print(message)
-            logger.warning(message)
+            removed.append(filepath)
+    return removed
 
 
 def parse_file(
@@ -282,7 +282,7 @@ def on_starting():
         id="clear_records_and_files",
         func=clear_records_and_files,
         trigger="interval",
-        minutes=1,
+        minutes=5,
         misfire_grace_time=900,
     )
     sched.start()

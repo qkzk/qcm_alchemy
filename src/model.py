@@ -40,10 +40,10 @@ class QcmParserError(Exception):
 
 class SupportsCleaner:
     @classmethod
-    def clear_old_records(cls) -> int:
+    def clear_old_records(cls, hours: int = 48) -> int:
         """Self cleaning of the database. Uses the ForeignKey to clean children as well."""
         now = datetime.now()
-        two_days_ago = now - timedelta(hours=48)
+        two_days_ago = now - timedelta(hours=hours)
         deleted = cls.query.filter(cls.datetime < two_days_ago).delete()
         db.session.commit()
         return deleted
