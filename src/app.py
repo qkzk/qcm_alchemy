@@ -98,8 +98,8 @@ def clear_records_and_files():
     print(start_message)
     logger.warning(start_message)
     deleted = {
-        "Qcm": Qcm.clear_old_records(hours=48),
-        "Student": Student.clear_old_records(hours=48),
+        "Qcm": Qcm.clear_old_records(hours=24 * 7),
+        "Student": Student.clear_old_records(hours=24 * 7),
         "ResetKey": ResetKey.clear_old_records(hours=3),
         "EmailConfirmation": EmailConfirmation.clear_old_records(hours=3),
         "UPLOAD_FOLDER": delete_old_files("UPLOAD_FOLDER"),
