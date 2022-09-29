@@ -18,7 +18,7 @@
     <div class="text-center question-answers">
         <h2 class="not-visible" id="qcm-url">
             <img src="{{ qrcode(url_for('student', _external=True, _scheme='https'), border=2) }}"}>
-            {{ url_for("index", _external=True) }}
+            {{ url_for("index", _external=True, _scheme='https') }}
             <div class="spacediv"></div>
             QCM Numéro :
         </h2>
