@@ -634,6 +634,7 @@ def create_app() -> Flask:
         path = os.path.join(os.getcwd(), app.config["DOWNLOAD_FOLDER"], filename)
 
         if email_csv_was_sent(current_user.email, path, qcm.title):
+            print("Email with CSV sent to {current_user} for QCM {qcm.id}")
             flash("Les résultats du QCM ont été envoyés sur votre email de contact")
         return redirect(url_for("view", id_qcm=qcm.id, inserted=0))
 
