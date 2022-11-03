@@ -76,12 +76,7 @@
         </button>
         {% endif %}
         <button title="
-          {% if qcm.is_open %}
-          Fermer
-          {% else %}
-          Ouvrir
-          {% endif %}
-          le QCM">
+          {% if qcm.is_open %} Fermer {% else %} Ouvrir {% endif %}le QCM">
             <a href="{{ url_for('toggle_open', id_qcm=qcm.id) }}">
                 {% if qcm.is_open %}
                 Fermer
@@ -90,7 +85,7 @@
                 {% endif %}
             </a>
         </button>
-        <button id="toggle_chart">
+        <button id="toggle_chart" title="Résumés graphiques">
             Graphes
         </button>
     </div>
