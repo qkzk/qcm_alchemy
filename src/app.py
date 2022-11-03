@@ -608,7 +608,7 @@ def create_app() -> Flask:
         directory = os.path.join(os.getcwd(), app.config["DOWNLOAD_FOLDER"])
         return send_from_directory(directory=directory, path=path)
 
-    @app.route("email_export/<int:id_qcm>")
+    @app.route("/email_export/<int:id_qcm>")
     @login_required
     def email_export(id_qcm: int):
         if not current_user.is_confirmed:
