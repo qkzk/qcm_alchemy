@@ -1,4 +1,4 @@
-# [qcmqkzk.herokuapp.com](https://qcmqkzk.herokuapp.com)
+# [qcmqkzk.fr](https://qcmqkzk.fr)
 
 Publish a multiple choice questions to your student from a simple markdown file.
 
@@ -20,7 +20,6 @@ Ce projet permet de créer des QCMs depuis un fichier source markdown et de les 
 8. Vous pouvez fermer le QCM et empecher les élèves d'y contribuer
 9. Vous récoltez leurs scores et leurs réponses
 
-
 ![qcmqkzk](./qcmqkzk.png)
 
 ## Format de fichier
@@ -30,7 +29,6 @@ Le plus simple est de regarder cette [vidéo](https://youtu.be/Jogm2cbgnEE) ou d
 En gros :
 
 ```markdown
-
 # titre du QCM
 
 ## une partie
@@ -50,23 +48,22 @@ sous texte de la question
 
 ## Deux types de questions :
 
-* avec **une seule bonne réponse**. L'élève ne peut en choisir plusieurs. Corrigées automatiquement.
-* avec **une zone de texte**. L'élève écrit un texte pour répondre. Vous devez lire les réponses.
+- avec **une seule bonne réponse**. L'élève ne peut en choisir plusieurs. Corrigées automatiquement.
+- avec **une zone de texte**. L'élève écrit un texte pour répondre. Vous devez lire les réponses.
 
 ## Intégration de code
 
-Vous pouvez intégrer du code en ligne en l'entourant d'accents graves `` `f(x)=3` `` 
+Vous pouvez intégrer du code en ligne en l'entourant d'accents graves `` `f(x)=3` ``
 
 Pour du code dans le sous-texte :
 
-~~~markdown
-
+````markdown
 ```python
 a = 1
 def f(x):
     return x ** 2
 ```
-~~~
+````
 
 Attention seuls les "backticks" (accents graves) sont supportés, pas les tildes.
 
@@ -103,14 +100,13 @@ va produire :
 
 ![sad panda](https://t4.ftcdn.net/jpg/04/77/53/75/360_F_477537591_3WXDC8zpsKBALlg8RBKejezg6SE7YbWh.jpg)
 
-
 ## Tableaux
 
 Les tableaux markdown sont supportés nativement :
 
 ```markdown
 | nom   | prénom | note |
-|-------|--------|------|
+| ----- | ------ | ---- |
 | Jean  | Dupont | 14   |
 | Marie | Frank  | 20   |
 ```
@@ -118,16 +114,16 @@ Les tableaux markdown sont supportés nativement :
 va produire :
 
 | nom   | prénom | note |
-|-------|--------|------|
+| ----- | ------ | ---- |
 | Jean  | Dupont | 14   |
 | Marie | Frank  | 20   |
 
 # Mode anti-triche
 
-* Les parties, questions et choix sont mélangés. C'est automatique et différent pour chaque élève.
-* On ne peut pas cliquer sur les images (pour faire une recherche en ligne).
-* Si l'élève quitte la page, ses réponses sont enregistrées et il ne peut plus avancer.
-* Il peut toujours retenter... mais vous verrez à quelle heure il a répondu
+- Les parties, questions et choix sont mélangés. C'est automatique et différent pour chaque élève.
+- On ne peut pas cliquer sur les images (pour faire une recherche en ligne).
+- Si l'élève quitte la page, ses réponses sont enregistrées et il ne peut plus avancer.
+- Il peut toujours retenter... mais vous verrez à quelle heure il a répondu
 
 # Correction
 
@@ -151,15 +147,14 @@ Les QCM sont eux aussi effacés après trois jours, n'ayant pas la place pour en
 
 # Technologies utilisées
 
-* Python 3
-* Flask (création des pages)
-* Extensions Flask : Flask-WTF, FlaskSQLAlchemy, FlaskLogin etc.
-* Google API & Google Gmail API pour l'envoi d'emails
-* Gunicorn (serveur web WSGI)
-* PostgreSQL (bdd)
-* Mathjax (latex)
-* Heroku (service en ligne dans le cloud)
-* AWS (hébergement interne de heroku)
+- Python 3
+- Flask (création des pages)
+- Extensions Flask : Flask-WTF, FlaskSQLAlchemy, FlaskLogin etc.
+- Google API & Google Gmail API pour l'envoi d'emails
+- Gunicorn (serveur web WSGI)
+- PostgreSQL (bdd)
+- Mathjax (latex)
+- OVH(service en ligne dans le cloud)
 
 # Problèmes, bugs ?
 
@@ -171,8 +166,8 @@ Le code est là pour vous répondre...
 
 # Pourquoi ?
 
-* Je n'aime pas corriger.
-* Les solutions existantes ne répondent à mon besoin. La plus approchante est [doctools](https://doctools.dgpad.net/), consultez `DocEval`.
+- Je n'aime pas corriger.
+- Les solutions existantes ne répondent à mon besoin. La plus approchante est [doctools](https://doctools.dgpad.net/), consultez `DocEval`.
 
 ---
 
@@ -237,7 +232,6 @@ Le code est là pour vous répondre...
 - [x] lorsqu'on envoie les answers à la vue, faut envoyer l'`id_question: id_answer` à la vue
 - [x] ensuite on compare `id_question: id_answer` avec `id_question: id(answer where is_correct)`
 
-
 ### Caching
 
 - [ ] utiliser [flask caching](https://flask-caching.readthedocs.io/en/latest/)
@@ -247,7 +241,8 @@ Le code est là pour vous répondre...
 
 - [x] gunicorn
 - [x] postgres
-- [x] heroku (i don't understand why I can't use GCP...)
+- [ ] heroku (i don't understand why I can't use GCP...)
+- [x] VPS + SSL + Domain name : OVH
 
 ### Migrations
 
@@ -257,14 +252,13 @@ With Flask-Migrate.
 2. `flask db init`
 3. Everytime you modify a `db.Model` class, run :
 
-    ```bash
-    $ flask db stamp head               # To set the revision in the database to the head, without performing any migrations. You can change head to the required change you want.
-    $ flask db migrate -m "comment"     # To detect automatically all the changes.
-    $ flask db upgrade                  # To apply all the changes.
-    ```
+   ```bash
+   $ flask db stamp head               # To set the revision in the database to the head, without performing any migrations. You can change head to the required change you want.
+   $ flask db migrate -m "comment"     # To detect automatically all the changes.
+   $ flask db upgrade                  # To apply all the changes.
+   ```
 
 I think that's all.
-
 
 ### Forms with WTF Forms
 
@@ -283,63 +277,66 @@ Last problem is QCM view for student. Check steps below
 - [x] présenter un qcm
 - [x] enregistrer les réponses
 - [x] noter les réponses
-- [x] afficher des récaps : 
-    - [x] ensemble des qcm
-    - [x] notes d'un qcm
-    - [x] notes d'un étudiant
+- [x] afficher des récaps :
+  - [x] ensemble des qcm
+  - [x] notes d'un qcm
+  - [x] notes d'un étudiant
 - [x] style pour chaque page
 - [x] latex
 - [x] block content etc.
 - [x] exporter en csv
 - [x] nettoyer
-    - [x] la bdd
-    - [x] les fichiers downloadés
+  - [x] la bdd
+  - [x] les fichiers downloadés
 - [x] mélanger
-    - [x] parts
-    - [x] questions
-    - [x] ajouter "je ne sais pas"
+  - [x] parts
+  - [x] questions
+  - [x] ajouter "je ne sais pas"
 - [x] serve with gunicorn
 - [x] séparer le modèle de la création des instances
 - [x] déployer qq part : **HEROKU : [qcmqkzk](https://qcmqkzk.herokuapp.com/)**
-    - [x] vues 
-    - [x] upload
-    - [x] download
-    - [x] bdd
 
-        * impossible de run heroku et sqlite, il faut switch : [hero sqlite](https://devcenter.heroku.com/articles/sqlite3)
-        * [postgres](https://towardsdatascience.com/deploy-a-micro-flask-application-into-heroku-with-postgresql-database-d95fd0c19408)
-        * Many fixes needed...
-            1. setup postgres locally following [archwiki](https://wiki.archlinux.org/title/PostgreSQL)
-            2. add postgres to heroku with [medium](https://towardsdatascience.com/deploy-a-micro-flask-application-into-heroku-with-postgresql-database-d95fd0c19408)
-                some steps are wrong :
+  - [x] vues
+  - [x] upload
+  - [x] download
+  - [x] bdd
 
-                1. Flask-Migrate doesn't work like this anymore.
-                2. the uri-database can't start with `postgres` but with `postgresql` so we have to ensure the setup is rectified IN THE CODE. Since changing it in `setup.sh` does nothing.
-                3. Once everything is working you can log into the DB with `heroku pg:psql postgresql-clear-05212 --app casting-agency-xw` where postgresql-clear-05212 is the name of the DB (found [here](https://dashboard.heroku.com/apps/qcmqkzk/resources))
-                4. You can log into the dyno with `heroku run bash`, see the logs with `heroku log --tail`
-    - [x] Fix "bad CSRF token" or "CSRF token is missing", raising 400 errors
+    - impossible de run heroku et sqlite, il faut switch : [hero sqlite](https://devcenter.heroku.com/articles/sqlite3)
+    - [postgres](https://towardsdatascience.com/deploy-a-micro-flask-application-into-heroku-with-postgresql-database-d95fd0c19408)
+    - Many fixes needed...
+
+      1. setup postgres locally following [archwiki](https://wiki.archlinux.org/title/PostgreSQL)
+      2. add postgres to heroku with [medium](https://towardsdatascience.com/deploy-a-micro-flask-application-into-heroku-with-postgresql-database-d95fd0c19408)
+         some steps are wrong :
+
+         1. Flask-Migrate doesn't work like this anymore.
+         2. the uri-database can't start with `postgres` but with `postgresql` so we have to ensure the setup is rectified IN THE CODE. Since changing it in `setup.sh` does nothing.
+         3. Once everything is working you can log into the DB with `heroku pg:psql postgresql-clear-05212 --app casting-agency-xw` where postgresql-clear-05212 is the name of the DB (found [here](https://dashboard.heroku.com/apps/qcmqkzk/resources))
+         4. You can log into the dyno with `heroku run bash`, see the logs with `heroku log --tail`
+
+  - [x] Fix "bad CSRF token" or "CSRF token is missing", raising 400 errors
         When using a random secret_key in flask with gunicorn, AFAIK the page may be generated
         by a worker and the next request received by another. When they start, the key is changed.
-        The solution is to setup a key in `env`, with : 
+        The solution is to setup a key in `env`, with :
 
-        ```heroku
-        FLASK_SECRET_KEY: "a random secret key from secrets.urlsafe(16)"
-        ```
+    ```heroku
+    FLASK_SECRET_KEY: "a random secret key from secrets.urlsafe(16)"
+    ```
 
-        Then read the key in application.
-        See [commit](https://github.com/qkzk/qcm_alchemy/commit/cd0bbc4a49a9b3186e335dc6af6691db7c5c9331)
-        issue: [#35](https://github.com/qkzk/qcm_alchemy/issues/35)
+    Then read the key in application.
+    See [commit](https://github.com/qkzk/qcm_alchemy/commit/cd0bbc4a49a9b3186e335dc6af6691db7c5c9331)
+    issue: [#35](https://github.com/qkzk/qcm_alchemy/issues/35)
 
 - [x] styling : banner, radio, infos dans base, uniformité
 - [x] test hosting
-    - [x] hammering and intense testing. Sort of. Résultat : 13ms pour le contenu. QQ ms pour le rendu. trop jde JS.
+  - [x] hammering and intense testing. Sort of. Résultat : 13ms pour le contenu. QQ ms pour le rendu. trop jde JS.
 - [x] limit strings, safe inputs and good practices
 - [x] RGPD et tutoriel
 - [x] login pour enseignant ???
-    - [x] proposer un numero pour consulter les QCM notes
-    - [x] demander le numéro lorsqu'on cherche à consulter les résultats
-    - [x] trouver un moyen de consulter les notes pas élève... compliqué
-    - [x] migrer la database de heroku
+  - [x] proposer un numero pour consulter les QCM notes
+  - [x] demander le numéro lorsqu'on cherche à consulter les résultats
+  - [x] trouver un moyen de consulter les notes pas élève... compliqué
+  - [x] migrer la database de heroku
 - [x] refactor app
 - [x] refactor model
 - [x] Text answers
@@ -347,53 +344,132 @@ Last problem is QCM view for student. Check steps below
 - [ ] refactor views
 - [x] remove `setup.sh` from git history. Password changed
 - [x] login
-    - [x] flask login
-    - [x] forcer les enseignants à se logguer
-    - [x] empecher les enseignants de consulter des autres QCM que les leurs
-    - [x] requirements.txt
-    - [x] problème des librairies qui foirent voir l'import initial dans sendmail
-            comment résoudre ça dans heroku ?
-    - [x] comment stocker des token dans heroku ?
-    - [x] refactor tous les nouveaux trucs, les textes etc.
-    - [x] migrer la bdd de heroku
-    - [x] supprimer un compte
-    - [x] confirm real addresses
-    - [x] change password
+  - [x] flask login
+  - [x] forcer les enseignants à se logguer
+  - [x] empecher les enseignants de consulter des autres QCM que les leurs
+  - [x] requirements.txt
+  - [x] problème des librairies qui foirent voir l'import initial dans sendmail
+        comment résoudre ça dans heroku ?
+  - [x] comment stocker des token dans heroku ?
+  - [x] refactor tous les nouveaux trucs, les textes etc.
+  - [x] migrer la bdd de heroku
+  - [x] supprimer un compte
+  - [x] confirm real addresses
+  - [x] change password
 - [x] parser : now detects code blocs properly, allowing lines starting with `#` in code blocks.
 - [ ] Flask-WTF
-    - [x] simple views (login, reset password, change password, student)
-    - [x] new qcms
-    - [x] csrf everywhere
-    - [ ] qcm views for student. [SO question](https://stackoverflow.com/questions/11622592/wtforms-create-variable-number-of-fields) [doc](https://wtforms.readthedocs.io/en/3.0.x/specific_problems/#dynamic-form-composition)
+  - [x] simple views (login, reset password, change password, student)
+  - [x] new qcms
+  - [x] csrf everywhere
+  - [ ] qcm views for student. [SO question](https://stackoverflow.com/questions/11622592/wtforms-create-variable-number-of-fields) [doc](https://wtforms.readthedocs.io/en/3.0.x/specific_problems/#dynamic-form-composition)
         must be dynamicly composed
         check for radio element insertion
         find a way to retrieve correct ids for question -> ansers and text-question -> text-answer
 - [x] Flash instead of message passing to views
 - [ ] hosting
-    - [ ] créer une adresse expres ?
-    - [ ] utiliser une adresse du nom de domaine ???
+  - [ ] créer une adresse expres ?
+  - [ ] utiliser une adresse du nom de domaine ???
 - [ ] creates review for students... ????
 - [ ] send unique mails per students
-    - [ ] student mailing list linked to group then to teacher
-            models :
-            teacher <- group <- student-email <-> student <- work
-    - [ ] option for the teacher
-    - [ ] associate email to work (?)
-    - [ ] send lots of unique mails at once... ressource hungry ???
-    - [ ] what to do when the FAIL
-    - [ ] how to deal with lags & whatever ???
+  - [ ] student mailing list linked to group then to teacher
+        models :
+        teacher <- group <- student-email <-> student <- work
+  - [ ] option for the teacher
+  - [ ] associate email to work (?)
+  - [ ] send lots of unique mails at once... ressource hungry ???
+  - [ ] what to do when the FAIL
+  - [ ] how to deal with lags & whatever ???
 - [x] open close a QCM
 - [x] sort marks per column (doesn't work for dates...)
 - [x] QR codes
 - [ ] auth students with google accounts...
 - [ ] give student list and allow them to pick their name. Won't exclude trolls
 
-   | Solution           | pros          | cons                         |
-   |--------------------|---------------|------------------------------|
-   | unique links email | unique        | difficult to do              |
-   |                    | easy to track | ressource hungry             |
-   | sign with google   | unique        | may be difficult             |
-   | pick from list     | easy          | trolls may pick another name |
-   | read ip            | ?             | doesn't prevent              |
-   | open / close       | easy          | not much                     |
+  | Solution           | pros          | cons                         |
+  | ------------------ | ------------- | ---------------------------- |
+  | unique links email | unique        | difficult to do              |
+  |                    | easy to track | ressource hungry             |
+  | sign with google   | unique        | may be difficult             |
+  | pick from list     | easy          | trolls may pick another name |
+  | read ip            | ?             | doesn't prevent              |
+  | open / close       | easy          | not much                     |
 
+- [x] Heroku devient payant et le site est migré chez OVH : [qcmqkzk.fr](https://qcmqkzk.fr) qui est lui même payant mais moins cher.
+
+## Migration OVH
+
+1. docker compose pour la bdd et le site
+2. VPS debian OVH, configuré correctement (ssh passwordless etc.)
+3. nom de domaine OVH
+4. SSL proposé par OVH, changer la redirection vers 443
+
+### BDD reset
+
+Pour l'instant j'ai 3 soucis
+
+- [x] la bdd est accessible depuis l'extérieur : bloquer dans ufw. [source](https://ettayeb.fr/faire-cohabiter-docker-et-ufw/)
+- [ ] la bdd est reset à chaque `sudo docker-compose down` puis `sudo docker-compose up -d`
+  - fix bizarre... ne pas faire `down` et `up` mais `stop` et `start`
+- [ ] les identifiants de bdd ne sont pas sécurisés : pas grave inaccessible depuis l'extérieur
+  - [ ] utiliser un export local depuis un fichier transféré à la main
+  - [ ] lire les identifiants dans python et dans docker
+  - [ ] accéder à la bdd depuis VPS : `psql -h 172.17.0.1 -U quentin qcm`
+
+### setup
+
+1. debian vps
+
+- apt-get update && apt-get upgrade
+- apt-get install postgresql postgresql-client
+- setup sshd pour login passwordless depuis PC, disable root login, disable password login, change default port
+- install ufw, disable tout, ajouter port du ssh, ajouter route 443 pour flask
+- installer docker & docker-compose
+- git clone repo, branch docker
+- ajouter à la main le dossier token
+- docker compose build up, docker ps, docker-compose ps, check logs
+
+2. activer un nom de domain, router vers ip du VPS
+3. ativer ssh OVH, router vers 443
+
+### Contrôler
+
+- accéder au vps depuis qkzk `ssh debian@54.38.243.9 -p 44444`
+- accéder à la bdd depuis vps `psql -h 172.17.0.1 -U quentin qcm`
+- relancer le firewall : `sudo ufw reload`
+- settings du firewall : `sudo vim /etc/ufw/after.rules`
+- relancer les serveurs : `sudo docker-compose stop` et `sudo docker-compose start`
+- logs docker : `sudo docker-compose logs -f`
+- reconstruire les images sans effacer la bdd : `sudo docker-compose down` et `sudo docker-compose up --build -d`
+
+## Status
+
+```bash
+sudo ufw status
+Status: active
+
+To                         Action      From
+--                         ------      ----
+44444                      ALLOW       Anywhere
+22/tcp                     ALLOW       Anywhere
+44444 (v6)                 ALLOW       Anywhere (v6)
+22/tcp (v6)                ALLOW       Anywhere (v6)
+
+443/tcp                    ALLOW FWD   Anywhere
+443/tcp (v6)               ALLOW FWD   Anywhere (v6)
+```
+
+```bash
+sudo docker ps
+CONTAINER ID   IMAGE             COMMAND                  CREATED          STATUS         PORTS
+                  NAMES
+040e81c8632a   qcm_alchemy_app   "gunicorn --bind 0.0…"   39 minutes ago   Up 8 minutes   0.0.0.0:443->443/tcp, :::443->443/tcp       qcm_alchemy_app_1
+1fde529fb39b   postgres:latest   "docker-entrypoint.s…"   39 minutes ago   Up 8 minutes   0.0.0.0:5432->5432/tcp, :::5432->5432/tcp   postgres
+```
+
+```bash
+sudo docker-compose ps
+      Name                     Command               State                    Ports
+-----------------------------------------------------------------------------------------------------
+postgres            docker-entrypoint.sh postgres    Up      0.0.0.0:5432->5432/tcp,:::5432->5432/tcp
+qcm_alchemy_app_1   gunicorn --bind 0.0.0.0:44 ...   Up      0.0.0.0:443->443/tcp,:::443->443/tcp
+```

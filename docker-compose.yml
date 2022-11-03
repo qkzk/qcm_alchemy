@@ -1,0 +1,22 @@
+version: '3.5'
+services:
+  database:
+    container_name: postgres
+    image: postgres:latest
+    restart: always
+    env_file: database.conf
+    ports:
+      - 5432:5432  
+    volumes:
+      - db_volume:/var/lib/postgresql/data
+  app:
+    build: 
+      context: ./
+    restart: always
+    depends_on:
+      - database
+    ports:
+      - 443:443
+volumes:
+  app:
+  db_volume:

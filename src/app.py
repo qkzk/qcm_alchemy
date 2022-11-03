@@ -4,7 +4,7 @@ author: qkzk
 date: 2022/05/08
 """
 import os
-from datetime import timedelta
+from datetime import datetime, timedelta
 import multiprocessing
 
 from flask import (
@@ -43,6 +43,7 @@ from .forms import (
     QcmFileForm,
     StudentForm,
 )
+from .logger import logger
 from .model import (
     QcmFileError,
     app,
@@ -67,7 +68,7 @@ RESET_PASSWORD_MAIL_CONTENT = """Cher utilisateur de qcmqkzk,
 
 Réinitialisez votre mot de passe en suivant ce lient : 
 
-https://qcmqkzk.herokuapp.com/reset_password/{id_teacher}/{key} 
+https://qcmqkzk.fr/reset_password/{id_teacher}/{key} 
 
 Ce lien est valable une heure.
 
@@ -81,33 +82,48 @@ Votre compte n'est pas encore actif.
 
 Veuillez suivre sur le lien ci-dessous pour le confirmer : 
 
-https://qcmqkzk.herokuapp.com/email_confirmation/{id_teacher}/{key}
+https://qcmqkzk.fr/email_confirmation/{id_teacher}/{key}
 
 À bientôt,
 
 qcmqkzk
 
                     """
+DO_NOT_DELETE_FILENAMES = ("readme.md", "readme.txt")
 
 
 def clear_records_and_files():
     """Scheduled task : clean the database and the old files."""
-    print("cleaner is running...")
-    Qcm.clear_old_records()
-    Student.clear_old_records()
-    ResetKey.clear_old_records()
-    EmailConfirmation.clear_old_records()
-    delete_old_files("UPLOAD_FOLDER")
-    delete_old_files("DOWNLOAD_FOLDER")
-    print("cleaner completed")
+    start_message = "cleaner started"
+    print(start_message)
+    logger.warning(start_message)
+    deleted = {
+        "Qcm": Qcm.clear_old_records(hours=24 * 7),
+        "Student": Student.clear_old_records(hours=24 * 7),
+        "ResetKey": ResetKey.clear_old_records(hours=3),
+        "EmailConfirmation": EmailConfirmation.clear_old_records(hours=3),
+        "UPLOAD_FOLDER": delete_old_files("UPLOAD_FOLDER"),
+        "DOWNLOAD_FOLDER": delete_old_files("DOWNLOAD_FOLDER"),
+    }
+    if any(deleted.values()):
+        warning = f"deleted: {deleted}"
+        print(warning)
+        logger.warning(warning)
+    completed_message = "cleaner completed"
+    print(completed_message)
+    logger.warning(completed_message)
 
 
-def delete_old_files(env_name: str):
+def delete_old_files(env_name: str) -> list[str]:
     """Delete old files from created_files and uploads"""
     directory = os.path.join(os.getcwd(), app.config[env_name])
+    removed = []
     for filename in os.listdir(directory):
-        if filename != "readme.md":
-            os.remove(os.path.join(directory, filename))
+        if filename.lower() not in DO_NOT_DELETE_FILENAMES:
+            filepath = os.path.join(directory, filename)
+            os.remove(filepath)
+            removed.append(filepath)
+    return removed
 
 
 def parse_file(
@@ -265,16 +281,27 @@ def extract_ip(request: Request) -> str:
     return request.access_route[0]
 
 
-def create_app() -> Flask:
-    """Create a Flask Application with database and scheduler."""
+def on_starting():
+    print("app starting")
+    logger.warning("app starting")
     sched = APScheduler()
     sched.add_job(
         id="clear_records_and_files",
         func=clear_records_and_files,
         trigger="interval",
-        hours=24,
+        minutes=30,
+        misfire_grace_time=200,
     )
     sched.start()
+    jobs = sched.get_jobs()
+    warning = f"shed started. Jobs: {jobs}"
+    print(warning)
+    logger.warning(warning)
+
+
+def create_app() -> Flask:
+    """Create a Flask Application with database and scheduler."""
+    on_starting()
 
     login = LoginManager(app)
     login.login_view = "login"
@@ -333,6 +360,7 @@ def create_app() -> Flask:
                 print(f"{teacher}: login successful")
                 login_user(teacher)
                 flash("Vous êtes maintenant connecté.")
+                logger.warning(f"teacher {teacher} logged in.")
                 return redirect(url_for("teacher"))
             else:
                 flash("Identifants incorrects.")
@@ -385,6 +413,7 @@ def create_app() -> Flask:
                 print(f"teacher {teacher} inserted... sending mail")
                 confirmation_key = EmailConfirmation.clear(teacher.id).new(teacher.id)
                 if email_confirmation_was_sent(email, teacher.id, confirmation_key.key):
+                    logger.warning(f"teacher {teacher} added - pending confimation")
                     db.session.add(confirmation_key)
                     db.session.commit()
                     return redirect(url_for("email_confirmation"))
@@ -450,6 +479,7 @@ def create_app() -> Flask:
             EmailConfirmation.remove_key(teacher.id)
             print(f"{teacher}: email confirmed")
             flash("Votre compte est crée. Vous pouvez vous connecter")
+            logger.warning(f"teacher {teacher}: email confirmed")
             return render_template("index.html")
         abort(404)
 
@@ -478,9 +508,11 @@ def create_app() -> Flask:
     def remove_account():
         teacher_email = current_user.email
         id_teacher = current_user.id
+        logger.warning(f"removing account for {current_user}")
         current_user.remove_and_commit()
         print(f"{teacher_email}, {id_teacher} removed from db")
         flash("Votre compte, vos qcms et les travaux de vos élèves sont supprimés.")
+
         return redirect(url_for("index"))
 
     @app.route("/rgpd")
@@ -514,7 +546,10 @@ def create_app() -> Flask:
 
             try:
                 id_qcm = insert_from_file(file, current_user)
-                print(f"qcm inserted correctly {id_qcm}")
+                warning = f"qcm inserted correctly {id_qcm}"
+                print(warning)
+                logger.warning(warning)
+
                 return redirect(url_for("view", id_qcm=id_qcm, inserted=True))
             except (QcmFileError, ParseQCMError, ValueError, TimeoutError) as e:
                 print(repr(e))
