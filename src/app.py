@@ -626,7 +626,8 @@ def create_app() -> Flask:
         if not qcm.id_teacher == current_user.id:
             print(f"current_user {current_user} isn't the owner of Qcm {qcm}")
             return redirect(url_for("index"))
-        path = Work.write_export(id_qcm)
+        filename = Work.write_export(id_qcm)
+        path = os.path.join(os.getcwd(), app.config["DOWNLOAD_FOLDER"], filename)
 
         if email_csv_was_sent(current_user.email, path, qcm.title):
             flash("Les résultats du QCM ont été envoyés sur votre email de contact")
