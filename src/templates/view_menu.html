@@ -53,29 +53,35 @@
     <div class="spacediv">
     </div>
     <div style="text-align: center;">
-        <button>
+        <button title="Visualiser votre QCM">
             <a href="{{ url_for('preview', id_qcm=qcm.id) }}">
                 Voir
             </a>
         </button>
-        <button>
+        <button title="Effacer le QCM">
             <a href="{{ url_for('remove', id_qcm=qcm.id) }}">
                 Supprimer
             </a>
         </button>
         {% if qcm.has_works() %}
-        <button>
+        <button title="Télécharger les notes en CSV">
             <a href="{{ url_for('export', id_qcm=qcm.id) }}">
                 CSV
             </a>
         </button>
-        <button>
+        <button title="Envoyer les notes à votre email">
             <a href="{{ url_for('email_export', id_qcm=qcm.id) }}">
                 Email
             </a>
         </button>
         {% endif %}
-        <button>
+        <button title="
+          {% if qcm.is_open %}
+          Fermer
+          {% else %}
+          Ouvrir
+          {% endif %}
+          le QCM">
             <a href="{{ url_for('toggle_open', id_qcm=qcm.id) }}">
                 {% if qcm.is_open %}
                 Fermer
