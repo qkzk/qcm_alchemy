@@ -276,6 +276,15 @@ def email_reset_password_was_sent(email: str, id_teacher: int, reset_key: str) -
     ).send_message()
 
 
+def email_csv_was_sent(email: str, path: str, qcm_title: str) -> bool:
+    return EmailSender(
+        SERVER_PASSWORD_MAIL_ADDRESS,
+        email,
+        CSV_MAIL_TOPIC,
+        CSV_MAIL_CONTENT.format(email=email, qcm_title=qcm_title, attachment=path),
+    ).send_message()
+
+
 def extract_ip(request: Request) -> str:
     """Returns the client ip address as a string"""
     return request.access_route[0]
@@ -598,6 +607,20 @@ def create_app() -> Flask:
         path = Work.write_export(id_qcm)
         directory = os.path.join(os.getcwd(), app.config["DOWNLOAD_FOLDER"])
         return send_from_directory(directory=directory, path=path)
+
+    @app.route("email_export/<int:id_qcm>")
+    @login_required
+    def email_export(id_qcm: int):
+        if not current_user.is_confirmed:
+            return redirect(url_for("index"))
+        if not Qcm.id_teacher == current_user.id:
+            return redirect(url_for("index"))
+        path = Work.write_export(id_qcm)
+        title = Qcm.query.get_or_404(id_qcm)
+
+        if email_csv_was_sent(current_user.email, path, title):
+            flash("Les résultats du QCM ont été envoyés sur votre email de contact")
+        return redirect(url_for("teacher"))
 
     @app.route("/student")
     def student():

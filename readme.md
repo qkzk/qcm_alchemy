@@ -473,3 +473,17 @@ sudo docker-compose ps
 postgres            docker-entrypoint.sh postgres    Up      0.0.0.0:5432->5432/tcp,:::5432->5432/tcp
 qcm_alchemy_app_1   gunicorn --bind 0.0.0.0:44 ...   Up      0.0.0.0:443->443/tcp,:::443->443/tcp
 ```
+
+```
+debian@vps-659ff8f4:~/qcm_alchemy$ git diff
+diff --git a/server.sh b/server.sh
+index 2f2b62f..c56aee4 100755
+--- a/server.sh
++++ b/server.sh
+@@ -1,4 +1,4 @@
+ #!/usr/bin/sh
+
+-gunicorn wsgi:app -w 3 --threads 1 -b 0.0.0.0:8000 --config gunicorn_hooks_config.py
++gunicorn wsgi:app -w 3 --threads 1 -b 0.0.0.0:443
+ # gunicorn wsgi:app --config gunicorn_config.py
+```

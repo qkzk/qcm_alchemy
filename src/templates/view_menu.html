@@ -69,6 +69,11 @@
                 CSV
             </a>
         </button>
+        <button>
+            <a href="{{ url_for('email_export', id_qcm=qcm.id) }}">
+                Email
+            </a>
+        </button>
         {% endif %}
         <button>
             <a href="{{ url_for('toggle_open', id_qcm=qcm.id) }}">
