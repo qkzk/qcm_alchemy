@@ -90,12 +90,16 @@ qcmqkzk
 
                     """
 
-CSV_MAIL_TOPIC = "qcmqkzk: résults pour votre QCM"
+CSV_MAIL_TOPIC = "qcmqkzk: résultats pour votre QCM {qcm_title}"
+
 CSV_MAIL_CONTENT = """
 Bonjour {email} !
 
-Voici les résultats de votre QCM: {qcm_title}
+Voici les résultats de votre QCM: {qcm_title}.
+
+qcmqkzk
 """
+
 DO_NOT_DELETE_FILENAMES = ("readme.md", "readme.txt")
 
 
@@ -287,7 +291,7 @@ def email_csv_was_sent(email: str, path: str, qcm_title: str) -> bool:
     return EmailSender(
         SERVER_PASSWORD_MAIL_ADDRESS,
         email,
-        CSV_MAIL_TOPIC,
+        CSV_MAIL_TOPIC.format(qcm_title=qcm_title),
         CSV_MAIL_CONTENT.format(email=email, qcm_title=qcm_title),
         attachment=path,
     ).send_message()
@@ -631,7 +635,7 @@ def create_app() -> Flask:
 
         if email_csv_was_sent(current_user.email, path, qcm.title):
             flash("Les résultats du QCM ont été envoyés sur votre email de contact")
-        return redirect(url_for("teacher"))
+        return redirect(url_for("view", id_qcm=qcm.id, inserted=0))
 
     @app.route("/student")
     def student():
