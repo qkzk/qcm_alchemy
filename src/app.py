@@ -89,6 +89,13 @@ https://qcmqkzk.fr/email_confirmation/{id_teacher}/{key}
 qcmqkzk
 
                     """
+
+CSV_MAIL_TOPIC = "qcmqkzk: résults pour votre QCM"
+CSV_MAIL_CONTENT = """
+Bonjour {email} !
+
+Voici les résultats de votre QCM: {qcm_title}
+"""
 DO_NOT_DELETE_FILENAMES = ("readme.md", "readme.txt")
 
 
@@ -281,7 +288,8 @@ def email_csv_was_sent(email: str, path: str, qcm_title: str) -> bool:
         SERVER_PASSWORD_MAIL_ADDRESS,
         email,
         CSV_MAIL_TOPIC,
-        CSV_MAIL_CONTENT.format(email=email, qcm_title=qcm_title, attachment=path),
+        CSV_MAIL_CONTENT.format(email=email, qcm_title=qcm_title),
+        attachment=path,
     ).send_message()
 
 
