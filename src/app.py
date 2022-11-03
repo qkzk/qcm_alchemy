@@ -612,13 +612,15 @@ def create_app() -> Flask:
     @login_required
     def email_export(id_qcm: int):
         if not current_user.is_confirmed:
+            print(f"current_user {current_user} isn't confirmed")
             return redirect(url_for("index"))
-        if not Qcm.id_teacher == current_user.id:
+        qcm = Qcm.query.get_or_404(id_qcm)
+        if not qcm.id_teacher == current_user.id:
+            print(f"current_user {current_user} isn't the owner of Qcm {qcm}")
             return redirect(url_for("index"))
         path = Work.write_export(id_qcm)
-        title = Qcm.query.get_or_404(id_qcm)
 
-        if email_csv_was_sent(current_user.email, path, title):
+        if email_csv_was_sent(current_user.email, path, qcm.title):
             flash("Les résultats du QCM ont été envoyés sur votre email de contact")
         return redirect(url_for("teacher"))
 
