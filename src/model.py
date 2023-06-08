@@ -205,7 +205,10 @@ class QcmPart(db.Model):
     @classmethod
     def from_parser(cls, parsed_part: QCM_Part) -> "QcmPart":
         """Creates a database part from  a parsed part."""
-        part = cls(title=parsed_part.title)
+        if parsed_part.text:
+            part = cls(title=parsed_part.title, text=parsed_part.text)
+        else:
+            part = cls(title=parsed_part.title)
 
         for parsed_question in parsed_part.questions:
             part.questions.append(QcmPartQuestion.from_parser(parsed_question))
