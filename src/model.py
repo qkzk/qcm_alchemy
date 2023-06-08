@@ -183,10 +183,11 @@ class QcmPart(db.Model):
 
     __tablename__ = "qcm_part"
     id = db.Column("id", db.Integer, primary_key=True)
-    title = db.Column(db.Text)
+    title = db.Column("title", db.Text)
     id_qcm = db.Column(
         "id_qcm", db.Integer, db.ForeignKey("qcm.id", ondelete="CASCADE")
     )
+    text = db.Column("text", db.Text)
     qcm = db.relationship("Qcm", back_populates="part", passive_deletes=True)
     questions = db.relationship(
         "QcmPartQuestion",
