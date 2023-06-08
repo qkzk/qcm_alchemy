@@ -206,6 +206,7 @@ class QcmPart(db.Model):
     def from_parser(cls, parsed_part: QCM_Part) -> "QcmPart":
         """Creates a database part from  a parsed part."""
         logger.warning(f"qcm part text: {parsed_part.text}")
+        print(f"qcm part text: {parsed_part.text}")
         if parsed_part.text:
             part = cls(title=parsed_part.title, text=parsed_part.text)
         else:
