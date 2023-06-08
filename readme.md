@@ -395,6 +395,10 @@ Last problem is QCM view for student. Check steps below
   | open / close       | easy          | not much                     |
 
 - [x] Heroku devient payant et le site est migré chez OVH : [qcmqkzk.fr](https://qcmqkzk.fr) qui est lui même payant mais moins cher.
+- [ ] Allow sub text in parts
+  - [ ] db: migration
+  - [ ] display in html
+  - [ ] tests
 
 ## Migration OVH
 
