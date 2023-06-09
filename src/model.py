@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 from random import randint, shuffle
 from typing import Union, Type
 
+
 from flask_login import UserMixin
 from qcm_parser.parser import ParseQCM, QCM_Part, QCM_Question, QCM_Answer
 from werkzeug.datastructures import FileStorage
@@ -183,10 +184,11 @@ class QcmPart(db.Model):
 
     __tablename__ = "qcm_part"
     id = db.Column("id", db.Integer, primary_key=True)
-    title = db.Column(db.Text)
+    title = db.Column("title", db.Text)
     id_qcm = db.Column(
         "id_qcm", db.Integer, db.ForeignKey("qcm.id", ondelete="CASCADE")
     )
+    text = db.Column("text", db.Text)
     qcm = db.relationship("Qcm", back_populates="part", passive_deletes=True)
     questions = db.relationship(
         "QcmPartQuestion",
@@ -204,7 +206,12 @@ class QcmPart(db.Model):
     @classmethod
     def from_parser(cls, parsed_part: QCM_Part) -> "QcmPart":
         """Creates a database part from  a parsed part."""
-        part = cls(title=parsed_part.title)
+        logger.warning(f"qcm part text: {parsed_part.text}")
+        print(f"qcm part text: {parsed_part.text}")
+        if parsed_part.text:
+            part = cls(title=parsed_part.title, text=parsed_part.text)
+        else:
+            part = cls(title=parsed_part.title)
 
         for parsed_question in parsed_part.questions:
             part.questions.append(QcmPartQuestion.from_parser(parsed_question))

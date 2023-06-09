@@ -357,18 +357,18 @@ Last problem is QCM view for student. Check steps below
   - [x] confirm real addresses
   - [x] change password
 - [x] parser : now detects code blocs properly, allowing lines starting with `#` in code blocks.
-- [ ] Flask-WTF
+- [x] Flask-WTF
   - [x] simple views (login, reset password, change password, student)
   - [x] new qcms
   - [x] csrf everywhere
-  - [ ] qcm views for student. [SO question](https://stackoverflow.com/questions/11622592/wtforms-create-variable-number-of-fields) [doc](https://wtforms.readthedocs.io/en/3.0.x/specific_problems/#dynamic-form-composition)
+  - [x] qcm views for student. [SO question](https://stackoverflow.com/questions/11622592/wtforms-create-variable-number-of-fields) [doc](https://wtforms.readthedocs.io/en/3.0.x/specific_problems/#dynamic-form-composition)
         must be dynamicly composed
         check for radio element insertion
         find a way to retrieve correct ids for question -> ansers and text-question -> text-answer
 - [x] Flash instead of message passing to views
-- [ ] hosting
-  - [ ] créer une adresse expres ?
-  - [ ] utiliser une adresse du nom de domaine ???
+- [x] hosting
+  - [x] créer une adresse expres ?
+  - [x] utiliser une adresse du nom de domaine ???
 - [ ] creates review for students... ????
 - [ ] send unique mails per students
   - [ ] student mailing list linked to group then to teacher
@@ -395,6 +395,7 @@ Last problem is QCM view for student. Check steps below
   | open / close       | easy          | not much                     |
 
 - [x] Heroku devient payant et le site est migré chez OVH : [qcmqkzk.fr](https://qcmqkzk.fr) qui est lui même payant mais moins cher.
+- [x] Permettre d'ajouter un texte en début de partie
 
 ## Migration OVH
 
@@ -472,4 +473,18 @@ sudo docker-compose ps
 -----------------------------------------------------------------------------------------------------
 postgres            docker-entrypoint.sh postgres    Up      0.0.0.0:5432->5432/tcp,:::5432->5432/tcp
 qcm_alchemy_app_1   gunicorn --bind 0.0.0.0:44 ...   Up      0.0.0.0:443->443/tcp,:::443->443/tcp
+```
+
+```bash
+debian@vps-659ff8f4:~/qcm_alchemy$ git diff
+diff --git a/server.sh b/server.sh
+index 2f2b62f..c56aee4 100755
+--- a/server.sh
++++ b/server.sh
+@@ -1,4 +1,4 @@
+ #!/usr/bin/sh
+
+-gunicorn wsgi:app -w 3 --threads 1 -b 0.0.0.0:8000 --config gunicorn_hooks_config.py
++gunicorn wsgi:app -w 3 --threads 1 -b 0.0.0.0:443
+ # gunicorn wsgi:app --config gunicorn_config.py
 ```

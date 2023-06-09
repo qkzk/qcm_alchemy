@@ -17,7 +17,8 @@ def create_logger() -> logging.Logger:
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
     file_handler = logging.handlers.RotatingFileHandler(
-        filename=LOGFILE,
+        # filename=LOGFILE,
+        filename="/var/log/flask.log",
         maxBytes=5 * 1024 * 1024,
         backupCount=5,
     )

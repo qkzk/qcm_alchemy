@@ -89,6 +89,17 @@ https://qcmqkzk.fr/email_confirmation/{id_teacher}/{key}
 qcmqkzk
 
                     """
+
+CSV_MAIL_TOPIC = "qcmqkzk: résultats pour votre QCM {qcm_title}"
+
+CSV_MAIL_CONTENT = """
+Bonjour {email} !
+
+Voici les résultats de votre QCM: {qcm_title}.
+
+qcmqkzk
+"""
+
 DO_NOT_DELETE_FILENAMES = ("readme.md", "readme.txt")
 
 
@@ -97,21 +108,23 @@ def clear_records_and_files():
     start_message = "cleaner started"
     print(start_message)
     logger.warning(start_message)
-    deleted = {
-        "Qcm": Qcm.clear_old_records(hours=24 * 7),
-        "Student": Student.clear_old_records(hours=24 * 7),
-        "ResetKey": ResetKey.clear_old_records(hours=3),
-        "EmailConfirmation": EmailConfirmation.clear_old_records(hours=3),
-        "UPLOAD_FOLDER": delete_old_files("UPLOAD_FOLDER"),
-        "DOWNLOAD_FOLDER": delete_old_files("DOWNLOAD_FOLDER"),
-    }
-    if any(deleted.values()):
-        warning = f"deleted: {deleted}"
-        print(warning)
-        logger.warning(warning)
-    completed_message = "cleaner completed"
-    print(completed_message)
-    logger.warning(completed_message)
+
+    with app.app_context():
+        deleted = {
+            "Qcm": Qcm.clear_old_records(hours=24 * 7),
+            "Student": Student.clear_old_records(hours=24 * 7),
+            "ResetKey": ResetKey.clear_old_records(hours=3),
+            "EmailConfirmation": EmailConfirmation.clear_old_records(hours=3),
+            "UPLOAD_FOLDER": delete_old_files("UPLOAD_FOLDER"),
+            "DOWNLOAD_FOLDER": delete_old_files("DOWNLOAD_FOLDER"),
+        }
+        if any(deleted.values()):
+            warning = f"deleted: {deleted}"
+            print(warning)
+            logger.warning(warning)
+        completed_message = "cleaner completed"
+        print(completed_message)
+        logger.warning(completed_message)
 
 
 def delete_old_files(env_name: str) -> list[str]:
@@ -273,6 +286,16 @@ def email_reset_password_was_sent(email: str, id_teacher: int, reset_key: str) -
         email,
         RESET_PASSWORD_MAIL_TOPIC,
         RESET_PASSWORD_MAIL_CONTENT.format(id_teacher=id_teacher, key=reset_key),
+    ).send_message()
+
+
+def email_csv_was_sent(email: str, path: str, qcm_title: str) -> bool:
+    return EmailSender(
+        SERVER_PASSWORD_MAIL_ADDRESS,
+        email,
+        CSV_MAIL_TOPIC.format(qcm_title=qcm_title),
+        CSV_MAIL_CONTENT.format(email=email, qcm_title=qcm_title),
+        attachment=path,
     ).send_message()
 
 
@@ -599,6 +622,24 @@ def create_app() -> Flask:
         directory = os.path.join(os.getcwd(), app.config["DOWNLOAD_FOLDER"])
         return send_from_directory(directory=directory, path=path)
 
+    @app.route("/email_export/<int:id_qcm>")
+    @login_required
+    def email_export(id_qcm: int):
+        if not current_user.is_confirmed:
+            print(f"current_user {current_user} isn't confirmed")
+            return redirect(url_for("index"))
+        qcm = Qcm.query.get_or_404(id_qcm)
+        if not qcm.id_teacher == current_user.id:
+            print(f"current_user {current_user} isn't the owner of Qcm {qcm}")
+            return redirect(url_for("index"))
+        filename = Work.write_export(id_qcm)
+        path = os.path.join(os.getcwd(), app.config["DOWNLOAD_FOLDER"], filename)
+
+        if email_csv_was_sent(current_user.email, path, qcm.title):
+            print("Email with CSV sent to {current_user} for QCM {qcm.id}")
+            flash("Les résultats du QCM ont été envoyés sur votre email de contact")
+        return redirect(url_for("view", id_qcm=qcm.id, inserted=0))
+
     @app.route("/student")
     def student():
         form = StudentForm()
@@ -734,6 +775,7 @@ def create_app() -> Flask:
         return redirect(next)
 
     # db.drop_all()
-    db.create_all()
+    with app.app_context():
+        db.create_all()
 
     return app
