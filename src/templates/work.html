@@ -42,6 +42,11 @@
         <h2 class="part-title">
             {{ part.title|safe }}
         </h2>
+        {% if part.text %}
+          <h3>
+            {{ part.text|safe }}
+          </h3>
+        {% endif %}
         {% for question in part.questions %}
         <div class="question-answers">
             <h3 class="question-question">
