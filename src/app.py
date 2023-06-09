@@ -108,21 +108,23 @@ def clear_records_and_files():
     start_message = "cleaner started"
     print(start_message)
     logger.warning(start_message)
-    deleted = {
-        "Qcm": Qcm.clear_old_records(hours=24 * 7),
-        "Student": Student.clear_old_records(hours=24 * 7),
-        "ResetKey": ResetKey.clear_old_records(hours=3),
-        "EmailConfirmation": EmailConfirmation.clear_old_records(hours=3),
-        "UPLOAD_FOLDER": delete_old_files("UPLOAD_FOLDER"),
-        "DOWNLOAD_FOLDER": delete_old_files("DOWNLOAD_FOLDER"),
-    }
-    if any(deleted.values()):
-        warning = f"deleted: {deleted}"
-        print(warning)
-        logger.warning(warning)
-    completed_message = "cleaner completed"
-    print(completed_message)
-    logger.warning(completed_message)
+
+    with app.app_context():
+        deleted = {
+            "Qcm": Qcm.clear_old_records(hours=24 * 7),
+            "Student": Student.clear_old_records(hours=24 * 7),
+            "ResetKey": ResetKey.clear_old_records(hours=3),
+            "EmailConfirmation": EmailConfirmation.clear_old_records(hours=3),
+            "UPLOAD_FOLDER": delete_old_files("UPLOAD_FOLDER"),
+            "DOWNLOAD_FOLDER": delete_old_files("DOWNLOAD_FOLDER"),
+        }
+        if any(deleted.values()):
+            warning = f"deleted: {deleted}"
+            print(warning)
+            logger.warning(warning)
+        completed_message = "cleaner completed"
+        print(completed_message)
+        logger.warning(completed_message)
 
 
 def delete_old_files(env_name: str) -> list[str]:
