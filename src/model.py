@@ -12,9 +12,6 @@ from datetime import datetime, timedelta
 from random import randint, shuffle
 from typing import Union, Type
 
-from flask import Blueprint, current_app
-import logging
-
 
 from flask_login import UserMixin
 from qcm_parser.parser import ParseQCM, QCM_Part, QCM_Question, QCM_Answer
@@ -29,12 +26,6 @@ from .create_app import (
     ALLOWED_EXTENSIONS,
 )
 from .logger import logger
-
-logging.basicConfig(
-    filename="/var/log/flask.log",
-    level=logging.DEBUG,
-    format=f"%(asctime)s %(levelname)s %(" f"name)s %(threadName)s : %(message)s",
-)
 
 
 def get_join_path_from_key(key: str, filename: str) -> str:
@@ -216,7 +207,6 @@ class QcmPart(db.Model):
     def from_parser(cls, parsed_part: QCM_Part) -> "QcmPart":
         """Creates a database part from  a parsed part."""
         logger.warning(f"qcm part text: {parsed_part.text}")
-        current_app.logger.info(f"qcm part text: {parsed_part.text}")
         print(f"qcm part text: {parsed_part.text}")
         if parsed_part.text:
             part = cls(title=parsed_part.title, text=parsed_part.text)
