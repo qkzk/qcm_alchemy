@@ -396,6 +396,7 @@ Last problem is QCM view for student. Check steps below
 
 - [x] Heroku devient payant et le site est migré chez OVH : [qcmqkzk.fr](https://qcmqkzk.fr) qui est lui même payant mais moins cher.
 - [x] Permettre d'ajouter un texte en début de partie
+- [x] Afficher la date prévue pour la suppression du QCM. Les durées de vie sont spécifiques à chaque modèle implémentant la suppression.
 
 ## Migration OVH
 
