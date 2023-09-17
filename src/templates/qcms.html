@@ -12,7 +12,8 @@
             <tr>
                 <th>id</th>
                 <th>titre</th>
-                <th>date</th>
+                <th>ajouté le</th>
+                <th>supprimé le</th>
                 <th>réponses</th>
                 <th>effacer</th>
                 <th>fermer</th>
@@ -35,7 +36,12 @@
                     </td>
                     <td>
                         <a href="{{ url_for('view', id_qcm=qcm.id, inserted=0) }}">
-                            {{ qcm.datetime_formated() }}
+                            {{ qcm.insertion_datetime_formated() }}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('view', id_qcm=qcm.id, inserted=0) }}">
+                            {{ qcm.deletion_datetime_formated() }}
                         </a>
                     </td>
                     <td>

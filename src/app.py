@@ -111,10 +111,12 @@ def clear_records_and_files():
 
     with app.app_context():
         deleted = {
-            "Qcm": Qcm.clear_old_records(hours=24 * 7),
-            "Student": Student.clear_old_records(hours=24 * 7),
-            "ResetKey": ResetKey.clear_old_records(hours=3),
-            "EmailConfirmation": EmailConfirmation.clear_old_records(hours=3),
+            "Qcm": Qcm.clear_old_records(hours=Qcm.LIFESPAN),
+            "Student": Student.clear_old_records(hours=Student.LIFESPAN),
+            "ResetKey": ResetKey.clear_old_records(hours=ResetKey.LIFESPAN),
+            "EmailConfirmation": EmailConfirmation.clear_old_records(
+                hours=EmailConfirmation.LIFESPAN
+            ),
             "UPLOAD_FOLDER": delete_old_files("UPLOAD_FOLDER"),
             "DOWNLOAD_FOLDER": delete_old_files("DOWNLOAD_FOLDER"),
         }

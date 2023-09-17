@@ -45,7 +45,7 @@ class SupportsClearOldRecords:
     """
 
     @classmethod
-    def clear_old_records(cls, hours: int = 48) -> int:
+    def clear_old_records(cls, hours: int = 24 * 7) -> int:
         """
         Self cleaning of the database. Uses the ForeignKey to clean children as well.
         Returns the number of deleted rows.
@@ -63,6 +63,15 @@ class Qcm(db.Model, SupportsClearOldRecords):
     Its childen (`QcmPart`) holds questions which holds answers.
     It is created after the parsing of a .md file.
     """
+
+    LIFESPAN = 24 * 7
+    """
+    Qcm are deleted after 7 days (ie 7 * 24 hours).
+    Both objets have a `clear_old_records` method which does that.
+    """
+
+    __timeformat = "%a %d %b %Y - %H:%M"
+    """Time format to display insertion and scheduled deletion datetime"""
 
     __tablename__ = "qcm"
     id = db.Column("id", db.Integer, primary_key=True)
@@ -121,18 +130,6 @@ class Qcm(db.Model, SupportsClearOldRecords):
         """True iff there's submitted works for this QCM"""
         return self.count_works() > 0
 
-    # @classmethod
-    # def clear_old_records(cls) -> int:
-    #     """Self cleaning of the database. Uses the ForeignKey to clean children as well."""
-    #     now = datetime.now()
-    #     two_days_ago = now - timedelta(hours=48)
-    #     deleted = cls.query.filter(cls.datetime < two_days_ago).delete()
-    #     # warning = f"{cls.__name__} deleted {deleted}"
-    #     # print(warning)
-    #     # logger.warning(warning)
-    #     db.session.commit()
-    #     return deleted
-
     def shuffled_parts(self) -> list["QcmPart"]:
         """
         Shuffle the parts to randomize the QCM.
@@ -159,9 +156,15 @@ class Qcm(db.Model, SupportsClearOldRecords):
         db.session.delete(self)
         db.session.commit()
 
-    def datetime_formated(self) -> str:
-        """Format the date for presentation"""
-        return self.datetime.strftime("%a %d %b %Y - %H:%M")
+    def insertion_datetime_formated(self) -> str:
+        """Format the insertion date for presentation"""
+        return self.datetime.strftime(self.__timeformat)
+
+    def deletion_datetime_formated(self) -> str:
+        """Format the scheduled deletion date for presentation"""
+        return (self.datetime + timedelta(hours=self.LIFESPAN)).strftime(
+            self.__timeformat
+        )
 
     def toggle_open(self):
         """Toggle the status open/close of a QCM"""
@@ -323,6 +326,12 @@ class Student(db.Model, SupportsClearOldRecords):
     Holds the information about our students.
     We records only their name and their answers. Thoses answers can't be retrieved yet.
     All we can do is get their score.
+    """
+
+    LIFESPAN = 24 * 7
+    """
+    Student are deleted after 7 days (ie 7 * 24 hours).
+    Both objets have a `clear_old_records` method which does that.
     """
 
     __tablename__ = "student"
@@ -679,6 +688,12 @@ class ResetKey(db.Model, SupportsClearOldRecords):
     Holds the reset key
     """
 
+    LIFESPAN = 3
+    """
+    ResetKey and EmailConfirmation are deleted after 3 hours.
+    Both objects have a `clear_old_records` method which does that.
+    """
+
     __tablename__ = "reset_key"
     id = db.Column("id", db.Integer, primary_key=True)
     key = db.Column("key", db.Text, nullable=False)
@@ -733,6 +748,12 @@ class ResetKey(db.Model, SupportsClearOldRecords):
 class EmailConfirmation(db.Model, SupportsClearOldRecords):
     """
     Holds the confirmation key
+    """
+
+    LIFESPAN = 3
+    """
+    EmailConfirmation are deleted after 3 hours.
+    Both objects have a `clear_old_records` method which does that.
     """
 
     __tablename__ = "confirmation_key"
